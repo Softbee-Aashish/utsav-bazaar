@@ -2,11 +2,11 @@
 import { FESTIVE_PRODUCTS } from '../components/ProductData.js';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'utsav_products_v5',
-  DISCOUNT_BAR: 'utsav_discount_bar_v5',
-  GOOGLE_SHEET_URL: 'utsav_gsheet_url_v5',
-  REVIEWS: 'utsav_product_reviews_v5',
-  ORDERS: 'utsav_orders_v5'
+  PRODUCTS: 'utsav_products_v6',
+  DISCOUNT_BAR: 'utsav_discount_bar_v6',
+  GOOGLE_SHEET_URL: 'utsav_gsheet_url_v6',
+  REVIEWS: 'utsav_product_reviews_v6',
+  ORDERS: 'utsav_orders_v6'
 };
 
 export class ProductStore {
@@ -35,6 +35,16 @@ export class ProductStore {
       const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (saved) {
         this.products = JSON.parse(saved);
+        // Ensure all products have real imageUrl backfilled from FESTIVE_PRODUCTS
+        let updated = false;
+        this.products.forEach(p => {
+          const match = FESTIVE_PRODUCTS.find(fp => fp.id === p.id);
+          if (match && (!p.imageUrl || p.imageUrl.trim() === '')) {
+            p.imageUrl = match.imageUrl;
+            updated = true;
+          }
+        });
+        if (updated) this.saveProductsToStorage();
       } else {
         // Seed initial products with original marked prices & discounts
         this.products = FESTIVE_PRODUCTS.map(p => {

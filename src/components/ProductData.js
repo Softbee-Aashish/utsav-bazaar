@@ -22,7 +22,8 @@ export const FESTIVE_PRODUCTS = [
       "Tarnish-resistant natural lacquer finish"
     ],
     accentColor: "#D4AF37",
-    svgIcon: "diya"
+    svgIcon: "diya",
+    imageUrl: "/assets/products/diya_peacock.jpg"
   },
   {
     id: "ub-002",
@@ -46,7 +47,8 @@ export const FESTIVE_PRODUCTS = [
       "Re-usable heirloom keepsake jewel chest with brass clasp"
     ],
     accentColor: "#9B111E",
-    svgIcon: "hamper"
+    svgIcon: "hamper",
+    imageUrl: "/assets/products/hamper_chest.jpg"
   },
   {
     id: "ub-003",
@@ -70,7 +72,8 @@ export const FESTIVE_PRODUCTS = [
       "Dual use: traditional wick candle or warm LED puck"
     ],
     accentColor: "#FF8C00",
-    svgIcon: "lantern"
+    svgIcon: "lantern",
+    imageUrl: "/assets/products/lantern_jali.jpg"
   },
   {
     id: "ub-004",
@@ -94,7 +97,8 @@ export const FESTIVE_PRODUCTS = [
       "Certified authenticity seal from Rajasthan artisans"
     ],
     accentColor: "#0E4D44",
-    svgIcon: "jewelry"
+    svgIcon: "jewelry",
+    imageUrl: "/assets/products/necklace_polki.jpg"
   },
   {
     id: "ub-005",
@@ -118,7 +122,8 @@ export const FESTIVE_PRODUCTS = [
       "Aromatherapy notes: Sandalwood, Camphor, Damask Rose"
     ],
     accentColor: "#8D5B4C",
-    svgIcon: "aromatics"
+    svgIcon: "aromatics",
+    imageUrl: "/assets/products/temple_incense.jpg"
   },
   {
     id: "ub-006",
@@ -142,7 +147,8 @@ export const FESTIVE_PRODUCTS = [
       "Perfect for floral water rangolis and entrance decor"
     ],
     accentColor: "#D4AF37",
-    svgIcon: "urli"
+    svgIcon: "urli",
+    imageUrl: "/assets/products/urli_lotus.jpg"
   },
   {
     id: "ub-007",
@@ -166,7 +172,8 @@ export const FESTIVE_PRODUCTS = [
       "Non-fading rich crimson velvet with golden gota fringe"
     ],
     accentColor: "#E01E5A",
-    svgIcon: "toran"
+    svgIcon: "toran",
+    imageUrl: "/assets/products/toran_velvet.jpg"
   },
   {
     id: "ub-008",
@@ -190,7 +197,8 @@ export const FESTIVE_PRODUCTS = [
       "Resonant acoustic chime bell with harmonic overtone"
     ],
     accentColor: "#FFD700",
-    svgIcon: "diya"
+    svgIcon: "diya",
+    imageUrl: "/assets/products/hanging_diya.jpg"
   },
   {
     id: "ub-009",
@@ -214,7 +222,8 @@ export const FESTIVE_PRODUCTS = [
       "Breathable organic cotton inner lining for festive comfort"
     ],
     accentColor: "#D4AF37",
-    svgIcon: "apparel"
+    svgIcon: "apparel",
+    imageUrl: "/assets/products/kurta_benarasi.jpg"
   },
   {
     id: "ub-010",
@@ -238,7 +247,8 @@ export const FESTIVE_PRODUCTS = [
       "Certified Silk Mark of India authentic handloom"
     ],
     accentColor: "#E01E5A",
-    svgIcon: "apparel"
+    svgIcon: "apparel",
+    imageUrl: "/assets/products/dupatta_chanderi.jpg"
   }
 ];
 

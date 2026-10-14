@@ -33,9 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Probe assets directory for pre-extracted AI frames
-  frameLoader.probeAssetsDirectory().catch(() => {});
-
   // 2. Initialize Scene Renderer
   const sceneRenderer = new SceneRenderer(canvas, frameLoader);
 

@@ -62,24 +62,7 @@ export class StoryOverlay {
 
   render() {
     this.container.innerHTML = `
-      <!-- Hidden file input for custom frame sequence if needed -->
-      <input type="file" id="frames-file-input" multiple accept="image/*" style="display:none;" />
-
-      <!-- Right Scene Navigation Timeline -->
-      <nav class="scene-nav" aria-label="Scene Navigator">
-        ${this.sceneData.map((s, idx) => `
-          <button class="scene-pill ${idx === 0 ? 'active' : ''}" data-scene="${idx}">
-            <span class="pill-number">0${idx + 1}</span>
-            <span class="pill-label">${s.subtitle.split(' ')[1] || s.subtitle}</span>
-          </button>
-        `).join('')}
-        <button class="scene-pill shop-jump-pill" id="jump-to-shop-pill">
-          <span class="pill-number">🛍️</span>
-          <span class="pill-label">Shop</span>
-        </button>
-      </nav>
-
-      <!-- Center Stage: Grand Hero Title in Dead Center of the Skyburst -->
+      <!-- Center Stage: Grand Hero Title in Dead Center of the Skyburst (Revealed at Scene 5) -->
       <div class="story-center-stage">
         <!-- Scene 5 Finale Hero Title -->
         <div class="hero-finale-reveal" id="hero-finale-reveal">
@@ -98,24 +81,6 @@ export class StoryOverlay {
             </button>
           </div>
         </div>
-      </div>
-
-      <!-- Story Narrative Overlay Cards (Scenes 1 to 5) -->
-      <div class="story-cards-container" id="story-cards-container">
-        ${this.sceneData.map((s, idx) => `
-          <div class="story-card" id="story-card-${idx}">
-            <div class="story-tag" style="color: ${s.accent}; text-shadow: 0 0 10px ${s.accent}40;">
-              ${s.tag}
-            </div>
-            <h2 class="story-title">
-              <span class="story-title-hi">${s.titleHi}</span>
-              <span class="story-title-divider">•</span>
-              <span class="story-title-en">${s.title}</span>
-            </h2>
-            <div class="story-subtitle">${s.subtitle}</div>
-            <p class="story-caption">${s.caption}</p>
-          </div>
-        `).join('')}
       </div>
 
       <!-- Bottom Scroll Indicator & Progress Bar -->
@@ -199,63 +164,6 @@ export class StoryOverlay {
     const fill = this.container.querySelector('#hud-progress-fill');
     if (fill) {
       fill.style.width = `${Math.min(100, globalProgress * 100)}%`;
-    }
-
-    // Update active scene pill
-    const pills = this.container.querySelectorAll('.scene-pill[data-scene]');
-    pills.forEach((p, idx) => {
-      if (idx === sceneIndex) {
-        p.classList.add('active');
-      } else {
-        p.classList.remove('active');
-      }
-    });
-
-    // Story Cards visibility logic for Scenes 1 to 5
-    for (let idx = 0; idx < 5; idx++) {
-      const card = this.container.querySelector(`#story-card-${idx}`);
-      if (!card) continue;
-
-      if (idx === sceneIndex) {
-        if (idx === 4) {
-          // Scene 5: show story card initially until finale reveal blooms at localProgress >= 0.20
-          if (localProgress < 0.20) {
-            const a = Math.max(0, 1 - (localProgress / 0.20));
-            card.style.opacity = a;
-            card.style.transform = `translateX(-50%) translateY(${(1 - a) * 8}px)`;
-            card.style.visibility = a > 0.01 ? 'visible' : 'hidden';
-          } else {
-            card.style.opacity = '0';
-            card.style.visibility = 'hidden';
-          }
-        } else if (idx === 0) {
-          // Scene 1: fully visible immediately on page load, gently fades out when nearing Scene 2
-          let alpha = 1;
-          if (localProgress > 0.85) {
-            alpha = (1 - localProgress) / 0.15;
-          }
-          alpha = Math.max(0, Math.min(1, alpha));
-          card.style.opacity = alpha;
-          card.style.transform = `translateX(-50%) translateY(${(1 - alpha) * 8}px)`;
-          card.style.visibility = alpha > 0.01 ? 'visible' : 'hidden';
-        } else {
-          // Scenes 2, 3, 4:
-          // Smooth fade in on entry (0.0 to 0.15), solid hold (0.15 to 0.85), smooth fade out on exit (0.85 to 1.0)
-          let alpha = 1;
-          if (localProgress < 0.15) {
-            alpha = localProgress / 0.15;
-          } else if (localProgress > 0.85) {
-            alpha = (1 - localProgress) / 0.15;
-          }
-          alpha = Math.max(0, Math.min(1, alpha));
-          card.style.opacity = alpha;
-          card.style.transform = `translateX(-50%) translateY(${(1 - alpha) * 8}px)`;
-          card.style.visibility = alpha > 0.01 ? 'visible' : 'hidden';
-        }
-      } else {
-        card.style.opacity = '0';
-        card.style.visibility = 'hidden';
-      }
     }
 
     // Finale Reveal in Scene 5 (blooms in dead center as celestial explosion expands)

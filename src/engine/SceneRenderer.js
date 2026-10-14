@@ -51,6 +51,7 @@ export class SceneRenderer {
     img.src = src;
     img.onload = () => {
       img._isReady = true;
+      this.render();
     };
     return img;
   }
@@ -323,16 +324,16 @@ export class SceneRenderer {
     return true;
   }
 
-  // Soft single-pass outer edge vignette
+  // Soft single-pass outer edge vignette (subtle framing without darkening the scenes)
   drawEdgeVignette() {
     this.ctx.save();
-    const minDim = Math.min(this.width, this.height);
+    const maxDim = Math.max(this.width, this.height);
     const vignette = this.ctx.createRadialGradient(
-      this.width / 2, this.height / 2, minDim * 0.44,
-      this.width / 2, this.height / 2, minDim * 0.72
+      this.width / 2, this.height / 2, maxDim * 0.45,
+      this.width / 2, this.height / 2, maxDim * 0.75
     );
     vignette.addColorStop(0, 'rgba(0,0,0,0)');
-    vignette.addColorStop(1, 'rgba(0,0,0,0.85)');
+    vignette.addColorStop(1, 'rgba(0,0,0,0.35)');
     this.ctx.fillStyle = vignette;
     this.ctx.fillRect(0, 0, this.width, this.height);
     this.ctx.restore();
