@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utsav Bazaar (उत्सव बाज़ार) — Royal 3D Festive Marketplace</title>
+  <meta name="description" content="Experience the 3D cinematic Diwali journey and explore handcrafted royal brass diyas, artisanal festive hampers, and sacred Indian heirlooms.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪔</text></svg>">
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+
+  <!-- Luxury Sticky Navbar -->
+  <div id="nav-container"></div>
+
+  <!-- 3D Scroll Journey Section (Sticky Viewport pinned for 5 Storyboard Scenes) -->
+  <section id="scroll-track">
+    <div class="sticky-viewport">
+      <canvas id="scene-canvas"></canvas>
+      <div class="hud-overlay-container" id="hud-overlay"></div>
+    </div>
+  </section>
+
+  <!-- The Festive Marketplace & Storefront -->
+  <main id="shop-container"></main>
+
+  <!-- Festive Thali (Cart Drawer) -->
+  <div id="cart-container"></div>
+
+  <!-- Quick View Modal -->
+  <div id="quickview-container"></div>
+
+  <!-- Merchant Admin Suite Panel -->
+  <div id="admin-container"></div>
+
+  <!-- Festive Footer -->
+  <footer class="festive-site-footer" style="background:#020104; border-top:1px solid rgba(212,175,55,0.2); padding:60px 40px 30px; text-align:center; color:#94A3B8;">
+    <div style="max-width:900px; margin:0 auto;">
+      <div style="font-size:32px; margin-bottom:12px;">🪔</div>
+      <h3 style="font-family:'Cinzel', serif; font-size:22px; color:#FFF; margin-bottom:8px; letter-spacing:0.15em;">UTSAV BAZAAR • उत्सव बाज़ार</h3>
+      <p style="font-family:'Cormorant Garamond', serif; font-size:18px; color:#D4AF37; margin-bottom:24px; font-style:italic;">
+        "Deepo Jyoti Parabrahma, Deepo Jyoti Janardhana" — May the sacred light dispel all darkness and illuminate your home with prosperity.
+      </p>
+      <div style="display:flex; justify-content:center; gap:24px; flex-wrap:wrap; font-size:13px; margin-bottom:30px;">
+        <span style="color:#FFF;">Direct Artisan Trade</span>
+        <span>•</span>
+        <span style="color:#FFF;">Sacred Temple Blessing</span>
+        <span>•</span>
+        <span style="color:#FFF;">Zero-Waste Handcrafted Packaging</span>
+        <span>•</span>
+        <span style="color:#FFF;">Pan-India & Worldwide Shipping</span>
+      </div>
+      <div style="font-size:11px; color:#64748B; border-top:1px solid rgba(255,255,255,0.06); padding-top:20px;">
+        <span id="footer-copyright-trigger" style="cursor: pointer; user-select: none;" title="Double-click to open Admin Panel">
+          © 2026 Utsav Bazaar Inc. All Rights Reserved. Crafted with pure devotion for festival lovers worldwide.
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
