@@ -6,6 +6,7 @@ import { ScrollScrubber } from './engine/ScrollScrubber.js';
 import { StoryOverlay } from './components/StoryOverlay.js';
 import { Navbar } from './components/Navbar.js';
 import { ShopSection } from './components/ShopSection.js';
+import { ProductPage } from './components/ProductPage.js';
 import { CartDrawer } from './components/CartDrawer.js';
 import { QuickViewModal } from './components/QuickViewModal.js';
 import { AdminPanel } from './components/AdminPanel.js';
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const scrollTrack = document.querySelector('#scroll-track');
   const hudContainer = document.querySelector('#hud-overlay');
   const navContainer = document.querySelector('#nav-container');
+  const productPageContainer = document.querySelector('#product-page-container');
   const shopContainer = document.querySelector('#shop-container');
   const cartContainer = document.querySelector('#cart-container');
   const qvContainer = document.querySelector('#quickview-container');
@@ -36,9 +38,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 2. Initialize Scene Renderer
   const sceneRenderer = new SceneRenderer(canvas, frameLoader);
 
-  // 3. Initialize Cart, Quick View & Admin components
+  // 3. Initialize Cart & Admin components
   let cartDrawer = null;
   let navbar = null;
+  let productPage = null;
 
   const adminPanel = new AdminPanel(adminContainer);
 
@@ -50,12 +53,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     cartDrawer.addItem(product);
   });
 
-  // 4. Initialize Navbar with Cart and Admin Triggers
+  // 4. Initialize Dedicated Flipkart/Amazon Style Product Page
+  productPage = new ProductPage(
+    productPageContainer,
+    (product) => {
+      cartDrawer.addItem(product);
+      soundManager.playCelebrationChime();
+    },
+    (product, qty = 1) => {
+      for (let i = 0; i < qty; i++) {
+        cartDrawer.addItem(product);
+      }
+      soundManager.playCelebrationChime();
+      cartDrawer.openGuestCheckout();
+    }
+  );
+
+  // 5. Initialize Navbar with Mobile Menu, Theme Toggle, & Separate Product Page
   navbar = new Navbar(
     navContainer,
     soundManager,
     () => cartDrawer.open(),
-    () => adminPanel.open()
+    () => adminPanel.open(),
+    (category = 'all') => {
+      // Show Dedicated All Products Page
+      if (scrollTrack) scrollTrack.style.display = 'none';
+      if (shopContainer) shopContainer.style.display = 'none';
+      productPage.showListing(category);
+    },
+    () => {
+      // Return to Home Journey
+      if (scrollTrack) scrollTrack.style.display = 'block';
+      if (shopContainer) shopContainer.style.display = 'block';
+      productPage.hide();
+    }
   );
 
   // Footer Copyright Double-Click Admin Trigger
@@ -83,20 +114,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 5. Initialize Shop Section
+  // 6. Initialize Home Shop Section
   new ShopSection(
     shopContainer,
     (product) => {
       cartDrawer.addItem(product);
-      // Optional subtle audio chime on add
       soundManager.playCelebrationChime();
     },
     (product) => {
+      // When clicking quickview, also open detailed product page or modal
       quickViewModal.open(product);
     }
   );
 
-  // 6. Initialize Scroll Scrubber with Lerp Easing
+  // Global event delegation for product card clicks on home storefront to open full detail page
+  document.addEventListener('open-product-detail', (e) => {
+    const { productId } = e.detail;
+    if (productId) {
+      if (scrollTrack) scrollTrack.style.display = 'none';
+      if (shopContainer) shopContainer.style.display = 'none';
+      productPage.showProductDetail(productId);
+    }
+  });
+
+  // 7. Initialize Scroll Scrubber with Lerp Easing
   const scrubber = new ScrollScrubber({
     container: scrollTrack,
     lerpFactor: 0.085,
@@ -111,13 +152,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // 7. Initialize Story Typographic Overlay & HUD
+  // 8. Initialize Story Typographic Overlay & HUD
   const storyOverlay = new StoryOverlay(hudContainer, scrubber, frameLoader);
 
   // First render pass
   sceneRenderer.render();
 
-  // 8. Auto-unlock Web Audio on first user interaction & start sweet melody
+  // 9. Auto-unlock Web Audio on first user interaction & start sweet melody
   const unlockAudio = () => {
     soundManager.init();
     if (soundManager.isMuted) {

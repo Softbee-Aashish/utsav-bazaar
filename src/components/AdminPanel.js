@@ -90,13 +90,28 @@ export class AdminPanel {
                 </div>
 
                 <div class="form-group">
-                  <label>Tagline / Sacred Inscription</label>
-                  <input type="text" id="edit-tagline" class="admin-input" placeholder="Hand-chiseled solid virgin brass with peacock finial" />
+                  <label>Hero Small Description / Short Summary *</label>
+                  <input type="text" id="edit-tagline" class="admin-input" placeholder="e.g. Flora Planet Wild Artificial Flower Plants with Cute Ceramic Pot | Tabletop Decor" />
+                  <span class="admin-hint-text">Appears prominently above the price, buy buttons, and key highlights.</span>
                 </div>
 
                 <div class="form-group">
-                  <label>Full Story & Description</label>
-                  <textarea id="edit-description" class="admin-textarea" rows="4" placeholder="Detailed artisanal story, dimensions, and craft lineage..."></textarea>
+                  <div class="rte-label-row">
+                    <label>Full Story & Rich Product Content (Bold, Italic, Color, Lists)</label>
+                    <div class="rte-toolbar" id="editor-rte-toolbar">
+                      <button type="button" class="rte-btn" data-rte="bold" title="Bold"><strong>B</strong></button>
+                      <button type="button" class="rte-btn" data-rte="italic" title="Italic"><em>I</em></button>
+                      <button type="button" class="rte-btn" data-rte="underline" title="Underline"><u>U</u></button>
+                      <button type="button" class="rte-btn" data-rte="list" title="Bullet List">• List</button>
+                      <button type="button" class="rte-btn" data-rte="h3" title="Heading">H3</button>
+                      <div class="rte-color-picker-wrap" title="Text Color">
+                        <span class="color-indicator" id="rte-color-indicator" style="background:#D4AF37;"></span>
+                        <input type="color" id="rte-color-input" value="#D4AF37" />
+                      </div>
+                    </div>
+                  </div>
+                  <textarea id="edit-description" class="admin-textarea" rows="5" placeholder="Detailed artisanal story, dimensions, craft lineage, and styling recommendations..."></textarea>
+                  <span class="admin-hint-text">Select text and click toolbar buttons (Bold, Italic, Color) to format rich product description.</span>
                 </div>
               </div>
 
@@ -736,6 +751,60 @@ export class AdminPanel {
           this.updateImagePreview(url);
         }
       });
+    }
+
+    // Rich Text Editor Toolbar Actions (Bold, Italic, Underline, Bullet List, Heading, Color)
+    const rteToolbar = this.container.querySelector('#editor-rte-toolbar');
+    const descTextarea = this.container.querySelector('#edit-description');
+    if (rteToolbar && descTextarea) {
+      rteToolbar.querySelectorAll('.rte-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const action = btn.getAttribute('data-rte');
+          const start = descTextarea.selectionStart;
+          const end = descTextarea.selectionEnd;
+          const selectedText = descTextarea.value.substring(start, end) || 'text';
+          let replacement = '';
+
+          switch (action) {
+            case 'bold':
+              replacement = `<b>${selectedText}</b>`;
+              break;
+            case 'italic':
+              replacement = `<i>${selectedText}</i>`;
+              break;
+            case 'underline':
+              replacement = `<u>${selectedText}</u>`;
+              break;
+            case 'list':
+              replacement = `\n• ${selectedText}`;
+              break;
+            case 'h3':
+              replacement = `<h3>${selectedText}</h3>`;
+              break;
+            default:
+              replacement = selectedText;
+          }
+
+          descTextarea.setRangeText(replacement, start, end, 'select');
+          descTextarea.focus();
+        });
+      });
+
+      const colorInput = this.container.querySelector('#rte-color-input');
+      const colorIndicator = this.container.querySelector('#rte-color-indicator');
+      if (colorInput) {
+        colorInput.addEventListener('input', (e) => {
+          const color = e.target.value;
+          if (colorIndicator) colorIndicator.style.background = color;
+          const start = descTextarea.selectionStart;
+          const end = descTextarea.selectionEnd;
+          const selectedText = descTextarea.value.substring(start, end) || 'colored text';
+          const replacement = `<span style="color:${color};">${selectedText}</span>`;
+          descTextarea.setRangeText(replacement, start, end, 'select');
+          descTextarea.focus();
+        });
+      }
     }
 
     // Discount & Festive Bar Form

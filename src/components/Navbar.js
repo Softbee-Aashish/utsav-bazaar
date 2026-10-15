@@ -1,15 +1,19 @@
-// High-End Luxury Navbar with Top Festive Announcement Bar & Merchant Admin for Utsav Bazaar
+// High-End Luxury Navbar with Mobile Drawer, Theme Toggle, & Product Page Navigation
 import { productStore } from '../engine/ProductStore.js';
 
 export class Navbar {
-  constructor(container, soundManager, onCartClick, onAdminClick) {
+  constructor(container, soundManager, onCartClick, onAdminClick, onProductsClick, onHomeClick) {
     this.container = container;
     this.soundManager = soundManager;
     this.onCartClick = onCartClick;
     this.onAdminClick = onAdminClick;
+    this.onProductsClick = onProductsClick;
+    this.onHomeClick = onHomeClick;
     this.cartCount = 0;
     this.currentCurrency = 'INR';
+    this.currentTheme = localStorage.getItem('utsav_theme') || 'dark';
     this.discountSettings = productStore.discountSettings;
+    this.isMobileMenuOpen = false;
 
     this.currencies = [
       { code: 'INR', symbol: '₹', rate: 1 },
@@ -18,11 +22,30 @@ export class Navbar {
       { code: 'GBP', symbol: '£', rate: 0.0095 }
     ];
 
+    this.applyTheme(this.currentTheme);
     this.render();
     this.bindEvents();
   }
 
+  applyTheme(theme) {
+    this.currentTheme = theme;
+    localStorage.setItem('utsav_theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  toggleTheme() {
+    const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+    this.applyTheme(newTheme);
+    const themeBtn = this.container.querySelector('#theme-toggle-btn');
+    const mobileThemeBtn = this.container.querySelector('#mobile-theme-toggle-btn');
+    const iconStr = newTheme === 'light' ? '🌙 Dark' : '☀️ Light (Golden)';
+    if (themeBtn) themeBtn.innerHTML = `<span>${newTheme === 'light' ? '🌙' : '☀️'}</span><span class="theme-text">${newTheme === 'light' ? 'Dark' : 'Golden Light'}</span>`;
+    if (mobileThemeBtn) mobileThemeBtn.innerHTML = `<span>${newTheme === 'light' ? '🌙' : '☀️'}</span> <span>${iconStr}</span>`;
+  }
+
   render() {
+    const isLight = this.currentTheme === 'light';
+
     this.container.innerHTML = `
       <!-- Top Glowing Festive Announcement & Discount Bar -->
       <div class="festive-announcement-bar" id="festive-discount-bar" style="${this.discountSettings.enabled ? 'display:flex;' : 'display:none;'}">
@@ -38,7 +61,14 @@ export class Navbar {
       </div>
 
       <header class="luxury-navbar" id="main-nav">
+        <!-- Left: Brand Logo & Mobile Hamburger -->
         <div class="nav-left">
+          <button class="mobile-hamburger-btn" id="mobile-hamburger-btn" aria-label="Toggle Navigation Menu">
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+          </button>
+
           <a href="#" class="brand-link" id="nav-brand-home">
             <span class="brand-diya-glow">🪔</span>
             <div class="brand-titles">
@@ -48,14 +78,29 @@ export class Navbar {
           </a>
         </div>
 
+        <!-- Center: Desktop Links + Dedicated Separate Product Page -->
         <nav class="nav-center">
-          <a href="#bazaar-storefront" class="nav-item">Home Decor</a>
-          <a href="#bazaar-storefront" class="nav-item">Festive Attire</a>
+          <a href="#" class="nav-item nav-home-trigger" id="nav-item-home">Home Journey</a>
+          <!-- DEDICATED SEPARATE PRODUCT PAGE LINK IN MENU BAR -->
+          <a href="#" class="nav-item nav-products-trigger highlighted-menu-item" id="nav-item-products">
+            <span class="nav-shop-icon">🛍️</span>
+            <span>All Products</span>
+            <span class="new-pill">Flipkart View</span>
+          </a>
+          <a href="#bazaar-storefront" class="nav-item nav-category-trigger" data-cat="decor">Home Decor</a>
+          <a href="#bazaar-storefront" class="nav-item nav-category-trigger" data-cat="apparel">Festive Attire</a>
+          <a href="#bazaar-storefront" class="nav-item nav-category-trigger" data-cat="diyas">Royal Diyas</a>
           <a href="#heritage-section" class="nav-item">Artisan Heritage</a>
-          <span class="festival-pill">✨ Festive Collection Live</span>
         </nav>
 
+        <!-- Right: Theme Toggle, Currency, Audio & Cart -->
         <div class="nav-right">
+          <!-- Dark / Light (Golden Luxury) Mode Switch -->
+          <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Golden Light & Dark Mode" aria-label="Toggle theme">
+            <span>${isLight ? '🌙' : '☀️'}</span>
+            <span class="theme-text">${isLight ? 'Dark' : 'Golden Light'}</span>
+          </button>
+
           <!-- Currency Selector -->
           <div class="currency-picker">
             <select id="currency-select" class="currency-dropdown" aria-label="Currency Selector">
@@ -84,13 +129,170 @@ export class Navbar {
           </button>
         </div>
       </header>
+
+      <!-- Mobile Full-Screen Slide-Out Menu Drawer -->
+      <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+      <aside class="mobile-nav-drawer" id="mobile-nav-drawer">
+        <div class="mobile-drawer-header">
+          <div class="brand-link">
+            <span class="brand-diya-glow">🪔</span>
+            <div class="brand-titles">
+              <span class="brand-primary">UTSAV BAZAAR</span>
+              <span class="brand-secondary">उत्सव बाज़ार</span>
+            </div>
+          </div>
+          <button class="mobile-drawer-close" id="mobile-drawer-close-btn" aria-label="Close menu">✕</button>
+        </div>
+
+        <div class="mobile-drawer-links">
+          <a href="#" class="mobile-link" id="mobile-link-home">
+            <span>🏠</span> <span>Home Journey</span>
+          </a>
+          <!-- Prominent Dedicated All Products Page -->
+          <a href="#" class="mobile-link mobile-link-highlight" id="mobile-link-products">
+            <span>🛍️</span> <span>All Products (Flipkart View)</span>
+            <span class="mobile-pill">Shop All</span>
+          </a>
+          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="decor">
+            <span>🏺</span> <span>Urlis & Home Decor</span>
+          </a>
+          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="apparel">
+            <span>👘</span> <span>Royal Silk & Attire</span>
+          </a>
+          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="diyas">
+            <span>🪔</span> <span>Royal Brass Diyas</span>
+          </a>
+          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="torans">
+            <span>🎋</span> <span>Torans & Wall Hangings</span>
+          </a>
+          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="lanterns">
+            <span>🏮</span> <span>Mughal Jali Lanterns</span>
+          </a>
+          <a href="#heritage-section" class="mobile-link" id="mobile-link-heritage">
+            <span>👑</span> <span>Artisan Heritage Lineage</span>
+          </a>
+        </div>
+
+        <div class="mobile-drawer-footer">
+          <button class="mobile-theme-btn" id="mobile-theme-toggle-btn">
+            <span>${isLight ? '🌙' : '☀️'}</span>
+            <span>${isLight ? 'Switch to Dark Mode' : 'Switch to Golden Light Mode'}</span>
+          </button>
+          
+          <button class="mobile-admin-btn" id="mobile-admin-btn">
+            <span>⚙️</span> <span>Merchant Admin Suite</span>
+          </button>
+        </div>
+      </aside>
     `;
   }
 
   bindEvents() {
+    // Theme toggle (desktop)
+    const themeBtn = this.container.querySelector('#theme-toggle-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => this.toggleTheme());
+    }
+
+    // Theme toggle (mobile)
+    const mobileThemeBtn = this.container.querySelector('#mobile-theme-toggle-btn');
+    if (mobileThemeBtn) {
+      mobileThemeBtn.addEventListener('click', () => {
+        this.toggleTheme();
+        this.closeMobileMenu();
+      });
+    }
+
+    // Mobile menu open / close
+    const hamburgerBtn = this.container.querySelector('#mobile-hamburger-btn');
+    const closeDrawerBtn = this.container.querySelector('#mobile-drawer-close-btn');
+    const backdrop = this.container.querySelector('#mobile-nav-backdrop');
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', () => this.openMobileMenu());
+    if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', () => this.closeMobileMenu());
+    if (backdrop) backdrop.addEventListener('click', () => this.closeMobileMenu());
+
+    // Navigation triggers: Dedicated All Products Page
+    const desktopProdTrigger = this.container.querySelector('#nav-item-products');
+    if (desktopProdTrigger) {
+      desktopProdTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.onProductsClick) this.onProductsClick('all');
+      });
+    }
+
+    const mobileProdTrigger = this.container.querySelector('#mobile-link-products');
+    if (mobileProdTrigger) {
+      mobileProdTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.closeMobileMenu();
+        if (this.onProductsClick) this.onProductsClick('all');
+      });
+    }
+
+    // Navigation triggers: Home Journey
+    const brandHome = this.container.querySelector('#nav-brand-home');
+    const desktopHome = this.container.querySelector('#nav-item-home');
+    const mobileHome = this.container.querySelector('#mobile-link-home');
+
+    const handleHome = (e) => {
+      e.preventDefault();
+      this.closeMobileMenu();
+      if (this.onHomeClick) this.onHomeClick();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    if (brandHome) brandHome.addEventListener('click', handleHome);
+    if (desktopHome) desktopHome.addEventListener('click', handleHome);
+    if (mobileHome) mobileHome.addEventListener('click', handleHome);
+
+    // Category click triggers
+    this.container.querySelectorAll('.nav-category-trigger').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const cat = link.getAttribute('data-cat');
+        if (this.onProductsClick) {
+          this.onProductsClick(cat);
+        }
+      });
+    });
+
+    this.container.querySelectorAll('[data-mobile-cat]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const cat = link.getAttribute('data-mobile-cat');
+        this.closeMobileMenu();
+        if (this.onProductsClick) {
+          this.onProductsClick(cat);
+        }
+      });
+    });
+
+    // Mobile Admin Button
+    const mobileAdmin = this.container.querySelector('#mobile-admin-btn');
+    if (mobileAdmin && this.onAdminClick) {
+      mobileAdmin.addEventListener('click', () => {
+        this.closeMobileMenu();
+        this.onAdminClick();
+      });
+    }
+
+    // Heritage links
+    const mobHeritage = this.container.querySelector('#mobile-link-heritage');
+    if (mobHeritage) {
+      mobHeritage.addEventListener('click', () => {
+        this.closeMobileMenu();
+        if (this.onHomeClick) this.onHomeClick();
+        setTimeout(() => {
+          const sec = document.querySelector('#heritage-section');
+          if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      });
+    }
+
+    // Sound button
     const soundBtn = this.container.querySelector('#sound-toggle-btn');
     const soundLabel = this.container.querySelector('#sound-label');
-
     if (soundBtn) {
       soundBtn.addEventListener('click', () => {
         const isPlaying = this.soundManager.toggleMute();
@@ -106,14 +308,13 @@ export class Navbar {
       });
     }
 
+    // Cart trigger
     const cartBtn = this.container.querySelector('#cart-trigger-btn');
     if (cartBtn && this.onCartClick) {
-      cartBtn.addEventListener('click', () => {
-        this.onCartClick();
-      });
+      cartBtn.addEventListener('click', () => this.onCartClick());
     }
 
-    // Copy Coupon Code Click
+    // Copy coupon code
     const copyBtn = this.container.querySelector('#bar-copy-coupon-btn');
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
@@ -128,6 +329,7 @@ export class Navbar {
       });
     }
 
+    // Currency selector
     const currSelect = this.container.querySelector('#currency-select');
     if (currSelect) {
       currSelect.addEventListener('change', (e) => {
@@ -136,7 +338,7 @@ export class Navbar {
       });
     }
 
-    // Listen to discount-bar-updated
+    // Discount bar update listener
     window.addEventListener('discount-bar-updated', (e) => {
       this.discountSettings = e.detail;
       const bar = this.container.querySelector('#festive-discount-bar');
@@ -148,17 +350,35 @@ export class Navbar {
       if (code) code.textContent = this.discountSettings.couponCode;
     });
 
-    // Scroll opacity adjustment
+    // Scroll state
     window.addEventListener('scroll', () => {
       const nav = this.container.querySelector('#main-nav');
       if (nav) {
-        if (window.scrollY > 80) {
+        if (window.scrollY > 40) {
           nav.classList.add('scrolled');
         } else {
           nav.classList.remove('scrolled');
         }
       }
     });
+  }
+
+  openMobileMenu() {
+    this.isMobileMenuOpen = true;
+    const drawer = this.container.querySelector('#mobile-nav-drawer');
+    const backdrop = this.container.querySelector('#mobile-nav-backdrop');
+    if (drawer) drawer.classList.add('open');
+    if (backdrop) backdrop.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
+    const drawer = this.container.querySelector('#mobile-nav-drawer');
+    const backdrop = this.container.querySelector('#mobile-nav-backdrop');
+    if (drawer) drawer.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('visible');
+    document.body.style.overflow = '';
   }
 
   updateCartCount(count) {
