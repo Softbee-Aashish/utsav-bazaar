@@ -44,6 +44,7 @@ export class SceneRenderer {
     this.initParticles();
     this.resize();
     this.bindEvents();
+    this.startLoop();
   }
 
   loadAsset(src) {
@@ -54,6 +55,24 @@ export class SceneRenderer {
       this.render();
     };
     return img;
+  }
+
+  startLoop() {
+    const loop = () => {
+      this.time += 0.02;
+      this.updateFairyLightsPhysics();
+      // Update floating embers
+      this.floatingEmbers.forEach(e => {
+        e.y += e.vy * 0.01;
+        e.x += e.vx * 0.01;
+        if (e.y < -0.05) e.y = 1.05;
+        if (e.x < -0.05) e.x = 1.05;
+        if (e.x > 1.05) e.x = -0.05;
+      });
+      this.render();
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
   }
 
   resize() {
@@ -453,36 +472,111 @@ export class SceneRenderer {
 
     this.renderFairyLights(alpha);
 
-    // Live Golden Corkscrew Spiral Embers Trailing behind Rocket Exhaust
+    // Compute rocket position matching the exact image cover coordinates
+    const imgAspect = 1920 / 1080; // 16:9 scene4 aspect ratio
+    const canvasAspect = this.width / this.height;
+    let baseW, baseH;
+    if (canvasAspect > imgAspect) {
+      baseW = this.width;
+      baseH = baseW / imgAspect;
+    } else {
+      baseH = this.height;
+      baseW = baseH * imgAspect;
+    }
+    const renderW = baseW * scale;
+    const renderH = baseH * scale;
+    const offsetX = (this.width - renderW) / 2;
+    const offsetY = (this.height - renderH) / 2 + panY;
+
+    // Rocket nozzle in scene4 is located around normalized (0.575, 0.18)
+    const nozzleX = offsetX + renderW * 0.575;
+    const nozzleY = offsetY + renderH * 0.185;
+
     this.ctx.save();
     this.ctx.globalAlpha = alpha;
-    const rocketCoreX = this.width * 0.58;
-    const rocketCoreY = this.height * 0.24 + panY * 0.4;
 
-    const spiralCount = 35;
+    // 1. Dynamic Rocket Thruster Jet Flame & Blazing Core
+    const flameFlicker = 1.0 + 0.18 * Math.sin(this.time * 24);
+    const flameGrad = this.ctx.createRadialGradient(nozzleX, nozzleY, 4, nozzleX, nozzleY, 65 * flameFlicker);
+    flameGrad.addColorStop(0, '#FFFFFF');
+    flameGrad.addColorStop(0.2, '#FFF4B8');
+    flameGrad.addColorStop(0.45, '#FF9E00');
+    flameGrad.addColorStop(0.75, 'rgba(255, 69, 0, 0.4)');
+    flameGrad.addColorStop(1, 'rgba(255, 0, 0, 0)');
+
+    this.ctx.fillStyle = flameGrad;
+    this.ctx.beginPath();
+    this.ctx.arc(nozzleX, nozzleY, 65 * flameFlicker, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // 2. High-speed jet exhaust plume pointing down-left along the rocket trajectory
+    const jetLength = (70 + Math.random() * 30) * flameFlicker;
+    const angleRad = Math.atan2(1, -0.62); // ~122 degrees (downward-left angle of the rocket body)
+    const jetEndX = nozzleX + Math.cos(angleRad) * jetLength;
+    const jetEndY = nozzleY + Math.sin(angleRad) * jetLength;
+
+    const jetBeam = this.ctx.createLinearGradient(nozzleX, nozzleY, jetEndX, jetEndY);
+    jetBeam.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+    jetBeam.addColorStop(0.3, 'rgba(255, 200, 50, 0.85)');
+    jetBeam.addColorStop(0.7, 'rgba(255, 80, 0, 0.45)');
+    jetBeam.addColorStop(1, 'rgba(255, 30, 0, 0)');
+
+    this.ctx.strokeStyle = jetBeam;
+    this.ctx.lineWidth = 14 * flameFlicker;
+    this.ctx.lineCap = 'round';
+    this.ctx.beginPath();
+    this.ctx.moveTo(nozzleX, nozzleY);
+    this.ctx.lineTo(jetEndX, jetEndY);
+    this.ctx.stroke();
+
+    // 3. Corkscrew spiral smoke and sparks billowing from the exhaust down the smoke column
+    const spiralCount = 45;
     for (let i = 0; i < spiralCount; i++) {
       const t = i / spiralCount;
-      const angle = (this.time * 18) - i * 0.45;
-      const spiralRad = 16 * (1 + t * 2.0);
-      const sx = rocketCoreX + Math.cos(angle) * spiralRad - t * 25;
-      const sy = rocketCoreY + 25 + t * 220;
+      const corkscrewAngle = (this.time * 14) - i * 0.45;
+      const spiralRad = (8 + t * 45);
 
-      const sparkAlpha = (1 - t) * 0.95;
+      // Follow the curved smoke trail seen in scene4
+      const curveX = nozzleX - (t * renderW * 0.12) + Math.sin(t * Math.PI) * (renderW * 0.05);
+      const curveY = nozzleY + (t * renderH * 0.45);
+
+      const sx = curveX + Math.cos(corkscrewAngle) * spiralRad;
+      const sy = curveY + Math.sin(corkscrewAngle) * (spiralRad * 0.5);
+
+      const sparkAlpha = Math.max(0, (1 - t * 0.9) * 0.95);
       this.ctx.fillStyle = i % 2 === 0 ? `rgba(255, 215, 0, ${sparkAlpha})` : `rgba(255, 120, 0, ${sparkAlpha})`;
       this.ctx.beginPath();
-      this.ctx.arc(sx, sy, 2 + (1 - t) * 3.5, 0, Math.PI * 2);
+      this.ctx.arc(sx, sy, 2 + (1 - t) * 4.5, 0, Math.PI * 2);
       this.ctx.fill();
 
-      if (Math.random() > 0.6) {
+      // Bright white incandescent core specks
+      if (Math.random() > 0.4) {
         this.ctx.fillStyle = `rgba(255, 255, 255, ${sparkAlpha})`;
         this.ctx.beginPath();
-        this.ctx.arc(sx + (Math.random() - 0.5) * 6, sy, 1.2, 0, Math.PI * 2);
+        this.ctx.arc(sx + (Math.random() - 0.5) * 8, sy + (Math.random() - 0.5) * 4, 1.2 + Math.random() * 1.5, 0, Math.PI * 2);
         this.ctx.fill();
       }
     }
 
-    // Screen vibration rumble
-    const rumble = (Math.random() - 0.5) * (3.0 * p);
+    // 4. Volumetric warm smoke clouds expanding downwards
+    for (let s = 0; s < 6; s++) {
+      const st = (s + 1) / 7;
+      const smkX = nozzleX - (st * renderW * 0.10) + Math.sin(this.time * 2 + s) * 12;
+      const smkY = nozzleY + (st * renderH * 0.38);
+      const rad = 25 + st * 55;
+
+      const smokeGrad = this.ctx.createRadialGradient(smkX, smkY, 0, smkX, smkY, rad);
+      smokeGrad.addColorStop(0, 'rgba(255, 200, 120, 0.18)');
+      smokeGrad.addColorStop(0.5, 'rgba(255, 150, 60, 0.08)');
+      smokeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      this.ctx.fillStyle = smokeGrad;
+      this.ctx.beginPath();
+      this.ctx.arc(smkX, smkY, rad, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+
+    // Screen vibration rumble increasing with launch ascent progress
+    const rumble = (Math.random() - 0.5) * (4.0 * p);
     this.ctx.translate(rumble, rumble);
     this.ctx.restore();
   }
