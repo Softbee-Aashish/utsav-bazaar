@@ -139,29 +139,67 @@ export class CartDrawer {
                   <span class="input-hint">📧 We will immediately send your official GST Tax Invoice and order receipt here.</span>
                 </div>
 
-                <div class="form-section-title" style="margin-top: 20px;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                  <span>2. Delivery Courtyard Address</span>
+                <div class="form-section-title" style="margin-top: 20px; display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span>2. Delivery Courtyard Address</span>
+                  </div>
+                  <!-- GPS Auto-Detect Location Button -->
+                  <button type="button" class="btn-locate-gps" id="btn-locate-me" title="Auto-detect current location via browser GPS">
+                    <span class="gps-icon">🎯</span>
+                    <span id="locate-me-btn-text">Locate Me (Auto-Detect)</span>
+                  </button>
                 </div>
+
+                <div class="gps-status-indicator" id="gps-status-indicator" style="display:none;"></div>
 
                 <div class="form-group">
                   <label for="guest-address">Street / Courtyard Address *</label>
-                  <input type="text" id="guest-address" required value="House 14, Royal Courtyard, M.G. Road" class="festive-input" placeholder="Apartment, Street address" />
+                  <input type="text" id="guest-address" required value="House 14, Royal Courtyard, M.G. Road" class="festive-input" placeholder="Apartment, building, street address" />
+                </div>
+
+                <div class="form-row-3">
+                  <div class="form-group">
+                    <label for="guest-city">City / District *</label>
+                    <input type="text" id="guest-city" required value="Jaipur" class="festive-input" placeholder="City" />
+                  </div>
+                  <div class="form-group">
+                    <label for="guest-state">State / Province *</label>
+                    <input type="text" id="guest-state" required value="Rajasthan" class="festive-input" placeholder="State" />
+                  </div>
+                  <div class="form-group">
+                    <label for="guest-pincode">Postal PIN Code *</label>
+                    <input type="text" id="guest-pincode" required value="302001" class="festive-input" placeholder="PIN Code" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="guest-landmark">Nearby Landmark (Optional for Courtyard Dropoff)</label>
+                  <input type="text" id="guest-landmark" value="Near Hawa Mahal Gate 2" class="festive-input" placeholder="e.g. Opposite Shiva Temple, Near Metro Station" />
+                </div>
+
+                <!-- 3. Alternate Delivery Acceptor (If primary customer is not available) -->
+                <div class="form-section-title" style="margin-top: 20px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <span>3. Alternate Delivery Acceptor (Required in case you are unavailable)</span>
+                </div>
+                <div class="alternate-info-banner">
+                  🛡️ To prevent return courier charges & guarantee smooth festive handoff, please provide an alternate family member or neighbor.
                 </div>
 
                 <div class="form-row-2">
                   <div class="form-group">
-                    <label for="guest-city">City / District *</label>
-                    <input type="text" id="guest-city" required value="Jaipur" class="festive-input" placeholder="Jaipur" />
+                    <label for="guest-alt-name">Alternate Acceptor Full Name *</label>
+                    <input type="text" id="guest-alt-name" required value="Sunita Sharma (Family)" class="festive-input" placeholder="Neighbor, guard, or family member" />
                   </div>
                   <div class="form-group">
-                    <label for="guest-pincode">Postal PIN Code *</label>
-                    <input type="text" id="guest-pincode" required value="302001" class="festive-input" placeholder="302001" />
+                    <label for="guest-alt-phone">Alternate Contact Phone Number *</label>
+                    <input type="tel" id="guest-alt-phone" required value="+91 98290 12345" class="festive-input" placeholder="+91 98290 12345" />
                   </div>
                 </div>
 
                 <button class="stage-primary-btn" id="btn-goto-payment">
-                  <span>Continue to Secure Payment</span>
+                  <span>Verify Address & Continue to Payment</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </button>
               </form>
@@ -199,6 +237,63 @@ export class CartDrawer {
                   <div class="trust-item">🚚 Zero Shipping Fees Across Bharat</div>
                   <div class="trust-item">✨ Direct Generational Artisan Support</div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ADDRESS & DETAILS CONFIRMATION MODAL POPUP (With T&C to Prevent Returns) -->
+          <div class="checkout-confirm-modal-overlay" id="checkout-confirm-modal" style="display: none;">
+            <div class="confirm-modal-card">
+              <div class="confirm-modal-header">
+                <span class="confirm-shield-icon">🛡️</span>
+                <h3>Verify Delivery Courtyard & Terms</h3>
+                <p>Please double-check your shipping destination to avoid any return courier delays.</p>
+              </div>
+
+              <div class="confirm-details-summary-box">
+                <div class="confirm-info-row">
+                  <span class="c-label">Recipient Name:</span>
+                  <strong class="c-val" id="cfm-name">Aarav Sharma</strong>
+                </div>
+                <div class="confirm-info-row">
+                  <span class="c-label">Primary Mobile:</span>
+                  <strong class="c-val" id="cfm-phone">+91 98765 43210</strong>
+                </div>
+                <div class="confirm-info-row">
+                  <span class="c-label">Email Invoice:</span>
+                  <span class="c-val" id="cfm-email">aarav.sharma@utsavbazaar.in</span>
+                </div>
+                <div class="confirm-info-row address-highlight-row">
+                  <span class="c-label">Complete Address:</span>
+                  <strong class="c-val" id="cfm-address">House 14, Royal Courtyard, M.G. Road, Jaipur, Rajasthan - 302001</strong>
+                </div>
+                <div class="confirm-info-row">
+                  <span class="c-label">Landmark:</span>
+                  <span class="c-val" id="cfm-landmark">Near Hawa Mahal Gate 2</span>
+                </div>
+                <div class="confirm-info-row alternate-highlight-row">
+                  <span class="c-label">Alternate Acceptor:</span>
+                  <strong class="c-val" id="cfm-alt">Sunita Sharma (Family) • +91 98290 12345</strong>
+                </div>
+              </div>
+
+              <!-- Mandatory Return Prevention Terms & Conditions Checkbox -->
+              <div class="confirm-terms-box">
+                <label class="terms-checkbox-label">
+                  <input type="checkbox" id="terms-confirm-checkbox" />
+                  <span>
+                    I confirm that the delivery courtyard address, PIN code, and alternate receiver contact details are 100% accurate. I understand that handcrafted festival artifacts and blessed items cannot be returned due to incorrect address information.
+                  </span>
+                </label>
+              </div>
+
+              <div class="confirm-modal-actions">
+                <button type="button" class="btn-edit-details" id="btn-edit-details">
+                  <span>← Edit Details</span>
+                </button>
+                <button type="button" class="btn-confirm-proceed" id="btn-confirm-proceed" disabled>
+                  <span>✓ Confirm & Proceed to Payment</span>
+                </button>
               </div>
             </div>
           </div>
@@ -487,9 +582,13 @@ export class CartDrawer {
 
             <!-- Action Buttons for Invoice -->
             <div class="invoice-actions-footer">
-              <button class="stage-primary-btn" id="btn-print-invoice">
+              <button class="stage-primary-btn" id="btn-download-pdf">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>📥 Download PDF Invoice</span>
+              </button>
+              <button class="stage-primary-btn" id="btn-print-invoice" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color:#FFF;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
-                <span>Download / Print Official Tax Invoice</span>
+                <span>🖨️ Print / Save as PDF</span>
               </button>
               <button class="stage-secondary-btn" id="btn-return-to-bazaar">
                 <span>✨ Return to Bazaar (Continue Shopping)</span>
@@ -575,19 +674,177 @@ export class CartDrawer {
       });
     }
 
-    // 6. Stage 1 -> Stage 2: Continue to Payment
+    // 5b. Locate Me Button (Browser Geolocation API + Reverse Geocoding)
+    const locateBtn = this.container.querySelector('#btn-locate-me');
+    const locateBtnText = this.container.querySelector('#locate-me-btn-text');
+    const gpsStatus = this.container.querySelector('#gps-status-indicator');
+
+    if (locateBtn) {
+      locateBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          alert("Geolocation is not supported by your browser.");
+          return;
+        }
+
+        if (locateBtnText) locateBtnText.textContent = 'Detecting GPS...';
+        if (gpsStatus) {
+          gpsStatus.style.display = 'block';
+          gpsStatus.className = 'gps-status-indicator loading';
+          gpsStatus.innerHTML = '<span>📡 Requesting device GPS coordinates...</span>';
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            if (gpsStatus) {
+              gpsStatus.innerHTML = `<span>📍 Found (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Resolving city & postal code...</span>`;
+            }
+
+            try {
+              // OpenStreetMap Nominatim reverse geocode
+              const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, {
+                headers: { 'Accept-Language': 'en' }
+              });
+              const data = await resp.json();
+              const addr = data.address || {};
+
+              const city = addr.city || addr.town || addr.village || addr.county || 'Jaipur';
+              const state = addr.state || 'Rajasthan';
+              const postcode = addr.postcode || '302001';
+              const road = addr.road || addr.suburb || addr.neighbourhood || 'Heritage Lane';
+              const house = addr.house_number ? `${addr.house_number}, ` : '';
+
+              const cityInput = this.container.querySelector('#guest-city');
+              const stateInput = this.container.querySelector('#guest-state');
+              const pinInput = this.container.querySelector('#guest-pincode');
+              const addrInput = this.container.querySelector('#guest-address');
+
+              if (cityInput) cityInput.value = city;
+              if (stateInput) stateInput.value = state;
+              if (pinInput) pinInput.value = postcode;
+              if (addrInput) addrInput.value = `${house}${road}, ${city}`;
+
+              if (gpsStatus) {
+                gpsStatus.className = 'gps-status-indicator success';
+                gpsStatus.innerHTML = `<span>✓ Location Detected: <strong>${city}, ${state} (${postcode})</strong>. You may edit anytime below.</span>`;
+              }
+              if (locateBtnText) locateBtnText.textContent = '✓ Located!';
+              setTimeout(() => {
+                if (locateBtnText) locateBtnText.textContent = 'Locate Me (Auto-Detect)';
+              }, 4000);
+            } catch (err) {
+              // Fallback to coordinates
+              if (gpsStatus) {
+                gpsStatus.className = 'gps-status-indicator success';
+                gpsStatus.innerHTML = `<span>✓ Coordinates detected (${latitude.toFixed(2)}, ${longitude.toFixed(2)}). Please verify your street details.</span>`;
+              }
+              if (locateBtnText) locateBtnText.textContent = 'Locate Me (Auto-Detect)';
+            }
+          },
+          (error) => {
+            let msg = "Could not retrieve location.";
+            if (error.code === 1) msg = "Location permission was denied. Please fill in your address manually.";
+            else if (error.code === 2) msg = "Position unavailable. Please type your city and PIN code.";
+            else if (error.code === 3) msg = "Location request timed out.";
+
+            if (gpsStatus) {
+              gpsStatus.className = 'gps-status-indicator error';
+              gpsStatus.innerHTML = `<span>⚠️ ${msg}</span>`;
+            }
+            if (locateBtnText) locateBtnText.textContent = 'Locate Me (Auto-Detect)';
+          },
+          { timeout: 10000, enableHighAccuracy: true }
+        );
+      });
+    }
+
+    // 6. Stage 1 -> Confirmation Modal Popup (Mandatory Review to Prevent Returns)
     const gotoPayBtn = this.container.querySelector('#btn-goto-payment');
+    const confirmModal = this.container.querySelector('#checkout-confirm-modal');
+    const termsCheckbox = this.container.querySelector('#terms-confirm-checkbox');
+    const confirmProceedBtn = this.container.querySelector('#btn-confirm-proceed');
+    const editDetailsBtn = this.container.querySelector('#btn-edit-details');
+
     if (gotoPayBtn) {
       gotoPayBtn.addEventListener('click', () => {
         // Collect guest details
-        const name = this.container.querySelector('#guest-name').value.trim() || 'Aarav Sharma';
-        const email = this.container.querySelector('#guest-email').value.trim() || 'aarav.sharma@utsavbazaar.in';
-        const phone = this.container.querySelector('#guest-phone').value.trim() || '+91 98765 43210';
-        const address = this.container.querySelector('#guest-address').value.trim() || 'House 14, Royal Courtyard';
-        const city = this.container.querySelector('#guest-city').value.trim() || 'Jaipur';
-        const pincode = this.container.querySelector('#guest-pincode').value.trim() || '302001';
+        const name = this.container.querySelector('#guest-name').value.trim();
+        const email = this.container.querySelector('#guest-email').value.trim();
+        const phone = this.container.querySelector('#guest-phone').value.trim();
+        const address = this.container.querySelector('#guest-address').value.trim();
+        const city = this.container.querySelector('#guest-city').value.trim();
+        const state = (this.container.querySelector('#guest-state') ? this.container.querySelector('#guest-state').value.trim() : 'Rajasthan');
+        const pincode = this.container.querySelector('#guest-pincode').value.trim();
+        const landmark = (this.container.querySelector('#guest-landmark') ? this.container.querySelector('#guest-landmark').value.trim() : '');
+        const altName = (this.container.querySelector('#guest-alt-name') ? this.container.querySelector('#guest-alt-name').value.trim() : '');
+        const altPhone = (this.container.querySelector('#guest-alt-phone') ? this.container.querySelector('#guest-alt-phone').value.trim() : '');
 
-        this.guestDetails = { name, email, phone, address, city, pincode };
+        // Validation
+        if (!name || !email || !phone || !address || !city || !pincode) {
+          alert("Please fill in all required primary recipient and address fields marked with *.");
+          return;
+        }
+
+        if (!altName || !altPhone) {
+          alert("Please provide alternate acceptor name & phone number. Handcrafted festive items cannot be re-routed if you are unavailable at drop-off.");
+          return;
+        }
+
+        this.guestDetails = {
+          name,
+          email,
+          phone,
+          address,
+          city,
+          state,
+          pincode,
+          landmark,
+          altName,
+          altPhone
+        };
+
+        // Populate Confirmation Modal Summary
+        const cfmName = this.container.querySelector('#cfm-name');
+        const cfmPhone = this.container.querySelector('#cfm-phone');
+        const cfmEmail = this.container.querySelector('#cfm-email');
+        const cfmAddress = this.container.querySelector('#cfm-address');
+        const cfmLandmark = this.container.querySelector('#cfm-landmark');
+        const cfmAlt = this.container.querySelector('#cfm-alt');
+
+        if (cfmName) cfmName.textContent = name;
+        if (cfmPhone) cfmPhone.textContent = phone;
+        if (cfmEmail) cfmEmail.textContent = email;
+        if (cfmAddress) cfmAddress.textContent = `${address}, ${city}, ${state} - ${pincode}`;
+        if (cfmLandmark) cfmLandmark.textContent = landmark || 'None provided';
+        if (cfmAlt) cfmAlt.textContent = `${altName} • ${altPhone}`;
+
+        // Reset terms checkbox
+        if (termsCheckbox) termsCheckbox.checked = false;
+        if (confirmProceedBtn) confirmProceedBtn.disabled = true;
+
+        // Show Confirmation Modal
+        if (confirmModal) confirmModal.style.display = 'flex';
+      });
+    }
+
+    // Terms & Conditions checkbox enabling Confirm button
+    if (termsCheckbox && confirmProceedBtn) {
+      termsCheckbox.addEventListener('change', (e) => {
+        confirmProceedBtn.disabled = !e.target.checked;
+      });
+    }
+
+    // Edit details button inside confirmation modal
+    if (editDetailsBtn && confirmModal) {
+      editDetailsBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+      });
+    }
+
+    // Confirm & Proceed to Payment Gateway
+    if (confirmProceedBtn && confirmModal) {
+      confirmProceedBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
         this.showPaymentStage();
       });
     }
@@ -625,7 +882,87 @@ export class CartDrawer {
     if (btnPayNB) btnPayNB.addEventListener('click', () => this.processPayment('Net Banking (SBI/HDFC)'));
     if (btnPayCOD) btnPayCOD.addEventListener('click', () => this.processPayment('Cash on Delivery'));
 
-    // 10. Print / Download Official Invoice
+    // 10. Direct PDF File Generation & Download
+    const downloadPdfBtn = this.container.querySelector('#btn-download-pdf');
+    if (downloadPdfBtn) {
+      downloadPdfBtn.addEventListener('click', () => {
+        const invoiceEl = this.container.querySelector('#printable-tax-invoice');
+        if (!invoiceEl) return;
+
+        const invNum = this.container.querySelector('#inv-number-val')?.textContent || 'UB-INV';
+        downloadPdfBtn.disabled = true;
+        downloadPdfBtn.innerHTML = '<span>⏳ Generating PDF...</span>';
+
+        // Generate printable standalone HTML document for high quality PDF export
+        const invoiceHTML = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Tax Invoice - ${invNum}</title>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #1e293b; background: #fff; }
+              .invoice-top-row { display: flex; justify-content: space-between; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; margin-bottom: 20px; }
+              .invoice-company-name { font-size: 20px; font-weight: 800; color: #111; letter-spacing: 0.05em; }
+              .invoice-reg-address { font-size: 11px; color: #64748b; line-height: 1.4; margin-top: 4px; }
+              .tax-invoice-badge { font-size: 13px; font-weight: 800; color: #D4AF37; text-align: right; margin-bottom: 6px; letter-spacing: 0.05em; }
+              .inv-meta-row { font-size: 12px; color: #334155; margin-bottom: 2px; text-align: right; }
+              .invoice-customer-row { display: flex; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 24px; }
+              .cust-label { font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 0.05em; display: block; margin-bottom: 4px; }
+              .cust-val-name { font-size: 15px; font-weight: 700; color: #0f172a; }
+              .cust-val-addr, .cust-val-city, .cust-val-contact { font-size: 12px; color: #334155; margin-top: 2px; }
+              .gov-seal { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #047857; font-weight: 700; }
+              .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+              .invoice-table th { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px; font-size: 11px; text-transform: uppercase; color: #475569; text-align: left; }
+              .invoice-table td { border: 1px solid #e2e8f0; padding: 10px; font-size: 12px; }
+              .invoice-bottom-grid { display: flex; justify-content: space-between; gap: 20px; }
+              .invoice-blessing-note { flex: 1; font-size: 12px; color: #64748b; line-height: 1.5; }
+              .invoice-summary-calc { width: 340px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
+              .calc-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: #334155; }
+              .total-highlight { border-top: 2px solid #D4AF37; padding-top: 8px; font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 8px; }
+              .free-shipping-tag { color: #059669; font-weight: 700; }
+            </style>
+          </head>
+          <body>
+            ${invoiceEl.innerHTML}
+          </body>
+          </html>
+        `;
+
+        // Direct Download as HTML/PDF or Print Dialog
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.open();
+          printWindow.document.write(invoiceHTML);
+          printWindow.document.close();
+          setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+          }, 350);
+        } else {
+          // If popup blocked, create downloadable file
+          const blob = new Blob([invoiceHTML], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Tax-Invoice-${invNum}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+
+        setTimeout(() => {
+          downloadPdfBtn.disabled = false;
+          downloadPdfBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>📥 Download PDF Invoice</span>
+          `;
+        }, 1200);
+      });
+    }
+
+    // 10b. Print / Save as PDF Button
     const printBtn = this.container.querySelector('#btn-print-invoice');
     if (printBtn) {
       printBtn.addEventListener('click', () => {

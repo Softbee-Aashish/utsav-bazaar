@@ -381,9 +381,16 @@ export class ProductPage {
             </div>
           </div>
 
-          <div class="gallery-primary-display">
-            <img src="${imgUrl}" alt="${product.name}" id="main-product-display-img" class="primary-detail-img" onerror="this.src='/assets/products/diya_peacock.jpg';" />
-            <div class="click-to-zoom-hint">🔍 Click / Hover to see full view</div>
+          <div class="gallery-primary-display" id="product-gallery-container">
+            <div class="gallery-img-wrapper" id="gallery-zoom-wrapper">
+              <img src="${imgUrl}" alt="${product.name}" id="main-product-display-img" class="primary-detail-img" onerror="this.src='/assets/products/diya_peacock.jpg';" />
+              <div class="zoom-lens" id="zoom-lens"></div>
+            </div>
+            <!-- Amazon / Flipkart Style Side Zoom Window -->
+            <div class="zoom-result-window" id="zoom-result-window">
+              <img src="${imgUrl}" id="zoom-result-img" alt="Zoomed view" onerror="this.src='/assets/products/diya_peacock.jpg';" />
+            </div>
+            <div class="click-to-zoom-hint">🔍 Roll over image to zoom in high definition • Click for full screen</div>
           </div>
         </div>
 
@@ -536,12 +543,19 @@ export class ProductPage {
 
       <!-- Customer Reviews & Blessings Section -->
       <div class="ecom-detail-reviews-wrapper" id="reviews-section">
-        <h2 class="reviews-section-title">Customer Reviews & Testimonials (${reviews.length})</h2>
+        <div class="reviews-section-header">
+          <h2 class="reviews-section-title">Customer Reviews & Blessings (${reviews.length})</h2>
+          <button class="write-review-trigger-btn" id="btn-toggle-review-form">
+            <span>✍️ Write a Customer Review</span>
+          </button>
+        </div>
+
         <div class="reviews-container-grid">
+          <!-- Left: Rating Summary & Review Prompt -->
           <div class="reviews-summary-card">
             <div class="overall-rating-number">${product.rating || 5.0}</div>
-            <div class="overall-stars">${'★'.repeat(5)}</div>
-            <div class="overall-subtext">${product.reviewsCount || 120} global ratings</div>
+            <div class="overall-stars">${'★'.repeat(Math.round(product.rating || 5))}${'☆'.repeat(5 - Math.round(product.rating || 5))}</div>
+            <div class="overall-subtext">${product.reviewsCount || reviews.length || 1} verified customer ratings</div>
             <div class="rating-bar-row">
               <span>5 star</span>
               <div class="r-bar-track"><div class="r-bar-fill" style="width: 88%;"></div></div>
@@ -552,25 +566,106 @@ export class ProductPage {
               <div class="r-bar-track"><div class="r-bar-fill" style="width: 10%;"></div></div>
               <span>10%</span>
             </div>
+            <div class="rating-bar-row">
+              <span>3 star</span>
+              <div class="r-bar-track"><div class="r-bar-fill" style="width: 2%;"></div></div>
+              <span>2%</span>
+            </div>
+
+            <div class="review-this-box">
+              <h4>Review this product</h4>
+              <p>Share your festive thoughts and photos with other customers</p>
+              <button class="ecom-outline-btn" id="btn-open-review-form">Write a product review</button>
+            </div>
           </div>
 
+          <!-- Right Column: Add Review Form + Existing Reviews Feed -->
           <div class="reviews-feed-col">
-            ${reviews.length > 0 ? reviews.map(r => `
-              <div class="review-item-card">
-                <div class="r-author-row">
-                  <span class="r-avatar">👤</span>
-                  <strong>${r.name}</strong>
-                  <span class="r-verified-pill">✓ Verified Purchase</span>
+            <!-- Review Submission Form (Supports Raw Image Upload & Stars) -->
+            <div class="add-review-card-panel" id="add-review-card-panel">
+              <h3 class="panel-form-title">✨ Bless This Offering with a Review</h3>
+              
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="rev-input-name">Your Full Name *</label>
+                  <input type="text" id="rev-input-name" class="festive-input" placeholder="e.g. Meera Singhania" required />
                 </div>
-                <div class="r-rating-line">
-                  <span class="r-stars">${'★'.repeat(r.rating)}</span>
-                  <span class="r-date">${r.date}</span>
+                <div class="form-group">
+                  <label for="rev-input-rating">Overall Rating *</label>
+                  <div class="interactive-star-picker" id="rev-star-picker" data-rating="5">
+                    <span class="star-btn active" data-val="1">★</span>
+                    <span class="star-btn active" data-val="2">★</span>
+                    <span class="star-btn active" data-val="3">★</span>
+                    <span class="star-btn active" data-val="4">★</span>
+                    <span class="star-btn active" data-val="5">★</span>
+                    <strong class="star-rating-label" id="star-rating-label">5.0 - Auspicious (Excellent)</strong>
+                  </div>
                 </div>
-                <p class="r-text">${r.comment}</p>
               </div>
-            `).join('') : `
-              <div class="no-reviews-note">No reviews yet. Be the first to bless this handcrafted offering!</div>
-            `}
+
+              <div class="form-group">
+                <label for="rev-input-comment">Your Review / Festive Experience *</label>
+                <textarea id="rev-input-comment" class="festive-textarea" rows="3" placeholder="How was the craftsmanship, packaging, and sacred feel of this offering?" required></textarea>
+              </div>
+
+              <!-- Raw Image Upload with Drag & Drop and Preview -->
+              <div class="form-group review-upload-group">
+                <label>Add Photos / Raw Images of the Product (Customer Unboxing)</label>
+                <div class="review-upload-dropzone" id="review-upload-dropzone">
+                  <input type="file" id="review-image-input" accept="image/*" class="file-hidden-input" />
+                  <div class="dropzone-content">
+                    <span class="upload-cam-icon">📷</span>
+                    <span class="upload-prompt-text"><strong>Click to upload</strong> or drag & drop customer photo</span>
+                    <small>Supports PNG, JPG, WebP, or raw camera photos</small>
+                  </div>
+                </div>
+                <!-- Image Preview Container -->
+                <div class="review-image-preview-bar" id="review-image-preview-bar" style="display: none;">
+                  <img id="review-preview-img" src="" alt="Customer uploaded preview" />
+                  <div class="preview-info">
+                    <span id="preview-filename">photo.jpg</span>
+                    <button type="button" class="btn-remove-preview" id="btn-remove-preview">✕ Remove</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-action-row">
+                <button type="button" class="btn-submit-customer-review" id="btn-submit-review">
+                  <span>Submit Verified Review & Photos</span>
+                </button>
+                <button type="button" class="btn-cancel-review" id="btn-cancel-review">Cancel</button>
+              </div>
+            </div>
+
+            <!-- Customer Reviews Feed -->
+            <div class="reviews-items-feed" id="reviews-items-feed">
+              ${reviews.length > 0 ? reviews.map(r => `
+                <div class="review-item-card">
+                  <div class="r-author-row">
+                    <span class="r-avatar">👤</span>
+                    <strong>${r.name}</strong>
+                    <span class="r-verified-pill">✓ Verified Purchase</span>
+                  </div>
+                  <div class="r-rating-line">
+                    <span class="r-stars">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
+                    <span class="r-rating-val">${r.rating || 5}.0</span>
+                    <span class="r-date">${r.date || 'Recent'}</span>
+                  </div>
+                  <p class="r-text">${r.comment}</p>
+                  ${r.imageUrl ? `
+                    <div class="review-attached-photo">
+                      <img src="${r.imageUrl}" alt="Customer photo" class="r-customer-uploaded-img" onclick="window.open(this.src, '_blank')" title="Click to view full photo" />
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('') : `
+                <div class="no-reviews-note">
+                  <div class="note-diya">🪔</div>
+                  <h4>No Customer Reviews Yet</h4>
+                  <p>Be the first customer to share your blessing and unboxing photos for this handcrafted item!</p>
+                </div>
+              `}
+            </div>
           </div>
         </div>
       </div>
@@ -712,19 +807,235 @@ export class ProductPage {
       });
     }
 
-    // Thumbnail switching
+    // Thumbnail switching & sync zoom images
     mainContent.querySelectorAll('.thumb-box').forEach(thumb => {
       thumb.addEventListener('mouseenter', () => {
         mainContent.querySelectorAll('.thumb-box').forEach(t => t.classList.remove('active'));
         thumb.classList.add('active');
         const img = thumb.querySelector('img');
         const mainImg = mainContent.querySelector('#main-product-display-img');
+        const zoomImg = mainContent.querySelector('#zoom-result-img');
         if (img && mainImg) {
           mainImg.src = img.src;
           mainImg.style.filter = img.style.filter || '';
+          if (zoomImg) {
+            zoomImg.src = img.src;
+            zoomImg.style.filter = img.style.filter || '';
+          }
         }
       });
     });
+
+    // Amazon / Flipkart Interactive Hover Zoom Lens Logic
+    const zoomWrapper = mainContent.querySelector('#gallery-zoom-wrapper');
+    const zoomLens = mainContent.querySelector('#zoom-lens');
+    const zoomWindow = mainContent.querySelector('#zoom-result-window');
+    const zoomResultImg = mainContent.querySelector('#zoom-result-img');
+    const mainImg = mainContent.querySelector('#main-product-display-img');
+
+    if (zoomWrapper && zoomLens && zoomWindow && zoomResultImg && mainImg) {
+      const zoomFactor = 2.5;
+
+      const handleMove = (e) => {
+        const rect = zoomWrapper.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+
+        // Lens half dimensions
+        const lw = zoomLens.offsetWidth / 2;
+        const lh = zoomLens.offsetHeight / 2;
+
+        // Clamp lens to wrapper bounds
+        let lensX = Math.max(0, Math.min(rect.width - zoomLens.offsetWidth, x - lw));
+        let lensY = Math.max(0, Math.min(rect.height - zoomLens.offsetHeight, y - lh));
+
+        zoomLens.style.left = `${lensX}px`;
+        zoomLens.style.top = `${lensY}px`;
+
+        // Scale result image inside zoom window
+        const scaleX = (zoomWindow.offsetWidth / zoomLens.offsetWidth);
+        const scaleY = (zoomWindow.offsetHeight / zoomLens.offsetHeight);
+
+        zoomResultImg.style.width = `${rect.width * scaleX}px`;
+        zoomResultImg.style.height = `${rect.height * scaleY}px`;
+        zoomResultImg.style.left = `-${lensX * scaleX}px`;
+        zoomResultImg.style.top = `-${lensY * scaleY}px`;
+      };
+
+      zoomWrapper.addEventListener('mouseenter', (e) => {
+        zoomLens.style.display = 'block';
+        zoomWindow.style.display = 'block';
+        zoomResultImg.src = mainImg.src;
+        zoomResultImg.style.filter = mainImg.style.filter || '';
+        handleMove(e);
+      });
+
+      zoomWrapper.addEventListener('mousemove', handleMove);
+
+      zoomWrapper.addEventListener('mouseleave', () => {
+        zoomLens.style.display = 'none';
+        zoomWindow.style.display = 'none';
+      });
+
+      // Full screen modal view on click
+      zoomWrapper.addEventListener('click', () => {
+        window.open(mainImg.src, '_blank');
+      });
+    }
+
+    // Toggle Review Form Panel
+    const toggleRevBtn = mainContent.querySelector('#btn-toggle-review-form');
+    const openRevBtn = mainContent.querySelector('#btn-open-review-form');
+    const revFormPanel = mainContent.querySelector('#add-review-card-panel');
+    const cancelRevBtn = mainContent.querySelector('#btn-cancel-review');
+
+    const showReviewForm = () => {
+      if (revFormPanel) {
+        revFormPanel.classList.add('visible');
+        revFormPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    };
+
+    if (toggleRevBtn) toggleRevBtn.addEventListener('click', showReviewForm);
+    if (openRevBtn) openRevBtn.addEventListener('click', showReviewForm);
+    if (cancelRevBtn) {
+      cancelRevBtn.addEventListener('click', () => {
+        if (revFormPanel) revFormPanel.classList.remove('visible');
+      });
+    }
+
+    // Interactive Star Rating Picker
+    const starPicker = mainContent.querySelector('#rev-star-picker');
+    const starLabel = mainContent.querySelector('#star-rating-label');
+    const starLabels = {
+      1: "1.0 - Needs Improvement",
+      2: "2.0 - Fair Offering",
+      3: "3.0 - Good Handcraft",
+      4: "4.0 - Very Good & Auspicious",
+      5: "5.0 - Auspicious (Excellent)"
+    };
+
+    if (starPicker) {
+      const starBtns = starPicker.querySelectorAll('.star-btn');
+      starBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = parseInt(btn.getAttribute('data-val'), 10);
+          starPicker.setAttribute('data-rating', val);
+          starBtns.forEach(b => {
+            const bVal = parseInt(b.getAttribute('data-val'), 10);
+            if (bVal <= val) {
+              b.classList.add('active');
+            } else {
+              b.classList.remove('active');
+            }
+          });
+          if (starLabel) starLabel.textContent = starLabels[val] || `${val}.0`;
+        });
+      });
+    }
+
+    // Raw Image Upload Handling (File input, Drag & Drop, FileReader data URL)
+    let uploadedImageBase64 = null;
+    const fileInput = mainContent.querySelector('#review-image-input');
+    const dropzone = mainContent.querySelector('#review-upload-dropzone');
+    const previewBar = mainContent.querySelector('#review-image-preview-bar');
+    const previewImg = mainContent.querySelector('#review-preview-img');
+    const previewFilename = mainContent.querySelector('#preview-filename');
+    const removePreviewBtn = mainContent.querySelector('#btn-remove-preview');
+
+    const processFile = (file) => {
+      if (!file || !file.type.startsWith('image/')) {
+        alert("Please select a valid image file (PNG, JPG, WebP).");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        uploadedImageBase64 = e.target.result;
+        if (previewImg) previewImg.src = uploadedImageBase64;
+        if (previewFilename) previewFilename.textContent = file.name;
+        if (previewBar) previewBar.style.display = 'flex';
+        if (dropzone) dropzone.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    };
+
+    if (dropzone && fileInput) {
+      dropzone.addEventListener('click', () => fileInput.click());
+
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('drag-over');
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('drag-over');
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          processFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          processFile(e.target.files[0]);
+        }
+      });
+    }
+
+    if (removePreviewBtn) {
+      removePreviewBtn.addEventListener('click', () => {
+        uploadedImageBase64 = null;
+        if (fileInput) fileInput.value = '';
+        if (previewBar) previewBar.style.display = 'none';
+        if (dropzone) dropzone.style.display = 'flex';
+      });
+    }
+
+    // Submit Review Handler
+    const submitRevBtn = mainContent.querySelector('#btn-submit-review');
+    if (submitRevBtn) {
+      submitRevBtn.addEventListener('click', () => {
+        const nameInput = mainContent.querySelector('#rev-input-name');
+        const commentInput = mainContent.querySelector('#rev-input-comment');
+        const name = nameInput ? nameInput.value.trim() : '';
+        const comment = commentInput ? commentInput.value.trim() : '';
+        const rating = starPicker ? parseInt(starPicker.getAttribute('data-rating'), 10) : 5;
+
+        if (!name) {
+          alert("Please enter your name.");
+          nameInput.focus();
+          return;
+        }
+
+        if (!comment) {
+          alert("Please enter your review comments.");
+          commentInput.focus();
+          return;
+        }
+
+        submitRevBtn.disabled = true;
+        submitRevBtn.innerHTML = '<span>⏳ Publishing Blessing...</span>';
+
+        // Add review to store with optional attached customer raw photo
+        productStore.addReview(product.id, {
+          name,
+          comment,
+          rating,
+          imageUrl: uploadedImageBase64 || null
+        });
+
+        setTimeout(() => {
+          // Re-render product detail with new review and update ratings
+          this.renderProductDetail(product.id);
+          const revSection = this.container.querySelector('#reviews-section');
+          if (revSection) revSection.scrollIntoView({ behavior: 'smooth' });
+        }, 600);
+      });
+    }
   }
 
   bindEvents() {

@@ -47,7 +47,7 @@ export class Navbar {
     const isLight = this.currentTheme === 'light';
 
     this.container.innerHTML = `
-      <!-- Top Glowing Festive Announcement & Discount Bar -->
+      <!-- Top Glowing Festive Announcement & Discount Bar with Dismiss Button -->
       <div class="festive-announcement-bar" id="festive-discount-bar" style="${this.discountSettings.enabled ? 'display:flex;' : 'display:none;'}">
         <div class="marquee-content">
           <span class="bar-sparkle">✦</span>
@@ -58,6 +58,9 @@ export class Navbar {
           </button>
           <span class="bar-sparkle">✦</span>
         </div>
+        <button class="bar-dismiss-btn" id="bar-dismiss-btn" aria-label="Dismiss discount bar" title="Close announcement">
+          ✕
+        </button>
       </div>
 
       <header class="luxury-navbar" id="main-nav">
@@ -320,6 +323,18 @@ export class Navbar {
             copyBtn.innerHTML = original;
           }, 1500);
         }).catch(() => {});
+      });
+    }
+
+    // Dismiss announcement bar
+    const dismissBtn = this.container.querySelector('#bar-dismiss-btn');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        const bar = this.container.querySelector('#festive-discount-bar');
+        const mainNav = this.container.querySelector('#main-nav');
+        if (bar) bar.style.display = 'none';
+        if (mainNav) mainNav.style.top = '0px';
+        document.documentElement.classList.add('discount-bar-closed');
       });
     }
 
