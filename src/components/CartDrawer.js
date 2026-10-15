@@ -48,14 +48,15 @@ export class CartDrawer {
           <span>✨ Blessed with sacred temple kumkum & handcrafted gift packaging.</span>
         </div>
 
-        <!-- Cart Items List -->
-        <div class="cart-items-scroll" id="cart-items-container">
+        <!-- Cart Items List Container -->
+        <div class="cart-items-scroll">
           <div class="empty-cart-state" id="empty-cart-view">
             <span class="empty-icon">🪔</span>
             <h4>Your Thali is empty</h4>
             <p>Explore our royal collection of brass diyas, handcrafted mithai hampers, and festive lanterns.</p>
             <button class="continue-shopping-btn" id="empty-shop-now-btn">Explore Offerings</button>
           </div>
+          <div class="cart-items-list-wrap" id="cart-items-container"></div>
         </div>
 
         <!-- Drawer Footer & Checkout -->
@@ -1266,6 +1267,7 @@ export class CartDrawer {
     if (this.onUpdateCount) this.onUpdateCount(totalCount);
 
     if (this.items.length === 0) {
+      if (container) container.innerHTML = '';
       if (emptyView) emptyView.style.display = 'block';
       if (footer) footer.style.display = 'none';
       return;

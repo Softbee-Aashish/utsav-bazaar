@@ -114,6 +114,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Footer Category Links Delegation
+  document.querySelectorAll('.footer-category-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cat = link.getAttribute('data-cat') || 'all';
+      if (scrollTrack) scrollTrack.style.display = 'none';
+      if (shopContainer) shopContainer.style.display = 'none';
+      productPage.showListing(cat);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Footer Customer Care & Policy Actions
+  const footerTrackBtn = document.querySelector('#footer-link-track');
+  if (footerTrackBtn) {
+    footerTrackBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      cartDrawer.open();
+    });
+  }
+
+  const footerReturnsBtn = document.querySelector('#footer-link-returns');
+  if (footerReturnsBtn) {
+    footerReturnsBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert("Sacred Promise: Every Utsav Bazaar artifact is inspected in your presence at your courtyard. In case of rare transit imperfection, our team offers immediate sanctified replacement without hassle.");
+    });
+  }
+
   // 6. Initialize Home Shop Section
   new ShopSection(
     shopContainer,

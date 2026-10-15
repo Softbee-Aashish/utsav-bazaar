@@ -637,34 +637,44 @@ export class ProductPage {
               </div>
             </div>
 
-            <!-- Customer Reviews Feed -->
-            <div class="reviews-items-feed" id="reviews-items-feed">
-              ${reviews.length > 0 ? reviews.map(r => `
-                <div class="review-item-card">
-                  <div class="r-author-row">
-                    <span class="r-avatar">👤</span>
-                    <strong>${r.name}</strong>
-                    <span class="r-verified-pill">✓ Verified Purchase</span>
-                  </div>
-                  <div class="r-rating-line">
-                    <span class="r-stars">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
-                    <span class="r-rating-val">${r.rating || 5}.0</span>
-                    <span class="r-date">${r.date || 'Recent'}</span>
-                  </div>
-                  <p class="r-text">${r.comment}</p>
-                  ${r.imageUrl ? `
-                    <div class="review-attached-photo">
-                      <img src="${r.imageUrl}" alt="Customer photo" class="r-customer-uploaded-img" onclick="window.open(this.src, '_blank')" title="Click to view full photo" />
+            <!-- Customer Reviews Carousel Slider -->
+            <div class="reviews-carousel-wrapper">
+              <div class="reviews-carousel-controls">
+                <span class="carousel-counter-tag">Swipe or click arrows to explore customer unboxings & blessings</span>
+                <div class="carousel-arrow-btns">
+                  <button type="button" class="carousel-nav-btn prev" id="rev-carousel-prev" aria-label="Previous Review">‹</button>
+                  <button type="button" class="carousel-nav-btn next" id="rev-carousel-next" aria-label="Next Review">›</button>
+                </div>
+              </div>
+
+              <div class="reviews-carousel-track" id="reviews-carousel-track">
+                ${reviews.length > 0 ? reviews.map(r => `
+                  <div class="review-item-card carousel-slide-card">
+                    <div class="r-author-row">
+                      <span class="r-avatar">👤</span>
+                      <strong>${r.name}</strong>
+                      <span class="r-verified-pill">✓ Verified</span>
                     </div>
-                  ` : ''}
-                </div>
-              `).join('') : `
-                <div class="no-reviews-note">
-                  <div class="note-diya">🪔</div>
-                  <h4>No Customer Reviews Yet</h4>
-                  <p>Be the first customer to share your blessing and unboxing photos for this handcrafted item!</p>
-                </div>
-              `}
+                    <div class="r-rating-line">
+                      <span class="r-stars">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
+                      <span class="r-rating-val">${r.rating || 5}.0</span>
+                      <span class="r-date">${r.date || 'Recent'}</span>
+                    </div>
+                    <p class="r-text">${r.comment}</p>
+                    ${r.imageUrl ? `
+                      <div class="review-attached-photo">
+                        <img src="${r.imageUrl}" alt="Customer photo" class="r-customer-uploaded-img" onclick="window.open(this.src, '_blank')" title="Click to view full photo" />
+                      </div>
+                    ` : ''}
+                  </div>
+                `).join('') : `
+                  <div class="no-reviews-note" style="min-width: 100%;">
+                    <div class="note-diya">🪔</div>
+                    <h4>No Customer Reviews Yet</h4>
+                    <p>Be the first customer to share your blessing and unboxing photos for this handcrafted item!</p>
+                  </div>
+                `}
+              </div>
             </div>
           </div>
         </div>
@@ -1034,6 +1044,20 @@ export class ProductPage {
           const revSection = this.container.querySelector('#reviews-section');
           if (revSection) revSection.scrollIntoView({ behavior: 'smooth' });
         }, 600);
+      });
+    }
+
+    // Reviews Carousel Arrow Controls
+    const carouselTrack = mainContent.querySelector('#reviews-carousel-track');
+    const prevBtn = mainContent.querySelector('#rev-carousel-prev');
+    const nextBtn = mainContent.querySelector('#rev-carousel-next');
+
+    if (carouselTrack && prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', () => {
+        carouselTrack.scrollBy({ left: -340, behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', () => {
+        carouselTrack.scrollBy({ left: 340, behavior: 'smooth' });
       });
     }
   }
