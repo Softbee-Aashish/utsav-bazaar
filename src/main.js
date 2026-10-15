@@ -1,15 +1,23 @@
 // Main Entry Point for Utsav Bazaar Luxury Festive Marketplace
 import { soundManager } from './engine/SoundManager.js';
+import { FrameLoader } from './engine/FrameLoader.js';
+import { SceneRenderer } from './engine/SceneRenderer.js';
+import { ScrollScrubber } from './engine/ScrollScrubber.js';
+import { StoryOverlay } from './components/StoryOverlay.js';
 import { Navbar } from './components/Navbar.js';
 import { ShopSection } from './components/ShopSection.js';
 import { ProductPage } from './components/ProductPage.js';
 import { CartDrawer } from './components/CartDrawer.js';
 import { QuickViewModal } from './components/QuickViewModal.js';
 import { AdminPanel } from './components/AdminPanel.js';
+import { PolicyModal } from './components/PolicyModal.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('✨ Initializing Utsav Bazaar (उत्सव बाज़ार)...');
 
+  const canvas = document.querySelector('#scene-canvas');
+  const scrollTrack = document.querySelector('#scroll-track');
+  const hudContainer = document.querySelector('#hud-overlay');
   const navContainer = document.querySelector('#nav-container');
   const productPageContainer = document.querySelector('#product-page-container');
   const shopContainer = document.querySelector('#shop-container');
@@ -17,12 +25,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   const qvContainer = document.querySelector('#quickview-container');
   const adminContainer = document.querySelector('#admin-container');
 
+  // 1. Initialize Frame Loader for 3D Cinematic Animation
+  const frameLoader = new FrameLoader({
+    totalFrames: 60,
+    onProgress: (pct) => {
+      console.log(`Loading frames: ${Math.round(pct * 100)}%`);
+    },
+    onLoaded: (frames) => {
+      console.log(`Loaded ${frames.length} AI frames successfully!`);
+    }
+  });
+
+  // 2. Initialize Scene Renderer
+  const sceneRenderer = new SceneRenderer(canvas, frameLoader);
+
   // 1. Initialize Cart & Admin components
   let cartDrawer = null;
   let navbar = null;
   let productPage = null;
 
-  const adminPanel = new AdminPanel(adminContainer);
+  const adminPanel = new AdminPanel(adminContainer, () => {
+    // Return to Storefront Home with Animation
+    if (scrollTrack) scrollTrack.style.display = 'block';
+    if (shopContainer) shopContainer.style.display = 'block';
+    if (productPage) productPage.hide();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 
   cartDrawer = new CartDrawer(cartContainer, (newCount) => {
     if (navbar) navbar.updateCartCount(newCount);
@@ -48,25 +76,85 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   );
 
+  // Central URL Hash Router & Page Redirector
+  const navigateToRoute = (hash) => {
+    const rawHash = hash || window.location.hash || '#/';
+    const cleanHash = rawHash.replace(/^#\/?/, '').trim();
+
+    // 1. Admin Routes: #/admin or #/admin/orders, #/admin/products, etc.
+    if (cleanHash.startsWith('admin')) {
+      const parts = cleanHash.split('/');
+      const tab = parts[1] || 'overview';
+      adminPanel.open(tab, false);
+      return;
+    }
+
+    // 2. Product Detail Route: #/product/ub-001
+    if (cleanHash.startsWith('product/')) {
+      const productId = cleanHash.split('/')[1];
+      if (productId) {
+        if (adminPanel.isOpen) adminPanel.close(false);
+        if (scrollTrack) scrollTrack.style.display = 'none';
+        if (shopContainer) shopContainer.style.display = 'none';
+        productPage.showProductDetail(productId, false);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        return;
+      }
+    }
+
+    // 3. Products Catalog Route: #/products or #/products/diyas
+    if (cleanHash.startsWith('products')) {
+      const parts = cleanHash.split('/');
+      const category = parts[1] || 'all';
+      if (adminPanel.isOpen) adminPanel.close(false);
+      if (scrollTrack) scrollTrack.style.display = 'none';
+      if (shopContainer) shopContainer.style.display = 'none';
+      productPage.showListing(category, '', false);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      return;
+    }
+
+    // 4. Default Home Storefront: #/ or empty
+    if (adminPanel.isOpen) adminPanel.close(false);
+    productPage.hide(false);
+    if (scrollTrack) scrollTrack.style.display = 'block';
+    if (shopContainer) shopContainer.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  // Listen to browser Back/Forward buttons and direct URL paste
+  window.addEventListener('hashchange', () => {
+    navigateToRoute(window.location.hash);
+  });
+
   // 3. Initialize Navbar with Mobile Menu, Theme Toggle, & Separate Product Page
   navbar = new Navbar(
     navContainer,
     soundManager,
     () => cartDrawer.open(),
-    () => adminPanel.open(),
+    () => {
+      adminPanel.open('overview', true);
+    },
     (category = 'all') => {
       // Show Dedicated All Products Page
+      if (scrollTrack) scrollTrack.style.display = 'none';
       if (shopContainer) shopContainer.style.display = 'none';
-      productPage.showListing(category);
+      productPage.showListing(category, '', true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     () => {
-      // Return to Storefront Home
+      // Return to Storefront Home with Animation
+      if (scrollTrack) scrollTrack.style.display = 'block';
       if (shopContainer) shopContainer.style.display = 'block';
-      productPage.hide();
+      productPage.hide(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   );
+
+  // Trigger initial route based on browser URL
+  if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
+    navigateToRoute(window.location.hash);
+  }
 
   // Footer Copyright Double-Click Admin Trigger
   const footerCopyrightTrigger = document.querySelector('#footer-copyright-trigger');
@@ -93,6 +181,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Initialize Policy Modal Dialog
+  const policyModal = new PolicyModal();
+
   // Footer Category Links Delegation
   document.querySelectorAll('.footer-category-link').forEach(link => {
     link.addEventListener('click', (e) => {
@@ -100,12 +191,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       const cat = link.getAttribute('data-cat') || 'all';
       if (scrollTrack) scrollTrack.style.display = 'none';
       if (shopContainer) shopContainer.style.display = 'none';
-      productPage.showListing(cat);
+      productPage.showListing(cat, '', true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
-  // Footer Customer Care & Policy Actions
+  // Footer Customer Care Links Delegation
   const footerTrackBtn = document.querySelector('#footer-link-track');
   if (footerTrackBtn) {
     footerTrackBtn.addEventListener('click', (e) => {
@@ -114,13 +205,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  const footerDispatchBtn = document.querySelector('#footer-link-dispatch');
+  if (footerDispatchBtn) {
+    footerDispatchBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      policyModal.open('dispatch');
+    });
+  }
+
   const footerReturnsBtn = document.querySelector('#footer-link-returns');
   if (footerReturnsBtn) {
     footerReturnsBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      alert("Sacred Promise: Every Utsav Bazaar artifact is inspected in your presence at your courtyard. In case of rare transit imperfection, our team offers immediate sanctified replacement without hassle.");
+      policyModal.open('returns');
     });
   }
+
+  const footerBulkBtn = document.querySelector('#footer-link-bulk');
+  if (footerBulkBtn) {
+    footerBulkBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      policyModal.open('bulk');
+    });
+  }
+
+  // Footer Sacred Promise & Legal Policy Links Delegation
+  document.querySelectorAll('.footer-policy-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const policyKey = link.getAttribute('data-policy');
+      if (policyKey) {
+        policyModal.open(policyKey);
+      }
+    });
+  });
 
   // 6. Initialize Home Shop Section
   new ShopSection(
@@ -139,8 +257,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('open-product-detail', (e) => {
     const { productId } = e.detail;
     if (productId) {
+      if (scrollTrack) scrollTrack.style.display = 'none';
       if (shopContainer) shopContainer.style.display = 'none';
-      productPage.showProductDetail(productId);
+      productPage.showProductDetail(productId, true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
@@ -149,6 +268,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('direct-buy-now', () => {
     cartDrawer.openGuestCheckout();
   });
+
+  // 7. Initialize Scroll Scrubber for 3D Cinematic Animation
+  const scrubber = new ScrollScrubber({
+    container: scrollTrack,
+    lerpFactor: 0.085,
+    onUpdate: (progressData) => {
+      sceneRenderer.update(progressData);
+      sceneRenderer.render();
+      storyOverlay.update(progressData);
+    },
+    onSceneChange: (sceneIndex, sceneInfo) => {
+      console.log(`Transitioned to Scene ${sceneIndex + 1}: ${sceneInfo.name}`);
+      soundManager.handleSceneTransition(sceneIndex);
+    }
+  });
+
+  // 8. Initialize Story HUD Overlay (Clean animation without story card text)
+  const storyOverlay = new StoryOverlay(hudContainer, scrubber, frameLoader);
+
+  // First render pass
+  sceneRenderer.render();
 
   // 9. Auto-unlock Web Audio on first user interaction & start sweet melody
   const unlockAudio = () => {

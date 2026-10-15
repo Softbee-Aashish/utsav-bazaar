@@ -35,12 +35,24 @@ export class ProductStore {
       const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (saved) {
         this.products = JSON.parse(saved);
-        // Ensure all products have real imageUrl backfilled from FESTIVE_PRODUCTS
+        // Ensure all products have real imageUrl backfilled from FESTIVE_PRODUCTS and add new default items
         let updated = false;
-        this.products.forEach(p => {
-          const match = FESTIVE_PRODUCTS.find(fp => fp.id === p.id);
-          if (match && (!p.imageUrl || p.imageUrl.trim() === '')) {
-            p.imageUrl = match.imageUrl;
+        FESTIVE_PRODUCTS.forEach(fp => {
+          const existing = this.products.find(p => p.id === fp.id);
+          if (!existing) {
+            const markupRatio = 1.25 + (Math.round((fp.priceINR % 100)) / 400);
+            const originalPriceINR = Math.round((fp.priceINR * markupRatio) / 100) * 100 - 1;
+            const discountPercent = Math.round(((originalPriceINR - fp.priceINR) / originalPriceINR) * 100);
+            this.products.push({
+              ...fp,
+              originalPriceINR,
+              discountPercent,
+              imageUrl: fp.imageUrl || '',
+              inStock: fp.inStock !== false
+            });
+            updated = true;
+          } else if (!existing.imageUrl || existing.imageUrl.trim() === '') {
+            existing.imageUrl = fp.imageUrl;
             updated = true;
           }
         });
@@ -127,7 +139,7 @@ export class ProductStore {
         ],
         subtotalINR: 4998,
         discountINR: 0,
-        taxINR: 899.64,
+        taxINR: 0,
         totalINR: 4998,
         paymentMode: "UPI Instant (PhonePe / GPay)",
         paymentStatus: "Paid (Verified)",
@@ -153,7 +165,7 @@ export class ProductStore {
         ],
         subtotalINR: 8198,
         discountINR: 819.8,
-        taxINR: 1328,
+        taxINR: 0,
         totalINR: 7378,
         paymentMode: "Credit Card (HDFC Regalia)",
         paymentStatus: "Paid (Verified)",
@@ -179,7 +191,7 @@ export class ProductStore {
         ],
         subtotalINR: 11297,
         discountINR: 1694.55,
-        taxINR: 1728,
+        taxINR: 0,
         totalINR: 9602,
         paymentMode: "Net Banking (SBI)",
         paymentStatus: "Paid (Verified)",
@@ -205,7 +217,7 @@ export class ProductStore {
         ],
         subtotalINR: 3198,
         discountINR: 0,
-        taxINR: 575.64,
+        taxINR: 0,
         totalINR: 3198,
         paymentMode: "Cash on Delivery (COD)",
         paymentStatus: "Paid (COD Collected)",

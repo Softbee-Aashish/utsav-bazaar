@@ -32,7 +32,9 @@ export class ShopSection {
           <!-- Featured Home Decor Spotlight Banner -->
           <div class="story-spotlight-banner" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(14, 10, 20, 0.85) 100%); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 20px 28px; margin: 24px auto 32px; max-width: 900px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
             <div style="display: flex; align-items: center; gap: 16px;">
-              <span style="font-size: 38px; filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.6));">🏺</span>
+              <div class="spotlight-vector-icon" style="width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, rgba(20, 14, 28, 0.9) 70%); border: 1.5px solid #D4AF37; display: flex; align-items: center; justify-content: center; color: #FFD700; flex-shrink: 0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h16M4 14h16M6 6h12l-1 12H7L6 6zM9 2h6v4H9V2z"/></svg>
+              </div>
               <div style="text-align: left;">
                 <div style="font-size: 11px; letter-spacing: 0.15em; color: #FFDF73; font-weight: 700; text-transform: uppercase;">Featured Masterpiece • राजसी सजावट</div>
                 <div style="font-family: var(--font-serif-royal); font-size: 18px; color: #FFF; font-weight: 600;">Royal Hand-Hammered Brass Lotus Urli & Floating Diya Set</div>

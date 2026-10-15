@@ -102,19 +102,19 @@ export const FESTIVE_PRODUCTS = [
   },
   {
     id: "ub-005",
-    name: "Kasturi & Oudh Vedic Hawan & Dhoop Kit",
+    name: "Kasturi & Oudh Hawan & Dhoop Kit",
     category: "decor",
-    categoryName: "Sacred Aromatics",
-    tagline: "Natural temple sambrani cups, pure cow ghee dhoop, and brass burner",
+    categoryName: "Aromatics & Fragrance",
+    tagline: "Natural sambrani cups, pure cow ghee dhoop, and handcrafted brass burner",
     priceINR: 1899,
     priceUSD: 23,
     rating: 4.85,
     reviewsCount: 220,
     badge: "Organic",
-    origin: "Vrindavan & Kannauj",
+    origin: "Kannauj, Uttar Pradesh",
     material: "Pure Herbs, Natural Resins, Handcrafted Brass Bowl",
     inStock: true,
-    description: "Purify your festive sanctuary with traditional sacred aromas crafted from sacred temple flowers, pure cow ghee, Himalayan frankincense, and aged Kannauj oudh. 100% charcoal-free and eco-conscious.",
+    description: "Enhance your festive home ambiance with traditional aromas crafted from natural botanical herbs, pure cow ghee, Himalayan frankincense, and aged Kannauj oudh. 100% charcoal-free and eco-conscious.",
     features: [
       "24 pre-filled Loban & Sambrani herbal cups",
       "Solid brass tortoise-base dhoop burner with lid",
@@ -177,7 +177,7 @@ export const FESTIVE_PRODUCTS = [
   },
   {
     id: "ub-008",
-    name: "Aakash Deepam 3-Tier Hanging Brass Diya with Temple Bell",
+    name: "Aakash Deepam 3-Tier Hanging Brass Diya with Chime Bell",
     category: "diyas",
     categoryName: "Royal Diyas & Lamps",
     tagline: "Three-tier cascading brass oil lamp with majestic peacock finial and resonant chime bell",
@@ -187,11 +187,11 @@ export const FESTIVE_PRODUCTS = [
     reviewsCount: 280,
     badge: "Artisan Masterpiece",
     origin: "Thanjavur, Tamil Nadu",
-    material: "Solid Cast Temple Bell Metal & Virgin Brass",
+    material: "Solid Bell Metal & Virgin Brass",
     inStock: true,
-    description: "Inspired by the timeless temple deepams of South India, this 3-tier suspended oil lamp illuminates verandas and pooja mandirs with a celestial glow. Features a detailed hand-carved peacock crest and a tuned brass chime bell suspended underneath.",
+    description: "Inspired by timeless South Indian heritage crafts, this 3-tier suspended brass lamp illuminates verandas and festive foyers with a golden glow. Features a detailed hand-carved peacock crest and a tuned brass chime bell suspended underneath.",
     features: [
-      "Solid cast temple brass (1.85 kg)",
+      "Solid cast brass (1.85 kg)",
       "3 tiers with 15 cotton wick reservoirs",
       "Includes 60cm heavy-duty linked brass suspension chain",
       "Resonant acoustic chime bell with harmonic overtone"
@@ -249,6 +249,131 @@ export const FESTIVE_PRODUCTS = [
     accentColor: "#E01E5A",
     svgIcon: "apparel",
     imageUrl: "/assets/products/dupatta_chanderi.jpg"
+  },
+  {
+    id: "ub-011",
+    name: "Taj Royal Brass Geometric Hanging Kandil",
+    category: "lanterns",
+    categoryName: "Lanterns & Decor",
+    tagline: "Octagonal antique gold brass lantern with intricate jaali patterns & tea-light chamber",
+    priceINR: 2399,
+    priceUSD: 29,
+    rating: 4.88,
+    reviewsCount: 145,
+    badge: "Festive Radiance",
+    origin: "Moradabad, Uttar Pradesh",
+    material: "Hand-etched Virgin Brass & Toughened Amber Glass",
+    inStock: true,
+    description: "Hand-pierced with floral arabesque fretwork by Moradabad artisans, this hanging lantern creates mesmerizing amber patterns across courtyards, balconies, and living rooms. Includes hanging chain and hinged access door.",
+    features: [
+      "Solid hand-etched brass casing with antique lacquer",
+      "Includes 50cm heavy linked brass chain with ceiling hook",
+      "Suitable for tealight, diya wicks, or LED votives",
+      "Rust-resistant protective coating for indoor and covered patio use"
+    ],
+    accentColor: "#D4AF37",
+    svgIcon: "lantern",
+    imageUrl: "/assets/products/lantern_jali.jpg"
+  },
+  {
+    id: "ub-012",
+    name: "Maharani Kesari Zardozi Velvet Wall Jhula & Toran",
+    category: "torans",
+    categoryName: "Torans & Wall Hangings",
+    tagline: "Rich marigold yellow & saffron velvet bandhanwar with gold bullion thread & pearls",
+    priceINR: 2199,
+    priceUSD: 26,
+    rating: 4.92,
+    reviewsCount: 168,
+    badge: "Artisan Blessed",
+    origin: "Jaipur, Rajasthan",
+    material: "Silk Velvet, Zari Embroidery, Cultured Faux Pearls, Brass Latkan",
+    inStock: true,
+    description: "Auspicious festive entrance door bandhanwar hand-embroidered with traditional Kalash, Om, and floral medallions using genuine gold zardozi bullion thread and chiming brass bells.",
+    features: [
+      "Standard 3.5 ft door hanging size with brass hanging rings",
+      "Dense hand-embroidery with metallic gold zari and kundan stones",
+      "Features melodious solid brass chime bells at each pendant",
+      "Delivered in sacred protective cloth storage bag"
+    ],
+    accentColor: "#EAB308",
+    svgIcon: "toran",
+    imageUrl: "/assets/products/toran_velvet.jpg"
+  },
+  {
+    id: "ub-013",
+    name: "Kumbha Raj Royal Brass Urli with Three-Tier Stand",
+    category: "decor",
+    categoryName: "Royal Urlis & Home Decor",
+    tagline: "Hand-hammered 14-inch heavy brass urli bowl paired with ornate cast tripod pedestal",
+    priceINR: 4299,
+    priceUSD: 52,
+    rating: 4.96,
+    reviewsCount: 215,
+    badge: "Grand Centerpiece",
+    origin: "Thanjavur, Tamil Nadu",
+    material: "100% Solid Heavy Virgin Brass (3.2 kg total)",
+    inStock: true,
+    description: "An imperial showpiece for traditional Indian homes. Designed for grand floral water rangolis and floating candles. Hand-chiseled lotus borders and a stable, heavy tripod stand adorned with peacock carvings.",
+    features: [
+      "Heavyweight 3.2 kg cast virgin brass construction",
+      "Includes detachable ornate peacock tripod stand",
+      "Scalloped lotus leaf rim with tarnish-resistant satin gold finish",
+      "Holds up to 4 litres of water with floating diyas and petals"
+    ],
+    accentColor: "#D4AF37",
+    svgIcon: "urli",
+    imageUrl: "/assets/products/urli_lotus.jpg"
+  },
+  {
+    id: "ub-014",
+    name: "Rajwada Shahi Deepavali Utsav Gift Hamper",
+    category: "hampers",
+    categoryName: "Festive Hampers",
+    tagline: "Brass diya pair, Kashmiri saffron, organic forest honey, and royal brass dry-fruit jars",
+    priceINR: 4899,
+    priceUSD: 59,
+    rating: 4.98,
+    reviewsCount: 380,
+    badge: "Bestseller Hamper",
+    origin: "Varanasi & Jaipur",
+    material: "Solid Brass Ware, Velvet Gift Box with Gold Foil Inlay",
+    inStock: true,
+    description: "Curated to bestow prosperity and goodwill upon esteemed families and associates. Contains two hand-cast Moradabad brass peacock deepams, 1g GI-tagged Pampore Kashmiri saffron, 250g mamra almonds, and two hand-etched brass canisters.",
+    features: [
+      "Pair of hand-cast brass peacock oil deepams",
+      "1g Certified GI-tagged Grade 1 Kashmiri Mongra Saffron",
+      "Two hand-carved floral brass dry fruit jars (150g capacity each)",
+      "Presented in imperial crimson and gold keepsake trunk"
+    ],
+    accentColor: "#B91C1C",
+    svgIcon: "hamper",
+    imageUrl: "/assets/products/hamper_chest.jpg"
+  },
+  {
+    id: "ub-015",
+    name: "Shri Mahalakshmi Heritage Bell Brass Diya Stand",
+    category: "heirlooms",
+    categoryName: "Artisanal Heirlooms",
+    tagline: "Centuries-old lost-wax cast brass ceremonial deepam with traditional Ashtalakshmi motifs",
+    priceINR: 6999,
+    priceUSD: 85,
+    rating: 5.0,
+    reviewsCount: 92,
+    badge: "Heirloom Masterpiece",
+    origin: "Swamimalai, Tamil Nadu",
+    material: "GI Certified Swamimalai Bronze & Bell Brass (2.8 kg)",
+    inStock: true,
+    description: "Cast using the ancient lost-wax technique by hereditary bronze masters in Swamimalai. Features intricate Ashtalakshmi engravings representing the eight forms of wealth and auspiciousness, crowned with a majestic Gaja-Lakshmi finial.",
+    features: [
+      "Authentic Swamimalai bronze casting with GI certification",
+      "Weighs 2.8 kg of solid pure bronze",
+      "Accommodates 9 ceremonial cotton wicks",
+      "Passed down as an eternal family home heirloom"
+    ],
+    accentColor: "#F59E0B",
+    svgIcon: "diya",
+    imageUrl: "/assets/products/hanging_diya.jpg"
   }
 ];
 
@@ -257,18 +382,18 @@ export const FESTIVAL_HIGHLIGHTS = [
     title: "Diwali Mahotsav",
     description: "Festival of Lights — Welcoming prosperity, wisdom, and auspicious beginnings with glowing lamps and celestial gold.",
     date: "Auspicious Celebrations",
-    icon: "🪔"
+    icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c.5 2.5 3 4.5 3 7a3 3 0 0 1-6 0c0-2.5 2.5-4.5 3-7Z"/><path d="M4 14c0 4 3.5 7 8 7s8-3 8-7H4Z"/></svg>`
   },
   {
     title: "Karwa Chauth & Navratri",
     description: "Sacred devotion, festive dandiya nights, and heirloom attire bathed in radiant red and emerald hues.",
     date: "Devotion & Joy",
-    icon: "🌙"
+    icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M19 3v4"/><path d="M21 5h-4"/></svg>`
   },
   {
     title: "Shahi Vivah Utsav",
     description: "Royal winter weddings adorned with handcrafted kundan, floral torans, and timeless gifting chests.",
     date: "The Wedding Season",
-    icon: "👑"
+    icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>`
   }
 ];

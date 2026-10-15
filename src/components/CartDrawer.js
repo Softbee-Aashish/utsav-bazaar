@@ -43,9 +43,9 @@ export class CartDrawer {
           </button>
         </div>
 
-        <!-- Festive Blessing Message -->
+        <!-- Festive Welcome Message -->
         <div class="festive-blessing-bar">
-          <span>✨ Blessed with sacred temple kumkum & handcrafted gift packaging.</span>
+          <span>✨ Handcrafted artisan quality & complimentary gift packaging.</span>
         </div>
 
         <!-- Cart Items List Container -->
@@ -79,7 +79,7 @@ export class CartDrawer {
               <span id="cart-discount-val">-₹0</span>
             </div>
             <div class="breakdown-row">
-              <span>Sacred Packaging & Delivery</span>
+              <span>Premium Gift Packaging & Delivery</span>
               <span class="free-shipping-tag">FREE</span>
             </div>
             <div class="breakdown-row total-row">
@@ -94,7 +94,7 @@ export class CartDrawer {
           </button>
           
           <div class="trust-guarantee-note">
-            <span>⚡ 100% Login-Free Fast Checkout • Instant Royal Tax Invoice</span>
+            <span>⚡ 100% Login-Free Fast Checkout • Instant Order Receipt</span>
           </div>
         </div>
       </aside>
@@ -109,7 +109,7 @@ export class CartDrawer {
           <div class="checkout-stage" id="stage-guest-details">
             <div class="stage-header">
               <span class="stage-tag">NO LOGIN REQUIRED • त्वरित चेकआउट</span>
-              <h2 class="stage-title">Express Sacred Checkout</h2>
+              <h2 class="stage-title">Express Secure Checkout</h2>
               <p class="stage-subtitle">
                 No passwords or account creation needed. Provide your delivery and email details to receive your instant Royal Tax Invoice & live tracking.
               </p>
@@ -135,9 +135,9 @@ export class CartDrawer {
                 </div>
 
                 <div class="form-group">
-                  <label for="guest-email">Email Address (For Instant Tax Invoice & Confirmation) *</label>
+                  <label for="guest-email">Email Address (For Instant Order Invoice & Receipt) *</label>
                   <input type="email" id="guest-email" required value="aarav.sharma@utsavbazaar.in" class="festive-input" placeholder="your.name@example.com" />
-                  <span class="input-hint">📧 We will immediately send your official GST Tax Invoice and order receipt here.</span>
+                  <span class="input-hint">📧 We will immediately send your official order receipt and invoice here.</span>
                 </div>
 
                 <div class="form-section-title" style="margin-top: 20px; display:flex; justify-content:space-between; align-items:center;">
@@ -176,7 +176,7 @@ export class CartDrawer {
 
                 <div class="form-group">
                   <label for="guest-landmark">Nearby Landmark (Optional for Courtyard Dropoff)</label>
-                  <input type="text" id="guest-landmark" value="Near Hawa Mahal Gate 2" class="festive-input" placeholder="e.g. Opposite Shiva Temple, Near Metro Station" />
+                  <input type="text" id="guest-landmark" value="Near Hawa Mahal Gate 2" class="festive-input" placeholder="e.g. Opposite City Palace, Near Metro Station" />
                 </div>
 
                 <!-- 3. Alternate Delivery Acceptor (If primary customer is not available) -->
@@ -220,15 +220,19 @@ export class CartDrawer {
                     <span id="cs-discount">-₹0</span>
                   </div>
                   <div class="s-row">
-                    <span>Sacred Temple Kumkum & Box</span>
-                    <span class="free-shipping-tag">INCLUDED</span>
+                    <span>Premium Gift Box & Packaging</span>
+                    <span class="free-shipping-tag">₹0 (COMPLIMENTARY)</span>
                   </div>
                   <div class="s-row">
-                    <span>GST (18% Included)</span>
-                    <span id="cs-gst">₹0</span>
+                    <span>Courtyard Delivery</span>
+                    <span class="free-shipping-tag">₹0 (FREE SHIPPING)</span>
+                  </div>
+                  <div class="s-row">
+                    <span>Extra Taxes & GST</span>
+                    <span id="cs-gst" style="color: #15803d; font-weight: 600;">₹0 (No GST Applicable)</span>
                   </div>
                   <div class="s-row total-row">
-                    <span>Total Payable</span>
+                    <span>Total Payable (All-Inclusive)</span>
                     <span class="cs-total-val" id="cs-total">₹0</span>
                   </div>
                 </div>
@@ -483,15 +487,15 @@ export class CartDrawer {
               <!-- Invoice Header -->
               <div class="invoice-top-row">
                 <div class="invoice-brand-col">
-                  <div class="invoice-company-name">UTSAV BAZAAR PRIVATE LIMITED</div>
+                  <div class="invoice-company-name">UTSAV BAZAAR (उत्सव बाज़ार)</div>
                   <div class="invoice-reg-address">
+                    Authentic Indian Artisanal Crafts & Festive Guilds<br/>
                     Heritage Craft District, Johari Bazaar, Jaipur, Rajasthan 302003<br/>
-                    GSTIN: <strong>08AAACU5678K1Z3</strong> | CIN: U52100RJ2026PTC049821<br/>
                     Email: blessings@utsavbazaar.in | Web: www.utsavbazaar.in
                   </div>
                 </div>
                 <div class="invoice-meta-col">
-                  <div class="tax-invoice-badge">TAX INVOICE / कर बीजक</div>
+                  <div class="tax-invoice-badge">ORDER INVOICE & BLESSING BILL</div>
                   <div class="inv-meta-row"><strong>Invoice No:</strong> <span id="inv-number-val">UB-INV-2026-98421</span></div>
                   <div class="inv-meta-row"><strong>Order ID:</strong> <span id="inv-order-id-val">#UB-ORD-884102</span></div>
                   <div class="inv-meta-row"><strong>Date:</strong> <span id="inv-date-val">15 October 2026</span></div>
@@ -513,10 +517,10 @@ export class CartDrawer {
                 </div>
                 <div class="compliance-col">
                   <div class="gov-seal">
-                    <span class="seal-icon">🏛️</span>
+                    <span class="seal-icon">✨</span>
                     <div>
-                      <strong>ALL INDIA HANDICRAFTS BOARD COMPLIANCE</strong>
-                      <div>Govt. of India Artisanal Metalcraft & Home Decor Standards</div>
+                      <strong>DIRECT ARTISAN ALL-INCLUSIVE PRICE</strong>
+                      <div>No Hidden Taxes • 100% Final Pure Value to Artisans</div>
                     </div>
                   </div>
                 </div>
@@ -527,11 +531,11 @@ export class CartDrawer {
                 <thead>
                   <tr>
                     <th style="width: 5%;">#</th>
-                    <th style="width: 45%;">Description of Festive Goods</th>
-                    <th style="width: 15%;">HSN/SAC</th>
+                    <th style="width: 50%;">Description of Festive Goods</th>
+                    <th style="width: 15%;">Artisan Guild</th>
                     <th style="width: 10%; text-align: center;">Qty</th>
-                    <th style="width: 12%; text-align: right;">Unit Rate</th>
-                    <th style="width: 13%; text-align: right;">Total Amount</th>
+                    <th style="width: 10%; text-align: right;">Unit Rate</th>
+                    <th style="width: 10%; text-align: right;">Final Total</th>
                   </tr>
                 </thead>
                 <tbody id="invoice-items-tbody">
@@ -539,42 +543,46 @@ export class CartDrawer {
                 </tbody>
               </table>
 
-              <!-- Invoice Bottom Totals & GST Summary -->
+              <!-- Invoice Bottom Totals & Transparent Zero Charges Breakdown -->
               <div class="invoice-bottom-grid">
                 <div class="invoice-blessing-note">
-                  <h4>✨ Sacred Guarantee</h4>
+                  <h4>✨ Artisan Direct Guarantee</h4>
                   <p>
-                    Every offering in this sacred box is sanctified with holy Ganga jal and pure temple kumkum. Thank you for empowering our generational artisan families across Bharat.
+                    Every offering in this package is handcrafted with care by generational craft masters. The price you pay is the complete, final rate—with zero hidden GST, zero handling fees, and zero shipping charges. Thank you for empowering our generational artisan families across Bharat!
                   </p>
                   <div class="signatory-box">
                     <div class="sign-line">Shubh Deepavali 2026</div>
-                    <div class="sign-sub">UTSAV BAZAAR AUTHORIZED SIGNATORY</div>
+                    <div class="sign-sub">UTSAV BAZAAR ARTISAN CARE SIGNATORY</div>
                   </div>
                 </div>
 
                 <div class="invoice-summary-calc">
                   <div class="calc-row">
-                    <span>Taxable Value (Subtotal):</span>
+                    <span>Item Total Value:</span>
                     <span id="inv-calc-subtotal">₹0</span>
                   </div>
                   <div class="calc-row" id="inv-calc-discount-row" style="display: none;">
-                    <span>Festive Blessing Discount:</span>
-                    <span id="inv-calc-discount">-₹0</span>
+                    <span>Festive Discount:</span>
+                    <span id="inv-calc-discount" style="color:#B91C1C; font-weight:700;">-₹0</span>
                   </div>
                   <div class="calc-row">
-                    <span>Central GST (CGST 9%):</span>
-                    <span id="inv-calc-cgst">₹0</span>
+                    <span>Central GST (CGST 0%):</span>
+                    <span style="color:#10B981; font-weight:700;">₹0.00 (Zero GST Extra)</span>
                   </div>
                   <div class="calc-row">
-                    <span>State GST (SGST 9%):</span>
-                    <span id="inv-calc-sgst">₹0</span>
+                    <span>State GST (SGST 0%):</span>
+                    <span style="color:#10B981; font-weight:700;">₹0.00 (Zero GST Extra)</span>
                   </div>
                   <div class="calc-row">
-                    <span>Sacred Packaging & Insured Transit:</span>
-                    <span class="free-shipping-tag">FREE (₹0.00)</span>
+                    <span>Premium Gift Box & Packaging:</span>
+                    <span class="free-shipping-tag" style="color:#10B981; font-weight:700;">₹0.00 (COMPLIMENTARY)</span>
+                  </div>
+                  <div class="calc-row">
+                    <span>Express Insured Courtyard Delivery:</span>
+                    <span class="free-shipping-tag" style="color:#10B981; font-weight:700;">₹0.00 (FREE SHIPPING)</span>
                   </div>
                   <div class="calc-row total-highlight">
-                    <span>TOTAL INVOICE VALUE:</span>
+                    <span>FINAL NET PAYABLE (ALL INCLUSIVE):</span>
                     <span class="grand-val" id="inv-calc-grand-total">₹0</span>
                   </div>
                 </div>
@@ -1051,7 +1059,7 @@ export class CartDrawer {
       discRow.style.display = 'none';
     }
 
-    this.container.querySelector('#cs-gst').textContent = this.getFormattedAmount(gstINR, gstUSD);
+    this.container.querySelector('#cs-gst').innerHTML = '<span style="color:#10B981; font-weight:700;">₹0 (No GST Applicable)</span>';
     this.container.querySelector('#cs-total').textContent = this.getFormattedAmount(totalINR, totalUSD);
   }
 
@@ -1092,11 +1100,6 @@ export class CartDrawer {
     const totalINR = subtotalINR - discountINR;
     const totalUSD = subtotalUSD - discountUSD;
 
-    const cgstINR = (totalINR * 0.09);
-    const sgstINR = (totalINR * 0.09);
-    const cgstUSD = (totalUSD * 0.09);
-    const sgstUSD = (totalUSD * 0.09);
-
     const invNum = `UB-INV-2026-${Math.floor(100000 + Math.random() * 900000)}`;
     const ordId = `#UB-ORD-${Date.now().toString().slice(-6)}`;
     const today = new Date().toLocaleDateString('en-IN', {
@@ -1128,19 +1131,19 @@ export class CartDrawer {
         const p = item.product;
         const rateStr = this.getFormattedAmount(p.priceINR, p.priceUSD);
         const lineTotalStr = this.getFormattedAmount(p.priceINR * item.quantity, p.priceUSD * item.quantity);
-        const hsn = p.category === 'fireworks' ? '3604' : (p.category === 'diyas' ? '7418' : '9505');
+        const guild = p.origin ? `${p.origin.split(',')[0]} Guild` : 'Artisan Craft';
 
         return `
           <tr>
             <td>${idx + 1}</td>
             <td>
               <strong>${p.name}</strong>
-              <div style="font-size:10px; color:#64748B;">Origin: ${p.origin} • Blessed Edition</div>
+              <div style="font-size:10px; color:#64748B;">Handcrafted in ${p.origin || 'India'} • 100% Final Price</div>
             </td>
-            <td>${hsn}</td>
+            <td><span style="font-size:11px; font-weight:600; color:#B45309;">${guild}</span></td>
             <td style="text-align: center;">${item.quantity}</td>
             <td style="text-align: right;">${rateStr}</td>
-            <td style="text-align: right; font-weight:700;">${lineTotalStr}</td>
+            <td style="text-align: right; font-weight:700; color:var(--color-gold-light);">${lineTotalStr}</td>
           </tr>
         `;
       }).join('');
@@ -1157,8 +1160,6 @@ export class CartDrawer {
       discRow.style.display = 'none';
     }
 
-    this.container.querySelector('#inv-calc-cgst').textContent = this.getFormattedAmount(cgstINR, cgstUSD);
-    this.container.querySelector('#inv-calc-sgst').textContent = this.getFormattedAmount(sgstINR, sgstUSD);
     this.container.querySelector('#inv-calc-grand-total').textContent = this.getFormattedAmount(totalINR, totalUSD);
 
     // Save order directly into Merchant Suite pipeline
@@ -1186,7 +1187,7 @@ export class CartDrawer {
         })),
         subtotalINR,
         discountINR,
-        taxINR: cgstINR + sgstINR,
+        taxINR: 0,
         totalINR,
         paymentMode: paymentMode,
         paymentStatus: paymentMode.includes('COD') ? 'Pending (COD)' : 'Paid (Verified)',

@@ -54,7 +54,10 @@ export class Navbar {
           <span class="bar-text" id="announcement-bar-text">${this.discountSettings.text}</span>
           <button class="bar-coupon-pill" id="bar-copy-coupon-btn" title="Click to copy coupon code">
             <span>USE CODE:</span> <strong id="announcement-coupon-code">${this.discountSettings.couponCode}</strong>
-            <span class="copy-tag">📋 Copy</span>
+            <span class="copy-tag">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              Copy
+            </span>
           </button>
           <span class="bar-sparkle">✦</span>
         </div>
@@ -73,31 +76,69 @@ export class Navbar {
           </button>
 
           <a href="#" class="brand-link" id="nav-brand-home">
-            <span class="brand-diya-glow">🪔</span>
+            <div class="brand-crest-emblem">
+              <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="46" stroke="url(#goldCrestGrad)" stroke-width="2.5" fill="url(#bgRadialCrest)" />
+                <path d="M50 16 C53 28 65 38 65 52 C65 62 58 70 50 70 C42 70 35 62 35 52 C35 38 47 28 50 16 Z" fill="url(#flameCrestGrad)" filter="url(#glowCrest)" />
+                <path d="M50 28 C51.5 35 59 42 59 51 C59 57 55 62 50 62 C45 62 41 57 41 51 C41 42 48.5 35 50 28 Z" fill="#FFFBEA" />
+                <path d="M24 64 C24 74 36 82 50 82 C64 82 76 74 76 64 C70 68 60 70 50 70 C40 70 30 68 24 64 Z" fill="url(#goldCrestGrad)" />
+                <defs>
+                  <linearGradient id="goldCrestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FFE082" />
+                    <stop offset="50%" stop-color="#D4AF37" />
+                    <stop offset="100%" stop-color="#996515" />
+                  </linearGradient>
+                  <linearGradient id="flameCrestGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stop-color="#D92626" />
+                    <stop offset="40%" stop-color="#F59E0B" />
+                    <stop offset="80%" stop-color="#FDE047" />
+                    <stop offset="100%" stop-color="#FFFFFF" />
+                  </linearGradient>
+                  <radialGradient id="bgRadialCrest" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="rgba(212, 175, 55, 0.25)" />
+                    <stop offset="100%" stop-color="rgba(10, 6, 14, 0.95)" />
+                  </radialGradient>
+                  <filter id="glowCrest" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+              </svg>
+            </div>
             <div class="brand-titles">
               <span class="brand-primary">UTSAV BAZAAR</span>
-              <span class="brand-secondary">उत्सव बाज़ार • 2026</span>
+              <span class="brand-secondary">HERITAGE FESTIVE PAVILION</span>
             </div>
           </a>
         </div>
 
-        <!-- Center: Clean Desktop Links (Home Storefront & All Products) -->
+        <!-- Center: Clean Desktop Links (Home Storefront & Premium All Products) -->
         <nav class="nav-center">
-          <a href="#" class="nav-item nav-home-trigger" id="nav-item-home">Home Storefront</a>
-          <!-- DEDICATED SEPARATE PRODUCT PAGE LINK IN MENU BAR -->
-          <a href="#" class="nav-item nav-products-trigger highlighted-menu-item" id="nav-item-products">
-            <span class="nav-shop-icon">🛍️</span>
-            <span>All Products</span>
-            <span class="new-pill">Explore Store</span>
+          <a href="#" class="nav-item nav-home-trigger" id="nav-item-home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home Storefront</span>
           </a>
-          <a href="#heritage-section" class="nav-item" id="nav-item-heritage">Artisan Heritage</a>
+          <!-- PREMIUM BRANDING STORE LINK -->
+          <a href="#" class="nav-item nav-products-trigger premium-brand-pill" id="nav-item-products">
+            <span class="premium-sparkle">✦</span>
+            <span class="premium-logo-diya">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c.5 2.5 3 4.5 3 7a3 3 0 0 1-6 0c0-2.5 2.5-4.5 3-7Z"/><path d="M4 14c0 4 3.5 7 8 7s8-3 8-7H4Z"/></svg>
+            </span>
+            <span class="premium-btn-title">ALL COLLECTIONS</span>
+            <span class="premium-badge-tag">ROYAL STORE</span>
+          </a>
         </nav>
 
         <!-- Right: Theme Toggle, Currency, Audio & Cart -->
         <div class="nav-right">
           <!-- Dark / Light (Golden Luxury) Mode Switch -->
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Golden Light & Dark Mode" aria-label="Toggle theme">
-            <span>${isLight ? '🌙' : '☀️'}</span>
+            <span class="theme-mode-icon">
+              ${isLight 
+                ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>' 
+                : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>'
+              }
+            </span>
             <span class="theme-text">${isLight ? 'Dark' : 'Golden Light'}</span>
           </button>
 
@@ -121,9 +162,15 @@ export class Navbar {
             <span class="sound-text" id="sound-label">${this.soundManager.isMuted ? 'Sound Off' : 'Sound On'}</span>
           </button>
 
+          <!-- Admin Quick Access Trigger Button -->
+          <button class="nav-admin-quick-btn" id="nav-admin-btn" title="Open Merchant Admin Suite (Store Owner Console)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="admin-quick-text">Admin</span>
+          </button>
+
           <!-- Cart / Festive Thali Button -->
           <button class="cart-trigger-btn" id="cart-trigger-btn" aria-label="Shopping Cart">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             <span class="cart-label">Thali</span>
             <span class="cart-badge" id="nav-cart-badge">0</span>
           </button>
@@ -135,7 +182,13 @@ export class Navbar {
       <aside class="mobile-nav-drawer" id="mobile-nav-drawer">
         <div class="mobile-drawer-header">
           <div class="brand-link">
-            <span class="brand-diya-glow">🪔</span>
+            <div class="brand-crest-emblem">
+              <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="46" stroke="#D4AF37" stroke-width="3" fill="#140D1D" />
+                <path d="M50 18 C53 28 64 38 64 50 C64 60 58 68 50 68 C42 68 36 60 36 50 C36 38 47 28 50 18 Z" fill="#F59E0B" />
+                <path d="M26 64 C26 74 36 80 50 80 C64 80 74 74 74 64 Z" fill="#D4AF37" />
+              </svg>
+            </div>
             <div class="brand-titles">
               <span class="brand-primary">UTSAV BAZAAR</span>
               <span class="brand-secondary">उत्सव बाज़ार</span>
@@ -146,15 +199,14 @@ export class Navbar {
 
         <div class="mobile-drawer-links">
           <a href="#" class="mobile-link" id="mobile-link-home">
-            <span>🏠</span> <span>Home Storefront</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home Storefront</span>
           </a>
           <!-- Prominent Dedicated All Products Page -->
           <a href="#" class="mobile-link mobile-link-highlight" id="mobile-link-products">
-            <span>🛍️</span> <span>All Products (Store Catalog)</span>
-            <span class="mobile-pill">Shop All</span>
-          </a>
-          <a href="#heritage-section" class="mobile-link" id="mobile-link-heritage">
-            <span>👑</span> <span>Artisan Heritage Lineage</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c.5 2.5 3 4.5 3 7a3 3 0 0 1-6 0c0-2.5 2.5-4.5 3-7Z"/><path d="M4 14c0 4 3.5 7 8 7s8-3 8-7H4Z"/></svg>
+            <span>All Collections (Royal Store)</span>
+            <span class="mobile-pill">Explore</span>
           </a>
         </div>
 
@@ -265,7 +317,14 @@ export class Navbar {
       });
     });
 
-    // Mobile Admin Button
+    // Desktop & Mobile Admin Button
+    const desktopAdmin = this.container.querySelector('#nav-admin-btn');
+    if (desktopAdmin && this.onAdminClick) {
+      desktopAdmin.addEventListener('click', () => {
+        this.onAdminClick();
+      });
+    }
+
     const mobileAdmin = this.container.querySelector('#mobile-admin-btn');
     if (mobileAdmin && this.onAdminClick) {
       mobileAdmin.addEventListener('click', () => {

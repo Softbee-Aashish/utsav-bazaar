@@ -52,12 +52,19 @@ export class ProductPage {
     `;
   }
 
-  showListing(category = 'all', searchQuery = '') {
+  showListing(category = 'all', searchQuery = '', syncHash = true) {
     this.activeProductId = null;
     this.selectedCategory = category;
     this.searchQuery = searchQuery || '';
     const wrapper = this.container.querySelector('#ecom-product-page-wrapper');
     if (wrapper) wrapper.style.display = 'block';
+
+    if (syncHash) {
+      const hashStr = category && category !== 'all' ? `#/products/${category}` : '#/products';
+      if (window.location.hash !== hashStr) {
+        history.pushState(null, '', hashStr);
+      }
+    }
 
     const mainContent = this.container.querySelector('#ecom-main-content');
     if (!mainContent) return;
@@ -144,7 +151,7 @@ export class ProductPage {
               <span class="gold-icon">👑</span>
               <span>Utsav Express Delivery</span>
             </div>
-            <div class="filter-feature-note">Free Sacred Packaging & Temple Prasad with every festive order.</div>
+            <div class="filter-feature-note">Free Premium Gift Packaging & Insured Delivery with every order.</div>
           </div>
         </aside>
 
@@ -241,15 +248,22 @@ export class ProductPage {
       torans: 'Traditional Brass & Floral Torans',
       lanterns: 'Heritage Brass Jali Hanging Lanterns',
       hampers: 'Auspicious Curated Festive Gift Hampers',
-      heirlooms: 'Sacred Temple Heirlooms & Artifacts'
+      heirlooms: 'Royal Handcrafted Heirlooms & Artifacts'
+    };
+
+    const categoryHeroDescs = {
+      all: 'Explore curated royal brassware, handloom festival apparel, and handcrafted auspicious decor for your home and family.',
+      diyas: 'Pure solid brass deepams crafted with centuries-old lost-wax casting, spreading radiant festive light across your home.',
+      decor: 'Elevate your living sanctuary with hand-hammered brass urlis, auspicious floating flower bowls, and artisanal brass stands handcrafted in Moradabad and Thanjavur.',
+      apparel: 'Pure handloom Mulberry silk kurtas, Varanasi brocades, and gossamer Chanderi dupattas woven by generational master weavers.',
+      torans: 'Traditional velvet and brass-ghungroo bandhanwars embroidered with Shubh-Labh and Kalash motifs to usher festive elegance into your home.',
+      lanterns: 'Heritage Mughal-Moroccan laser-cut brass lanterns casting mesmerizing geometric starburst shadows across balconies and foyers.',
+      hampers: 'Auspicious celebratory chests brimming with 24K edible gold sweets, Kashmiri mamra almonds, raw organic honey, and royal brassware.',
+      heirlooms: 'Rare master-crafted bronzes, Swamimalai heritage bell deepams, and ceremonial polki treasures passed down across generations.'
     };
 
     const currentTitle = categoryTitles[this.selectedCategory] || 'Festive Marketplace Offerings';
-    const currentHeroDesc = this.selectedCategory === 'decor' 
-      ? 'Elevate your living sanctuary with hand-hammered brass urlis, auspicious floating flower bowls, and artisanal brass stands handcrafted in Moradabad and Thanjavur.'
-      : (this.selectedCategory === 'diyas'
-      ? 'Pure solid brass deepams crafted with centuries-old lost-wax casting, spreading sacred festive radiance across your doorways and puja mandir.'
-      : 'Explore curated royal brassware, handloom festival apparel, and handcrafted auspicious decor for your home and family.');
+    const currentHeroDesc = categoryHeroDescs[this.selectedCategory] || 'Explore curated royal brassware, handloom festival apparel, and handcrafted auspicious decor.';
 
     stream.innerHTML = `
       <!-- Category Hero Top Banner -->
@@ -332,10 +346,17 @@ export class ProductPage {
     `;
   }
 
-  showProductDetail(productId) {
+  showProductDetail(productId, syncHash = true) {
     this.activeProductId = productId;
     const wrapper = this.container.querySelector('#ecom-product-page-wrapper');
     if (wrapper) wrapper.style.display = 'block';
+
+    if (syncHash) {
+      const hashStr = `#/product/${productId}`;
+      if (window.location.hash !== hashStr) {
+        history.pushState(null, '', hashStr);
+      }
+    }
 
     this.renderProductDetail(productId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -367,30 +388,59 @@ export class ProductPage {
 
       <!-- Detail Layout: Left Gallery + Middle Specs + Right Buy Box -->
       <div class="ecom-detail-main-layout">
-        <!-- 1. Left Column: Image Gallery with Thumbnails & Zoom -->
+        <!-- 1. Left Column: Multi-Media Gallery with Thumbnails & Zoom (Images, GIFs, Videos) -->
         <div class="ecom-detail-gallery-col">
-          <div class="gallery-thumbnails">
-            <div class="thumb-box active" data-img-idx="0">
-              <img src="${imgUrl}" alt="${product.name}" onerror="this.src='/assets/products/diya_peacock.jpg';" />
-            </div>
-            <div class="thumb-box" data-img-idx="1">
-              <img src="${imgUrl}" style="filter: brightness(1.08);" alt="${product.name}" onerror="this.src='/assets/products/diya_peacock.jpg';" />
-            </div>
-            <div class="thumb-box" data-img-idx="2">
-              <img src="${imgUrl}" style="filter: contrast(1.15);" alt="${product.name}" onerror="this.src='/assets/products/diya_peacock.jpg';" />
-            </div>
+          <div class="gallery-thumbnails" id="product-gallery-thumbnails">
+            ${(() => {
+              const mediaList = (Array.isArray(product.media) && product.media.length > 0)
+                ? product.media
+                : [
+                    { type: 'image', url: imgUrl },
+                    { type: 'image', url: imgUrl, filter: 'brightness(1.08)' },
+                    { type: 'image', url: imgUrl, filter: 'contrast(1.15)' }
+                  ];
+
+              return mediaList.map((m, idx) => {
+                const isVideo = m.type === 'video' || (m.url && m.url.match(/\.(mp4|webm|mov)(\?.*)?$/i));
+                const thumbInner = isVideo
+                  ? `<div class="detail-thumb-video-icon">
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="#D4AF37"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                       <small>VIDEO</small>
+                     </div>`
+                  : `<img src="${m.url}" alt="${product.name}" style="${m.filter ? `filter: ${m.filter};` : ''}" onerror="this.src='/assets/products/diya_peacock.jpg';" />`;
+
+                return `
+                  <div class="thumb-box ${idx === 0 ? 'active' : ''}" data-media-idx="${idx}" data-media-type="${isVideo ? 'video' : 'image'}" data-media-url="${m.url}">
+                    ${thumbInner}
+                  </div>
+                `;
+              }).join('');
+            })()}
           </div>
 
           <div class="gallery-primary-display" id="product-gallery-container">
             <div class="gallery-img-wrapper" id="gallery-zoom-wrapper">
-              <img src="${imgUrl}" alt="${product.name}" id="main-product-display-img" class="primary-detail-img" onerror="this.src='/assets/products/diya_peacock.jpg';" />
+              ${(() => {
+                const firstMedia = (Array.isArray(product.media) && product.media.length > 0) ? product.media[0] : null;
+                const isVideo = firstMedia && (firstMedia.type === 'video' || firstMedia.url.match(/\.(mp4|webm|mov)(\?.*)?$/i));
+                if (isVideo) {
+                  return `
+                    <video src="${firstMedia.url}" id="main-product-display-video" class="primary-detail-img primary-detail-video" autoplay loop muted playsinline controls></video>
+                    <img src="${imgUrl}" alt="${product.name}" id="main-product-display-img" class="primary-detail-img" style="display:none;" onerror="this.src='/assets/products/diya_peacock.jpg';" />
+                  `;
+                }
+                return `
+                  <img src="${imgUrl}" alt="${product.name}" id="main-product-display-img" class="primary-detail-img" onerror="this.src='/assets/products/diya_peacock.jpg';" />
+                  <video id="main-product-display-video" class="primary-detail-img primary-detail-video" autoplay loop muted playsinline controls style="display:none;"></video>
+                `;
+              })()}
               <div class="zoom-lens" id="zoom-lens"></div>
             </div>
             <!-- Amazon / Flipkart Style Side Zoom Window -->
             <div class="zoom-result-window" id="zoom-result-window">
               <img src="${imgUrl}" id="zoom-result-img" alt="Zoomed view" onerror="this.src='/assets/products/diya_peacock.jpg';" />
             </div>
-            <div class="click-to-zoom-hint">🔍 Roll over image to zoom in high definition • Click for full screen</div>
+            <div class="click-to-zoom-hint">🔍 Roll over image to zoom in HD • Multi-angle craftsmanship</div>
           </div>
         </div>
 
@@ -442,7 +492,7 @@ export class ProductPage {
               </div>
               <div class="offer-card">
                 <strong>Artisan Guarantee</strong>
-                <p>Certified pure virgin brass and handloom silk with temple blessing certificate.</p>
+                <p>Certified pure virgin brass and handloom silk with quality authenticity certificate.</p>
                 <a href="#">Learn more ›</a>
               </div>
             </div>
@@ -453,7 +503,7 @@ export class ProductPage {
           <!-- Hero Small Description -->
           <div class="detail-hero-small-desc">
             <div class="small-desc-badge">HIGHLIGHTS</div>
-            <p class="hero-tagline-text">${product.tagline || 'Handcrafted masterpiece blessed for sacred Indian festivities.'}</p>
+            <p class="hero-tagline-text">${product.tagline || 'Handcrafted masterpiece created for Indian festive celebrations.'}</p>
           </div>
 
           <!-- Rich Formatted Content & Specs -->
@@ -467,8 +517,8 @@ export class ProductPage {
               ${(product.features || [
                 "Solid Virgin Brass with protective antique gold lacquer",
                 "Handcrafted by generational artisans with authentic heirloom engraving",
-                "Includes auspicious sacred temple kumkum & gift packaging",
-                "100% login-free instant checkout with official tax invoice"
+                "Includes premium festive gift box packaging",
+                "100% login-free instant checkout with official order invoice"
               ]).map(f => `<li><span>•</span> <div>${f}</div></li>`).join('')}
             </ul>
 
@@ -817,23 +867,45 @@ export class ProductPage {
       });
     }
 
-    // Thumbnail switching & sync zoom images
+    // Thumbnail switching & sync zoom images / video display
     mainContent.querySelectorAll('.thumb-box').forEach(thumb => {
-      thumb.addEventListener('mouseenter', () => {
+      const switchMedia = () => {
         mainContent.querySelectorAll('.thumb-box').forEach(t => t.classList.remove('active'));
         thumb.classList.add('active');
-        const img = thumb.querySelector('img');
+        const mediaType = thumb.getAttribute('data-media-type');
+        const mediaUrl = thumb.getAttribute('data-media-url');
         const mainImg = mainContent.querySelector('#main-product-display-img');
+        const mainVideo = mainContent.querySelector('#main-product-display-video');
         const zoomImg = mainContent.querySelector('#zoom-result-img');
-        if (img && mainImg) {
-          mainImg.src = img.src;
-          mainImg.style.filter = img.style.filter || '';
+        const zoomLens = mainContent.querySelector('#zoom-lens');
+        const zoomWindow = mainContent.querySelector('#zoom-result-window');
+
+        if (mediaType === 'video' && mainVideo) {
+          if (mainImg) mainImg.style.display = 'none';
+          mainVideo.style.display = 'block';
+          mainVideo.src = mediaUrl;
+          mainVideo.play().catch(() => {});
+          if (zoomLens) zoomLens.style.display = 'none';
+          if (zoomWindow) zoomWindow.style.display = 'none';
+        } else if (mainImg) {
+          if (mainVideo) {
+            mainVideo.pause();
+            mainVideo.style.display = 'none';
+          }
+          mainImg.style.display = 'block';
+          const img = thumb.querySelector('img');
+          const src = img ? img.src : mediaUrl;
+          mainImg.src = src;
+          mainImg.style.filter = img ? (img.style.filter || '') : '';
           if (zoomImg) {
-            zoomImg.src = img.src;
-            zoomImg.style.filter = img.style.filter || '';
+            zoomImg.src = src;
+            zoomImg.style.filter = img ? (img.style.filter || '') : '';
           }
         }
-      });
+      };
+
+      thumb.addEventListener('mouseenter', switchMedia);
+      thumb.addEventListener('click', switchMedia);
     });
 
     // Amazon / Flipkart Interactive Hover Zoom Lens Logic
@@ -1066,10 +1138,14 @@ export class ProductPage {
     // Top-level handlers if any
   }
 
-  hide() {
+  hide(syncHash = true) {
     this.activeProductId = null;
     const wrapper = this.container.querySelector('#ecom-product-page-wrapper');
     if (wrapper) wrapper.style.display = 'none';
+
+    if (syncHash && (window.location.hash.startsWith('#/products') || window.location.hash.startsWith('#/product/'))) {
+      history.pushState(null, '', '#/');
+    }
   }
 
   getCategoryName(cat) {

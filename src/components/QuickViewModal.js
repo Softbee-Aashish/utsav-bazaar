@@ -133,7 +133,7 @@ export class QuickViewModal {
     const reviews = productStore.getProductReviews(p.id);
 
     body.innerHTML = `
-      <div class="qv-left-media" style="background: radial-gradient(circle at center, ${p.accentColor || '#D4AF37'}22 0%, #000 70%);">
+      <div class="qv-left-media">
         <span class="qv-badge">${p.badge || 'Festive Offering'}</span>
         <div class="qv-art-container">
           ${hasRealImage ? `
@@ -150,93 +150,96 @@ export class QuickViewModal {
       </div>
 
       <div class="qv-right-details">
-        <div class="qv-category">${p.categoryName || p.category}</div>
-        <h3 class="qv-title qv-title-clickable" id="qv-title-link" title="Click to view full product page">${p.name} 🔗</h3>
-        <p class="qv-tagline">${p.tagline}</p>
+        <div class="qv-scrollable-content">
+          <div class="qv-category">${p.categoryName || p.category}</div>
+          <h3 class="qv-title qv-title-clickable" id="qv-title-link" title="Click to view full product page">${p.name} 🔗</h3>
+          <p class="qv-tagline">${p.tagline}</p>
 
-        <div class="qv-rating-row">
-          <span class="stars">★★★★★</span>
-          <span class="score">${p.rating} / 5.0</span>
-          <span class="count">(${p.reviewsCount} verified festive orders)</span>
-        </div>
-
-        <div class="qv-price-row">
-          <div class="qv-price-main">
-            <span class="qv-price">${priceFormatted}</span>
-            ${hasDiscount ? `
-              <span class="qv-orig-price">${origPriceFormatted}</span>
-              <span class="qv-discount-tag">-${discountPercent}% OFF</span>
-            ` : ''}
-          </div>
-          <span class="qv-tax-note">Sacred gift box packaging included</span>
-        </div>
-
-        ${hasDiscount ? `
-          <div class="qv-savings-banner">
-            ✨ Auspicious Festive Savings: You save ₹${savingsINR.toLocaleString('en-IN')} (${discountPercent}%) today!
-          </div>
-        ` : ''}
-
-        <p class="qv-description">${p.description}</p>
-
-        <div class="qv-craft-specs">
-          <h4>Craftsmanship & Materials:</h4>
-          ${p.material ? `<p><strong>Primary Material:</strong> ${p.material}</p>` : ''}
-          <ul class="qv-feature-list">
-            ${(p.features || ["Handcrafted by master Indian artisans", "Blessed festive packaging"]).map(f => `<li><span>✦</span> ${f}</li>`).join('')}
-          </ul>
-        </div>
-
-        <!-- Real Customer Reviews Section -->
-        <div class="qv-reviews-section">
-          <div class="qv-rev-title-row">
-            <h4>Customer Blessings & Reviews (${reviews.length})</h4>
+          <div class="qv-rating-row">
+            <span class="stars">★★★★★</span>
+            <span class="score">${p.rating} / 5.0</span>
+            <span class="count">(${p.reviewsCount} verified festive orders)</span>
           </div>
 
-          <div class="qv-rev-list">
-            ${reviews.length > 0 ? reviews.map(r => `
-              <div class="qv-rev-item">
-                <div class="rev-item-head">
-                  <span class="rev-author">${r.name}</span>
-                  <span class="rev-stars">${'★'.repeat(r.rating)}</span>
-                  <span class="rev-time">${r.date}</span>
-                  <span class="rev-verified">✓ Verified Buyer</span>
-                </div>
-                <p class="rev-text">"${r.comment}"</p>
-              </div>
-            `).join('') : `
-              <div class="no-rev-notice">No reviews yet. Be the first to bless this offering!</div>
-            `}
-          </div>
-
-          <!-- Quick Review Form -->
-          <div class="qv-add-review-box">
-            <h5>Leave a Festive Blessing / Review</h5>
-            <div class="rev-input-row">
-              <input type="text" id="qv-rev-name" placeholder="Your Name (e.g. Radhika Sharma)" class="rev-mini-input" />
-              <select id="qv-rev-stars" class="rev-mini-select">
-                <option value="5">★★★★★ (5 Stars)</option>
-                <option value="4">★★★★☆ (4 Stars)</option>
-                <option value="3">★★★☆☆ (3 Stars)</option>
-              </select>
+          <div class="qv-price-row">
+            <div class="qv-price-main">
+              <span class="qv-price">${priceFormatted}</span>
+              ${hasDiscount ? `
+                <span class="qv-orig-price">${origPriceFormatted}</span>
+                <span class="qv-discount-tag">-${discountPercent}% OFF</span>
+              ` : ''}
             </div>
-            <textarea id="qv-rev-comment" placeholder="Write your review or festive wishes..." class="rev-mini-textarea" rows="2"></textarea>
-            <button class="rev-submit-btn" id="qv-submit-quick-rev">Post Blessing</button>
+            <span class="qv-tax-note">Sacred gift box packaging included</span>
+          </div>
+
+          ${hasDiscount ? `
+            <div class="qv-savings-banner">
+              ✨ Auspicious Festive Savings: You save ₹${savingsINR.toLocaleString('en-IN')} (${discountPercent}%) today!
+            </div>
+          ` : ''}
+
+          <p class="qv-description">${p.description}</p>
+
+          <div class="qv-craft-specs">
+            <h4>Craftsmanship & Materials:</h4>
+            ${p.material ? `<p><strong>Primary Material:</strong> ${p.material}</p>` : ''}
+            <ul class="qv-feature-list">
+              ${(p.features || ["Handcrafted by master Indian artisans", "Blessed festive packaging"]).map(f => `<li><span>✦</span> ${f}</li>`).join('')}
+            </ul>
+          </div>
+
+          <!-- Real Customer Reviews Section -->
+          <div class="qv-reviews-section">
+            <div class="qv-rev-title-row">
+              <h4>Customer Blessings & Reviews (${reviews.length})</h4>
+            </div>
+
+            <div class="qv-rev-list">
+              ${reviews.length > 0 ? reviews.map(r => `
+                <div class="qv-rev-item">
+                  <div class="rev-item-head">
+                    <span class="rev-author">${r.name}</span>
+                    <span class="rev-stars">${'★'.repeat(r.rating)}</span>
+                    <span class="rev-time">${r.date}</span>
+                    <span class="rev-verified">✓ Verified Buyer</span>
+                  </div>
+                  <p class="rev-text">"${r.comment}"</p>
+                </div>
+              `).join('') : `
+                <div class="no-rev-notice">No reviews yet. Be the first to bless this offering!</div>
+              `}
+            </div>
+
+            <!-- Quick Review Form -->
+            <div class="qv-add-review-box">
+              <h5>Leave a Festive Blessing / Review</h5>
+              <div class="rev-input-row">
+                <input type="text" id="qv-rev-name" placeholder="Your Name (e.g. Radhika Sharma)" class="rev-mini-input" />
+                <select id="qv-rev-stars" class="rev-mini-select">
+                  <option value="5">★★★★★ (5 Stars)</option>
+                  <option value="4">★★★★☆ (4 Stars)</option>
+                  <option value="3">★★★☆☆ (3 Stars)</option>
+                </select>
+              </div>
+              <textarea id="qv-rev-comment" placeholder="Write your review or festive wishes..." class="rev-mini-textarea" rows="2"></textarea>
+              <button class="rev-submit-btn" id="qv-submit-quick-rev">Post Blessing</button>
+            </div>
           </div>
         </div>
 
-        <div class="qv-actions" style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
-          <button class="qv-buy-now-btn" id="qv-buy-now-btn" ${!p.inStock ? 'disabled' : ''}>
-            <span>⚡ Buy Now (Express Checkout)</span>
-          </button>
-
-          <button class="qv-add-btn ${!p.inStock ? 'disabled-btn' : ''}" id="qv-add-cart-btn" ${!p.inStock ? 'disabled' : ''}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            <span>${p.inStock ? `Add to Festive Thali • ${priceFormatted}` : 'Sold Out'}</span>
-          </button>
-
+        <!-- Sticky Buy Now & Thali Action Fixture at Bottom -->
+        <div class="qv-actions-sticky-bar">
+          <div class="qv-action-buttons-row">
+            <button class="qv-buy-now-btn" id="qv-buy-now-btn" ${!p.inStock ? 'disabled' : ''}>
+              <span>⚡ Buy Now</span>
+            </button>
+            <button class="qv-add-btn ${!p.inStock ? 'disabled-btn' : ''}" id="qv-add-cart-btn" ${!p.inStock ? 'disabled' : ''}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <span>${p.inStock ? `Add to Thali` : 'Sold Out'}</span>
+            </button>
+          </div>
           <button class="qv-view-full-page-btn" id="qv-view-full-btn">
-            <span>View Full Product Description & Details ›</span>
+            <span>View Full Product Page & Specifications ›</span>
           </button>
         </div>
       </div>
