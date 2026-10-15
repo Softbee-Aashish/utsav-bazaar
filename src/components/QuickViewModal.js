@@ -44,6 +44,23 @@ export class QuickViewModal {
     const body = this.container.querySelector('#qv-body');
     if (body) {
       body.addEventListener('click', (e) => {
+        const titleLink = e.target.closest('#qv-title-link') || e.target.closest('#qv-view-full-btn');
+        if (titleLink && this.product) {
+          const pid = this.product.id;
+          this.close();
+          document.dispatchEvent(new CustomEvent('open-product-detail', { detail: { productId: pid } }));
+          return;
+        }
+
+        const buyNowBtn = e.target.closest('#qv-buy-now-btn');
+        if (buyNowBtn && this.product) {
+          const prod = this.product;
+          this.close();
+          if (this.onAddToCart) this.onAddToCart(prod);
+          document.dispatchEvent(new CustomEvent('direct-buy-now', { detail: { product: prod } }));
+          return;
+        }
+
         const addBtn = e.target.closest('#qv-add-cart-btn');
         if (addBtn && this.product && this.onAddToCart) {
           this.onAddToCart(this.product);
@@ -134,7 +151,7 @@ export class QuickViewModal {
 
       <div class="qv-right-details">
         <div class="qv-category">${p.categoryName || p.category}</div>
-        <h3 class="qv-title">${p.name}</h3>
+        <h3 class="qv-title qv-title-clickable" id="qv-title-link" title="Click to view full product page">${p.name} 🔗</h3>
         <p class="qv-tagline">${p.tagline}</p>
 
         <div class="qv-rating-row">
@@ -208,10 +225,18 @@ export class QuickViewModal {
           </div>
         </div>
 
-        <div class="qv-actions" style="margin-top: 24px;">
+        <div class="qv-actions" style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
+          <button class="qv-buy-now-btn" id="qv-buy-now-btn" ${!p.inStock ? 'disabled' : ''}>
+            <span>⚡ Buy Now (Express Checkout)</span>
+          </button>
+
           <button class="qv-add-btn ${!p.inStock ? 'disabled-btn' : ''}" id="qv-add-cart-btn" ${!p.inStock ? 'disabled' : ''}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             <span>${p.inStock ? `Add to Festive Thali • ${priceFormatted}` : 'Sold Out'}</span>
+          </button>
+
+          <button class="qv-view-full-page-btn" id="qv-view-full-btn">
+            <span>View Full Product Description & Details ›</span>
           </button>
         </div>
       </div>

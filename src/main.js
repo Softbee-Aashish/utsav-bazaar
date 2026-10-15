@@ -137,6 +137,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Direct Buy Now event listener to open guest checkout
+  document.addEventListener('direct-buy-now', () => {
+    cartDrawer.openGuestCheckout();
+  });
+
   // 7. Initialize Scroll Scrubber with Lerp Easing
   const scrubber = new ScrollScrubber({
     container: scrollTrack,

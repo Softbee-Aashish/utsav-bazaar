@@ -26,11 +26,11 @@ export class SceneRenderer {
 
     // Preload generated 3D scene artworks
     this.sceneImages = {
-      scene1: this.loadAsset('assets/scenes/scene1.jpg'),
-      scene2: this.loadAsset('assets/scenes/scene2.jpg'),
-      scene3: this.loadAsset('assets/scenes/scene3.png'),
-      scene4: this.loadAsset('assets/scenes/scene4.jpg'),
-      scene5: this.loadAsset('assets/scenes/scene5.jpg')
+      scene1: this.loadAsset('/assets/scenes/scene1.jpg'),
+      scene2: this.loadAsset('/assets/scenes/scene2.jpg'),
+      scene3: this.loadAsset('/assets/scenes/scene3.png'),
+      scene4: this.loadAsset('/assets/scenes/scene4.jpg'),
+      scene5: this.loadAsset('/assets/scenes/scene5.jpg')
     };
 
     // Particle systems

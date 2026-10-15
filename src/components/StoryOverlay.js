@@ -62,6 +62,22 @@ export class StoryOverlay {
 
   render() {
     this.container.innerHTML = `
+      <!-- Narrative Story Cards for Scenes 1 to 4 -->
+      <div class="story-cards-container" id="story-cards-container">
+        ${this.sceneData.slice(0, 4).map((sc, i) => `
+          <div class="story-card" id="story-card-${i}">
+            <div class="story-tag" style="color:${sc.accent};">${sc.tag}</div>
+            <div class="story-title">
+              <span class="story-title-hi">${sc.titleHi}</span>
+              <span class="story-title-divider">•</span>
+              <span class="story-title-en">${sc.title}</span>
+            </div>
+            <div class="story-subtitle">${sc.subtitle}</div>
+            <p class="story-caption" style="font-size:13px; line-height:1.45; color:#E2E8F0; margin-top:6px;">${sc.caption}</p>
+          </div>
+        `).join('')}
+      </div>
+
       <!-- Center Stage: Grand Hero Title in Dead Center of the Skyburst (Revealed at Scene 5) -->
       <div class="story-center-stage">
         <!-- Scene 5 Finale Hero Title -->
@@ -164,6 +180,22 @@ export class StoryOverlay {
     const fill = this.container.querySelector('#hud-progress-fill');
     if (fill) {
       fill.style.width = `${Math.min(100, globalProgress * 100)}%`;
+    }
+
+    // Update narrative story cards (Scenes 1 to 4)
+    for (let i = 0; i < 4; i++) {
+      const card = this.container.querySelector(`#story-card-${i}`);
+      if (card) {
+        if (sceneIndex === i) {
+          card.style.opacity = '1';
+          card.style.visibility = 'visible';
+          card.style.transform = 'translateX(-50%) translateY(0)';
+        } else {
+          card.style.opacity = '0';
+          card.style.visibility = 'hidden';
+          card.style.transform = 'translateX(-50%) translateY(12px)';
+        }
+      }
     }
 
     // Finale Reveal in Scene 5 (blooms in dead center as celestial explosion expands)

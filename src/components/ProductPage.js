@@ -233,7 +233,40 @@ export class ProductPage {
       return;
     }
 
+    const categoryTitles = {
+      all: 'Grand Festive Bazaar • All Collections',
+      diyas: 'Hand-Cast Royal Brass Diyas & Deepams',
+      decor: 'Artisanal Urlis, Urli Stands & Home Decor',
+      apparel: 'Pure Handloom Silk Kurtas & Festive Attire',
+      torans: 'Traditional Brass & Floral Torans',
+      lanterns: 'Heritage Brass Jali Hanging Lanterns',
+      hampers: 'Auspicious Curated Festive Gift Hampers',
+      heirlooms: 'Sacred Temple Heirlooms & Artifacts'
+    };
+
+    const currentTitle = categoryTitles[this.selectedCategory] || 'Festive Marketplace Offerings';
+    const currentHeroDesc = this.selectedCategory === 'decor' 
+      ? 'Elevate your living sanctuary with hand-hammered brass urlis, auspicious floating flower bowls, and artisanal brass stands handcrafted in Moradabad and Thanjavur.'
+      : (this.selectedCategory === 'diyas'
+      ? 'Pure solid brass deepams crafted with centuries-old lost-wax casting, spreading sacred festive radiance across your doorways and puja mandir.'
+      : 'Explore curated royal brassware, handloom festival apparel, and handcrafted auspicious decor for your home and family.');
+
     stream.innerHTML = `
+      <!-- Category Hero Top Banner -->
+      <div class="ecom-category-hero-banner">
+        <div class="hero-banner-content">
+          <div class="hero-banner-tag">✦ UTSAV BAZAAR CURATED COLLECTION ✦</div>
+          <h2 class="hero-banner-title">${currentTitle}</h2>
+          <p class="hero-banner-desc">${currentHeroDesc}</p>
+        </div>
+        <div class="hero-banner-stats">
+          <div class="banner-stat-pill">✨ ${list.length} Offerings Available</div>
+          <div class="banner-stat-pill">👑 100% Artisan Certified</div>
+          <div class="banner-stat-pill">🚀 Free Express Shipping</div>
+        </div>
+      </div>
+
+      <!-- Flipkart / Amazon Products Grid -->
       <div class="ecom-grid-container">
         ${list.map(p => this.renderFlipkartCard(p)).join('')}
       </div>

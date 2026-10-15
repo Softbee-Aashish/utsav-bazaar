@@ -78,19 +78,16 @@ export class Navbar {
           </a>
         </div>
 
-        <!-- Center: Desktop Links + Dedicated Separate Product Page -->
+        <!-- Center: Clean Desktop Links (Home Journey & All Products) -->
         <nav class="nav-center">
           <a href="#" class="nav-item nav-home-trigger" id="nav-item-home">Home Journey</a>
           <!-- DEDICATED SEPARATE PRODUCT PAGE LINK IN MENU BAR -->
           <a href="#" class="nav-item nav-products-trigger highlighted-menu-item" id="nav-item-products">
             <span class="nav-shop-icon">🛍️</span>
             <span>All Products</span>
-            <span class="new-pill">Flipkart View</span>
+            <span class="new-pill">Explore Store</span>
           </a>
-          <a href="#bazaar-storefront" class="nav-item nav-category-trigger" data-cat="decor">Home Decor</a>
-          <a href="#bazaar-storefront" class="nav-item nav-category-trigger" data-cat="apparel">Festive Attire</a>
-          <a href="#bazaar-storefront" class="nav-item nav-category-trigger" data-cat="diyas">Royal Diyas</a>
-          <a href="#heritage-section" class="nav-item">Artisan Heritage</a>
+          <a href="#heritage-section" class="nav-item" id="nav-item-heritage">Artisan Heritage</a>
         </nav>
 
         <!-- Right: Theme Toggle, Currency, Audio & Cart -->
@@ -150,23 +147,8 @@ export class Navbar {
           </a>
           <!-- Prominent Dedicated All Products Page -->
           <a href="#" class="mobile-link mobile-link-highlight" id="mobile-link-products">
-            <span>🛍️</span> <span>All Products (Flipkart View)</span>
+            <span>🛍️</span> <span>All Products (Store Catalog)</span>
             <span class="mobile-pill">Shop All</span>
-          </a>
-          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="decor">
-            <span>🏺</span> <span>Urlis & Home Decor</span>
-          </a>
-          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="apparel">
-            <span>👘</span> <span>Royal Silk & Attire</span>
-          </a>
-          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="diyas">
-            <span>🪔</span> <span>Royal Brass Diyas</span>
-          </a>
-          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="torans">
-            <span>🎋</span> <span>Torans & Wall Hangings</span>
-          </a>
-          <a href="#bazaar-storefront" class="mobile-link" data-mobile-cat="lanterns">
-            <span>🏮</span> <span>Mughal Jali Lanterns</span>
           </a>
           <a href="#heritage-section" class="mobile-link" id="mobile-link-heritage">
             <span>👑</span> <span>Artisan Heritage Lineage</span>
@@ -245,6 +227,18 @@ export class Navbar {
     if (brandHome) brandHome.addEventListener('click', handleHome);
     if (desktopHome) desktopHome.addEventListener('click', handleHome);
     if (mobileHome) mobileHome.addEventListener('click', handleHome);
+
+    const desktopHeritage = this.container.querySelector('#nav-item-heritage');
+    if (desktopHeritage) {
+      desktopHeritage.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.onHomeClick) this.onHomeClick();
+        setTimeout(() => {
+          const sec = document.querySelector('#heritage-section');
+          if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      });
+    }
 
     // Category click triggers
     this.container.querySelectorAll('.nav-category-trigger').forEach(link => {
