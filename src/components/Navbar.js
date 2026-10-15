@@ -81,9 +81,9 @@ export class Navbar {
           </a>
         </div>
 
-        <!-- Center: Clean Desktop Links (Home Journey & All Products) -->
+        <!-- Center: Clean Desktop Links (Home Storefront & All Products) -->
         <nav class="nav-center">
-          <a href="#" class="nav-item nav-home-trigger" id="nav-item-home">Home Journey</a>
+          <a href="#" class="nav-item nav-home-trigger" id="nav-item-home">Home Storefront</a>
           <!-- DEDICATED SEPARATE PRODUCT PAGE LINK IN MENU BAR -->
           <a href="#" class="nav-item nav-products-trigger highlighted-menu-item" id="nav-item-products">
             <span class="nav-shop-icon">🛍️</span>
@@ -146,7 +146,7 @@ export class Navbar {
 
         <div class="mobile-drawer-links">
           <a href="#" class="mobile-link" id="mobile-link-home">
-            <span>🏠</span> <span>Home Journey</span>
+            <span>🏠</span> <span>Home Storefront</span>
           </a>
           <!-- Prominent Dedicated All Products Page -->
           <a href="#" class="mobile-link mobile-link-highlight" id="mobile-link-products">

@@ -1,9 +1,5 @@
-// Main Entry Point for Utsav Bazaar 3D Festive Marketplace
+// Main Entry Point for Utsav Bazaar Luxury Festive Marketplace
 import { soundManager } from './engine/SoundManager.js';
-import { FrameLoader } from './engine/FrameLoader.js';
-import { SceneRenderer } from './engine/SceneRenderer.js';
-import { ScrollScrubber } from './engine/ScrollScrubber.js';
-import { StoryOverlay } from './components/StoryOverlay.js';
 import { Navbar } from './components/Navbar.js';
 import { ShopSection } from './components/ShopSection.js';
 import { ProductPage } from './components/ProductPage.js';
@@ -14,9 +10,6 @@ import { AdminPanel } from './components/AdminPanel.js';
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('✨ Initializing Utsav Bazaar (उत्सव बाज़ार)...');
 
-  const canvas = document.querySelector('#scene-canvas');
-  const scrollTrack = document.querySelector('#scroll-track');
-  const hudContainer = document.querySelector('#hud-overlay');
   const navContainer = document.querySelector('#nav-container');
   const productPageContainer = document.querySelector('#product-page-container');
   const shopContainer = document.querySelector('#shop-container');
@@ -24,21 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const qvContainer = document.querySelector('#quickview-container');
   const adminContainer = document.querySelector('#admin-container');
 
-  // 1. Initialize Frame Loader
-  const frameLoader = new FrameLoader({
-    totalFrames: 60,
-    onProgress: (pct) => {
-      console.log(`Loading frames: ${Math.round(pct * 100)}%`);
-    },
-    onLoaded: (frames) => {
-      console.log(`Loaded ${frames.length} AI frames successfully!`);
-    }
-  });
-
-  // 2. Initialize Scene Renderer
-  const sceneRenderer = new SceneRenderer(canvas, frameLoader);
-
-  // 3. Initialize Cart & Admin components
+  // 1. Initialize Cart & Admin components
   let cartDrawer = null;
   let navbar = null;
   let productPage = null;
@@ -53,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cartDrawer.addItem(product);
   });
 
-  // 4. Initialize Dedicated Flipkart/Amazon Style Product Page
+  // 2. Initialize Dedicated Flipkart/Amazon Style Product Page
   productPage = new ProductPage(
     productPageContainer,
     (product) => {
@@ -69,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   );
 
-  // 5. Initialize Navbar with Mobile Menu, Theme Toggle, & Separate Product Page
+  // 3. Initialize Navbar with Mobile Menu, Theme Toggle, & Separate Product Page
   navbar = new Navbar(
     navContainer,
     soundManager,
@@ -77,15 +56,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     () => adminPanel.open(),
     (category = 'all') => {
       // Show Dedicated All Products Page
-      if (scrollTrack) scrollTrack.style.display = 'none';
       if (shopContainer) shopContainer.style.display = 'none';
       productPage.showListing(category);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     () => {
-      // Return to Home Journey
-      if (scrollTrack) scrollTrack.style.display = 'block';
+      // Return to Storefront Home
       if (shopContainer) shopContainer.style.display = 'block';
       productPage.hide();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   );
 
@@ -160,9 +139,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('open-product-detail', (e) => {
     const { productId } = e.detail;
     if (productId) {
-      if (scrollTrack) scrollTrack.style.display = 'none';
       if (shopContainer) shopContainer.style.display = 'none';
       productPage.showProductDetail(productId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
 
@@ -170,27 +149,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('direct-buy-now', () => {
     cartDrawer.openGuestCheckout();
   });
-
-  // 7. Initialize Scroll Scrubber with Lerp Easing
-  const scrubber = new ScrollScrubber({
-    container: scrollTrack,
-    lerpFactor: 0.085,
-    onUpdate: (progressData) => {
-      sceneRenderer.update(progressData);
-      sceneRenderer.render();
-      storyOverlay.update(progressData);
-    },
-    onSceneChange: (sceneIndex, sceneInfo) => {
-      console.log(`Transitioned to Scene ${sceneIndex + 1}: ${sceneInfo.name}`);
-      soundManager.handleSceneTransition(sceneIndex);
-    }
-  });
-
-  // 8. Initialize Story Typographic Overlay & HUD
-  const storyOverlay = new StoryOverlay(hudContainer, scrubber, frameLoader);
-
-  // First render pass
-  sceneRenderer.render();
 
   // 9. Auto-unlock Web Audio on first user interaction & start sweet melody
   const unlockAudio = () => {
