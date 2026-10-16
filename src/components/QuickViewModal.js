@@ -70,10 +70,12 @@ export class QuickViewModal {
         const addRevBtn = e.target.closest('#qv-submit-quick-rev');
         if (addRevBtn && this.product) {
           const nameInput = this.container.querySelector('#qv-rev-name');
+          const cityInput = this.container.querySelector('#qv-rev-city');
           const commentInput = this.container.querySelector('#qv-rev-comment');
           const ratingInput = this.container.querySelector('#qv-rev-stars');
 
           const name = nameInput ? nameInput.value.trim() : '';
+          const city = cityInput ? cityInput.value.trim() : '';
           const comment = commentInput ? commentInput.value.trim() : '';
           const rating = ratingInput ? ratingInput.value : 5;
 
@@ -82,7 +84,13 @@ export class QuickViewModal {
             return;
           }
 
-          productStore.addReview(this.product.id, { name, comment, rating });
+          productStore.addReview(this.product.id, {
+            name: name || 'Auspicious Patron',
+            city: city || 'Verified Buyer',
+            comment,
+            rating,
+            verified: true
+          });
           // Refresh content
           const updated = productStore.getProductById(this.product.id);
           this.renderContent(updated || this.product);
@@ -195,17 +203,41 @@ export class QuickViewModal {
             </div>
 
             <div class="qv-rev-list">
-              ${reviews.length > 0 ? reviews.map(r => `
+              ${reviews.length > 0 ? reviews.map(r => {
+                const hasAvatar = !!(r.avatarUrl && r.avatarUrl.trim().length > 5);
+                const initial = (r.name || 'P').trim().charAt(0).toUpperCase();
+                const photoSrc = r.photoUrl || r.imageUrl || '';
+                return `
                 <div class="qv-rev-item">
                   <div class="rev-item-head">
-                    <span class="rev-author">${r.name}</span>
-                    <span class="rev-stars">${'★'.repeat(r.rating)}</span>
-                    <span class="rev-time">${r.date}</span>
-                    <span class="rev-verified">✓ Verified Buyer</span>
+                    <div class="qv-rev-author-cluster">
+                      ${hasAvatar ? `
+                        <img src="${r.avatarUrl}" class="qv-rev-avatar-img" alt="${r.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="qv-rev-avatar-fallback" style="display:none;">${initial}</div>
+                      ` : `
+                        <div class="qv-rev-avatar-fallback">${initial}</div>
+                      `}
+                      <div class="qv-rev-author-text">
+                        <span class="rev-author">${r.name}</span>
+                        ${r.city ? `<span class="qv-rev-city">📍 ${r.city}</span>` : ''}
+                      </div>
+                    </div>
+                    <div class="qv-rev-head-right">
+                      <span class="rev-stars">${'★'.repeat(r.rating || 5)}</span>
+                      <span class="rev-verified">✓ Verified</span>
+                    </div>
                   </div>
+                  ${r.title ? `<strong class="qv-rev-title-text">${r.title}</strong>` : ''}
                   <p class="rev-text">"${r.comment}"</p>
+                  ${photoSrc ? `
+                    <div class="qv-rev-attached-photo">
+                      <img src="${photoSrc}" alt="Customer photo" onclick="window.open(this.src, '_blank')" title="Click to view full photo" />
+                    </div>
+                  ` : ''}
+                  <div class="qv-rev-date-line">${r.date || 'Recent'}</div>
                 </div>
-              `).join('') : `
+                `;
+              }).join('') : `
                 <div class="no-rev-notice">No reviews yet. Be the first to bless this offering!</div>
               `}
             </div>
@@ -214,11 +246,12 @@ export class QuickViewModal {
             <div class="qv-add-review-box">
               <h5>Leave a Festive Blessing / Review</h5>
               <div class="rev-input-row">
-                <input type="text" id="qv-rev-name" placeholder="Your Name (e.g. Radhika Sharma)" class="rev-mini-input" />
-                <select id="qv-rev-stars" class="rev-mini-select">
-                  <option value="5">★★★★★ (5 Stars)</option>
-                  <option value="4">★★★★☆ (4 Stars)</option>
-                  <option value="3">★★★☆☆ (3 Stars)</option>
+                <input type="text" id="qv-rev-name" placeholder="Your Name (e.g. Radhika Sharma)" class="rev-mini-input" style="flex:1;" />
+                <input type="text" id="qv-rev-city" placeholder="City (e.g. Mumbai)" class="rev-mini-input" style="width:120px;" />
+                <select id="qv-rev-stars" class="rev-mini-select" style="width:110px;">
+                  <option value="5">★★★★★ (5)</option>
+                  <option value="4">★★★★☆ (4)</option>
+                  <option value="3">★★★☆☆ (3)</option>
                 </select>
               </div>
               <textarea id="qv-rev-comment" placeholder="Write your review or festive wishes..." class="rev-mini-textarea" rows="2"></textarea>

@@ -40,6 +40,14 @@ export class ProductPage {
         this.renderCatalogList();
       }
     });
+
+    window.addEventListener('reviews-updated', () => {
+      if (this.activeProductId) {
+        this.renderProductDetail(this.activeProductId);
+      } else {
+        this.renderCatalogList();
+      }
+    });
   }
 
   render() {
@@ -373,6 +381,17 @@ export class ProductPage {
     const origPriceFormatted = hasDiscount ? this.formatCurrency(product.originalPriceINR, Math.round(product.originalPriceINR * 0.012)) : '';
     const imgUrl = (product.imageUrl && product.imageUrl.trim().length > 5) ? product.imageUrl : '/assets/products/diya_peacock.jpg';
     const reviews = productStore.getProductReviews(product.id);
+    const totalReviews = reviews.length;
+    const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach(r => {
+      const s = Math.max(1, Math.min(5, Math.round(r.rating || 5)));
+      starCounts[s] = (starCounts[s] || 0) + 1;
+    });
+    const pct5 = totalReviews > 0 ? Math.round((starCounts[5] / totalReviews) * 100) : 100;
+    const pct4 = totalReviews > 0 ? Math.round((starCounts[4] / totalReviews) * 100) : 0;
+    const pct3 = totalReviews > 0 ? Math.round((starCounts[3] / totalReviews) * 100) : 0;
+    const pct2 = totalReviews > 0 ? Math.round((starCounts[2] / totalReviews) * 100) : 0;
+    const pct1 = totalReviews > 0 ? Math.round((starCounts[1] / totalReviews) * 100) : 0;
 
     mainContent.innerHTML = `
       <!-- Amazon / Flipkart Style Breadcrumb -->
@@ -608,18 +627,28 @@ export class ProductPage {
             <div class="overall-subtext">${product.reviewsCount || reviews.length || 1} verified customer ratings</div>
             <div class="rating-bar-row">
               <span>5 star</span>
-              <div class="r-bar-track"><div class="r-bar-fill" style="width: 88%;"></div></div>
-              <span>88%</span>
+              <div class="r-bar-track"><div class="r-bar-fill" style="width: ${pct5}%;"></div></div>
+              <span>${pct5}%</span>
             </div>
             <div class="rating-bar-row">
               <span>4 star</span>
-              <div class="r-bar-track"><div class="r-bar-fill" style="width: 10%;"></div></div>
-              <span>10%</span>
+              <div class="r-bar-track"><div class="r-bar-fill" style="width: ${pct4}%;"></div></div>
+              <span>${pct4}%</span>
             </div>
             <div class="rating-bar-row">
               <span>3 star</span>
-              <div class="r-bar-track"><div class="r-bar-fill" style="width: 2%;"></div></div>
-              <span>2%</span>
+              <div class="r-bar-track"><div class="r-bar-fill" style="width: ${pct3}%;"></div></div>
+              <span>${pct3}%</span>
+            </div>
+            <div class="rating-bar-row">
+              <span>2 star</span>
+              <div class="r-bar-track"><div class="r-bar-fill" style="width: ${pct2}%;"></div></div>
+              <span>${pct2}%</span>
+            </div>
+            <div class="rating-bar-row">
+              <span>1 star</span>
+              <div class="r-bar-track"><div class="r-bar-fill" style="width: ${pct1}%;"></div></div>
+              <span>${pct1}%</span>
             </div>
 
             <div class="review-this-box">
@@ -641,6 +670,17 @@ export class ProductPage {
                   <input type="text" id="rev-input-name" class="festive-input" placeholder="e.g. Meera Singhania" required />
                 </div>
                 <div class="form-group">
+                  <label for="rev-input-city">Your City / Location</label>
+                  <input type="text" id="rev-input-city" class="festive-input" placeholder="e.g. Jaipur, Rajasthan" />
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="rev-input-title">Review Headline / Summary</label>
+                  <input type="text" id="rev-input-title" class="festive-input" placeholder="e.g. Absolutely stunning Moradabad brass finish!" />
+                </div>
+                <div class="form-group">
                   <label for="rev-input-rating">Overall Rating *</label>
                   <div class="interactive-star-picker" id="rev-star-picker" data-rating="5">
                     <span class="star-btn active" data-val="1">★</span>
@@ -658,30 +698,50 @@ export class ProductPage {
                 <textarea id="rev-input-comment" class="festive-textarea" rows="3" placeholder="How was the craftsmanship, packaging, and sacred feel of this offering?" required></textarea>
               </div>
 
-              <!-- Raw Image Upload with Drag & Drop and Preview -->
+              <!-- Raw Image & Avatar Upload Group -->
               <div class="form-group review-upload-group">
-                <label>Add Photos / Raw Images of the Product (Customer Unboxing)</label>
-                <div class="review-upload-dropzone" id="review-upload-dropzone">
-                  <input type="file" id="review-image-input" accept="image/*" class="file-hidden-input" />
-                  <div class="dropzone-content">
-                    <span class="upload-cam-icon">📷</span>
-                    <span class="upload-prompt-text"><strong>Click to upload</strong> or drag & drop customer photo</span>
-                    <small>Supports PNG, JPG, WebP, or raw camera photos</small>
+                <label>Add Photos (Customer Unboxing Photo & Optional Profile Avatar)</label>
+                <div class="storefront-review-upload-cols" style="display:flex; gap:14px; flex-wrap:wrap;">
+                  <!-- Unboxing Photo -->
+                  <div style="flex:1; min-width:200px;">
+                    <div class="review-upload-dropzone" id="review-upload-dropzone">
+                      <input type="file" id="review-image-input" accept="image/*" class="file-hidden-input" />
+                      <div class="dropzone-content">
+                        <span class="upload-cam-icon">📷</span>
+                        <span class="upload-prompt-text"><strong>Upload unboxing photo</strong></span>
+                        <small>PNG, JPG, WebP photos</small>
+                      </div>
+                    </div>
+                    <div class="review-image-preview-bar" id="review-image-preview-bar" style="display: none;">
+                      <img id="review-preview-img" src="" alt="Customer uploaded preview" />
+                      <div class="preview-info">
+                        <span id="preview-filename">photo.jpg</span>
+                        <button type="button" class="btn-remove-preview" id="btn-remove-preview">✕ Remove</button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <!-- Image Preview Container -->
-                <div class="review-image-preview-bar" id="review-image-preview-bar" style="display: none;">
-                  <img id="review-preview-img" src="" alt="Customer uploaded preview" />
-                  <div class="preview-info">
-                    <span id="preview-filename">photo.jpg</span>
-                    <button type="button" class="btn-remove-preview" id="btn-remove-preview">✕ Remove</button>
+
+                  <!-- Optional Avatar Upload -->
+                  <div style="width:160px;">
+                    <div class="review-upload-dropzone" id="review-avatar-dropzone" style="padding:14px;">
+                      <input type="file" id="review-avatar-file-input" accept="image/*" class="file-hidden-input" />
+                      <div class="dropzone-content">
+                        <span class="upload-cam-icon" style="font-size:22px;">👤</span>
+                        <span class="upload-prompt-text" style="font-size:11px;"><strong>Profile Avatar</strong></span>
+                        <small>Optional</small>
+                      </div>
+                    </div>
+                    <div class="review-image-preview-bar" id="review-avatar-preview-bar" style="display: none; padding:6px 10px;">
+                      <img id="review-avatar-preview-img" src="" alt="Avatar preview" style="width:40px; height:40px; border-radius:50%; object-fit:cover;" />
+                      <button type="button" class="btn-remove-preview" id="btn-remove-avatar-preview" style="font-size:10px;">✕ Remove</button>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div class="form-action-row">
                 <button type="button" class="btn-submit-customer-review" id="btn-submit-review">
-                  <span>Submit Verified Review & Photos</span>
+                  <span>Submit Verified Review</span>
                 </button>
                 <button type="button" class="btn-cancel-review" id="btn-cancel-review">Cancel</button>
               </div>
@@ -698,26 +758,43 @@ export class ProductPage {
               </div>
 
               <div class="reviews-carousel-track" id="reviews-carousel-track">
-                ${reviews.length > 0 ? reviews.map(r => `
+                ${reviews.length > 0 ? reviews.map(r => {
+                  const hasAvatar = !!(r.avatarUrl && r.avatarUrl.trim().length > 5);
+                  const initial = (r.name || 'P').trim().charAt(0).toUpperCase();
+                  const photoSrc = r.photoUrl || r.imageUrl || '';
+                  return `
                   <div class="review-item-card carousel-slide-card">
                     <div class="r-author-row">
-                      <span class="r-avatar">👤</span>
-                      <strong>${r.name}</strong>
-                      <span class="r-verified-pill">✓ Verified</span>
+                      ${hasAvatar ? `
+                        <img src="${r.avatarUrl}" class="r-avatar-img" alt="${r.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="r-avatar-fallback" style="display:none;">${initial}</div>
+                      ` : `
+                        <div class="r-avatar-fallback">${initial}</div>
+                      `}
+                      <div class="r-author-meta">
+                        <div class="r-author-name-line">
+                          <strong>${r.name}</strong>
+                          ${r.verified !== false ? `<span class="r-verified-pill">✓ Verified</span>` : ''}
+                        </div>
+                        ${r.city ? `<div class="r-city-pill">📍 ${r.city}</div>` : ''}
+                      </div>
                     </div>
                     <div class="r-rating-line">
                       <span class="r-stars">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
                       <span class="r-rating-val">${r.rating || 5}.0</span>
                       <span class="r-date">${r.date || 'Recent'}</span>
                     </div>
-                    <p class="r-text">${r.comment}</p>
-                    ${r.imageUrl ? `
+                    ${r.title ? `<strong class="r-headline-text">${r.title}</strong>` : ''}
+                    <p class="r-text">"${r.comment}"</p>
+                    ${photoSrc ? `
                       <div class="review-attached-photo">
-                        <img src="${r.imageUrl}" alt="Customer photo" class="r-customer-uploaded-img" onclick="window.open(this.src, '_blank')" title="Click to view full photo" />
+                        <img src="${photoSrc}" alt="Customer unboxing photo" class="r-customer-uploaded-img" onclick="window.open(this.src, '_blank')" title="Click to view full photo" />
+                        <span class="r-photo-ugc-badge">📸 Real Unboxing Photo</span>
                       </div>
                     ` : ''}
                   </div>
-                `).join('') : `
+                  `;
+                }).join('') : `
                   <div class="no-reviews-note" style="min-width: 100%;">
                     <div class="note-diya">🪔</div>
                     <h4>No Customer Reviews Yet</h4>
@@ -1077,13 +1154,57 @@ export class ProductPage {
       });
     }
 
+    // Optional Avatar Upload Handling
+    let uploadedAvatarBase64 = null;
+    const avatarInput = mainContent.querySelector('#review-avatar-file-input');
+    const avatarDropzone = mainContent.querySelector('#review-avatar-dropzone');
+    const avatarPreviewBar = mainContent.querySelector('#review-avatar-preview-bar');
+    const avatarPreviewImg = mainContent.querySelector('#review-avatar-preview-img');
+    const removeAvatarBtn = mainContent.querySelector('#btn-remove-avatar-preview');
+
+    if (avatarDropzone && avatarInput) {
+      avatarDropzone.addEventListener('click', () => avatarInput.click());
+
+      avatarInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          if (!file.type.startsWith('image/')) {
+            alert("Please select an image file.");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            uploadedAvatarBase64 = re.target.result;
+            if (avatarPreviewImg) avatarPreviewImg.src = uploadedAvatarBase64;
+            if (avatarPreviewBar) avatarPreviewBar.style.display = 'flex';
+            if (avatarDropzone) avatarDropzone.style.display = 'none';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    if (removeAvatarBtn) {
+      removeAvatarBtn.addEventListener('click', () => {
+        uploadedAvatarBase64 = null;
+        if (avatarInput) avatarInput.value = '';
+        if (avatarPreviewBar) avatarPreviewBar.style.display = 'none';
+        if (avatarDropzone) avatarDropzone.style.display = 'flex';
+      });
+    }
+
     // Submit Review Handler
     const submitRevBtn = mainContent.querySelector('#btn-submit-review');
     if (submitRevBtn) {
       submitRevBtn.addEventListener('click', () => {
         const nameInput = mainContent.querySelector('#rev-input-name');
+        const cityInput = mainContent.querySelector('#rev-input-city');
+        const titleInput = mainContent.querySelector('#rev-input-title');
         const commentInput = mainContent.querySelector('#rev-input-comment');
+
         const name = nameInput ? nameInput.value.trim() : '';
+        const city = cityInput ? cityInput.value.trim() : '';
+        const title = titleInput ? titleInput.value.trim() : '';
         const comment = commentInput ? commentInput.value.trim() : '';
         const rating = starPicker ? parseInt(starPicker.getAttribute('data-rating'), 10) : 5;
 
@@ -1102,12 +1223,16 @@ export class ProductPage {
         submitRevBtn.disabled = true;
         submitRevBtn.innerHTML = '<span>⏳ Publishing Blessing...</span>';
 
-        // Add review to store with optional attached customer raw photo
+        // Add review to store with optional attached customer unboxing photo & avatar
         productStore.addReview(product.id, {
           name,
+          city: city || 'Verified Patron',
+          title,
           comment,
           rating,
-          imageUrl: uploadedImageBase64 || null
+          avatarUrl: uploadedAvatarBase64 || '',
+          photoUrl: uploadedImageBase64 || '',
+          verified: true
         });
 
         setTimeout(() => {

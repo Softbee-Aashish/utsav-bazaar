@@ -72,6 +72,12 @@ export class ProductStore {
               existing.hsnCode = '7419';
               updated = true;
             }
+            if (!existing.festival) {
+              const festData = this.getDefaultFestival(existing.id, existing.category);
+              existing.festival = festData.festival;
+              existing.festivalTag = festData.festivalTag;
+              updated = true;
+            }
           }
         });
         if (updated) this.saveProductsToStorage();
@@ -82,6 +88,7 @@ export class ProductStore {
           const originalPriceINR = Math.round((p.priceINR * markupRatio) / 100) * 100 - 1;
           const discountPercent = Math.round(((originalPriceINR - p.priceINR) / originalPriceINR) * 100);
           const costPriceINR = Math.round(p.priceINR * 0.55);
+          const festData = this.getDefaultFestival(p.id, p.category);
 
           return {
             ...p,
@@ -89,6 +96,8 @@ export class ProductStore {
             costPriceINR,
             sku: `UB-${p.category.toUpperCase().slice(0, 4)}-${p.id.replace('ub-', '')}`,
             hsnCode: '7419',
+            festival: festData.festival,
+            festivalTag: festData.festivalTag,
             stockQty: 25,
             lowStockThreshold: 5,
             discountPercent,
@@ -122,6 +131,9 @@ export class ProductStore {
       const savedReviews = localStorage.getItem(STORAGE_KEYS.REVIEWS);
       if (savedReviews) {
         this.reviews = JSON.parse(savedReviews);
+        if (this.reviews["ub-001"] && (!this.reviews["ub-001"][0].avatarUrl || !this.reviews["ub-001"][0].photoUrl)) {
+          this.seedInitialReviews();
+        }
       } else {
         this.seedInitialReviews();
       }
@@ -527,12 +539,70 @@ export class ProductStore {
   seedInitialReviews() {
     this.reviews = {
       "ub-001": [
-        { id: "rev-1", name: "Sunita Deshmukh", rating: 5, date: "12 Oct 2026", comment: "The Moradabad brass finish is truly magnificent. The diya burned all through Diwali night without dripping once!", verified: true },
-        { id: "rev-2", name: "Rajesh Kulkarni", rating: 5, date: "08 Oct 2026", comment: "Heavier than expected! Pure solid virgin brass with exquisite peacock engraving. Worth every rupee.", verified: true }
+        {
+          id: "rev-1",
+          name: "Sunita Deshmukh",
+          city: "Mumbai, Maharashtra",
+          avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80",
+          photoUrl: "https://images.unsplash.com/photo-1605651202774-7d573fd3f12d?auto=format&fit=crop&w=600&q=80",
+          rating: 5,
+          title: "Magnificent Moradabad brass finish!",
+          date: "12 Oct 2026",
+          comment: "The Moradabad brass finish is truly magnificent. The diya burned all through Diwali night without dripping once!",
+          verified: true
+        },
+        {
+          id: "rev-2",
+          name: "Rajesh Kulkarni",
+          city: "Pune, Maharashtra",
+          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+          photoUrl: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80",
+          rating: 5,
+          title: "Heavier than expected, pure solid brass",
+          date: "08 Oct 2026",
+          comment: "Heavier than expected! Pure solid virgin brass with exquisite peacock engraving. Worth every rupee.",
+          verified: true
+        }
       ],
       "ub-007": [
-        { id: "rev-3", name: "Anil Singhania", rating: 5, date: "14 Oct 2026", comment: "The velvet zardozi work on this door toran is breathtaking! The brass ghungroos make a melodic chime when opening the door.", verified: true },
-        { id: "rev-4", name: "Pooja Malhotra", rating: 5, date: "11 Oct 2026", comment: "Completely elevated our courtyard entrance. All our guests complimented the auspicious Shubh-Labh embroidery!", verified: true }
+        {
+          id: "rev-3",
+          name: "Anil Singhania",
+          city: "New Delhi",
+          avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+          photoUrl: "https://images.unsplash.com/photo-1514517521153-1be72277b32f?auto=format&fit=crop&w=600&q=80",
+          rating: 5,
+          title: "Melodic ghungroo chimes and rich zardozi",
+          date: "14 Oct 2026",
+          comment: "The velvet zardozi work on this door toran is breathtaking! The brass ghungroos make a melodic chime when opening the door.",
+          verified: true
+        },
+        {
+          id: "rev-4",
+          name: "Pooja Malhotra",
+          city: "Jaipur, Rajasthan",
+          avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80",
+          photoUrl: "",
+          rating: 5,
+          title: "Elevated our courtyard entrance",
+          date: "11 Oct 2026",
+          comment: "Completely elevated our courtyard entrance. All our guests complimented the auspicious Shubh-Labh embroidery!",
+          verified: true
+        }
+      ],
+      "ub-006": [
+        {
+          id: "rev-5",
+          name: "Devendra Swaminathan",
+          city: "Chennai, Tamil Nadu",
+          avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80",
+          photoUrl: "https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?auto=format&fit=crop&w=600&q=80",
+          rating: 5,
+          title: "The hand-hammered petals are mesmerizing",
+          date: "15 Oct 2026",
+          comment: "Filled this brass lotus urli with fresh marigolds and floating tealights for Navratri. The reflections are magical!",
+          verified: true
+        }
       ]
     };
     this.saveReviewsToStorage();
@@ -623,32 +693,83 @@ export class ProductStore {
     return this.reviews[productId] || [];
   }
 
+  getAllReviewsList() {
+    const all = [];
+    Object.keys(this.reviews).forEach(prodId => {
+      const p = this.products.find(item => item.id === prodId);
+      const revs = this.reviews[prodId] || [];
+      revs.forEach(r => {
+        all.push({
+          ...r,
+          productId: prodId,
+          productName: p ? p.name : 'Festive Offering',
+          productCategory: p ? (p.categoryName || p.category) : '',
+          productImage: p ? (p.imageUrl || '') : ''
+        });
+      });
+    });
+    return all.sort((a, b) => (b.id > a.id ? 1 : -1));
+  }
+
   addReview(productId, review) {
     if (!this.reviews[productId]) {
       this.reviews[productId] = [];
     }
+
+    const todayStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     const newRev = {
-      id: `rev-${Date.now()}`,
-      name: review.name || 'Sacred Guest',
-      rating: parseInt(review.rating, 10) || 5,
-      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-      comment: review.comment || 'Wonderful handcrafted item!',
-      verified: true
+      id: review.id || `rev-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      name: (review.name || 'Auspicious Patron').trim(),
+      city: (review.city || 'Verified Buyer').trim(),
+      avatarUrl: (review.avatarUrl || '').trim(),
+      photoUrl: (review.photoUrl || review.imageUrl || '').trim(),
+      rating: Math.max(1, Math.min(5, parseInt(review.rating, 10) || 5)),
+      title: (review.title || '').trim(),
+      comment: (review.comment || 'Exquisite handcrafted offering, truly blessed!').trim(),
+      date: review.date ? review.date.trim() : todayStr,
+      verified: review.verified !== false
     };
+
     this.reviews[productId].unshift(newRev);
 
-    // Update product rating average & count
+    // Update product rating average & count dynamically
     const prod = this.products.find(p => p.id === productId);
     if (prod) {
       const revs = this.reviews[productId];
-      const sum = revs.reduce((acc, r) => acc + r.rating, 0);
+      const sum = revs.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
       prod.rating = parseFloat((sum / revs.length).toFixed(1));
-      prod.reviewsCount = (prod.reviewsCount || 0) + 1;
+      prod.reviewsCount = revs.length;
       this.saveProductsToStorage();
     }
 
     this.saveReviewsToStorage();
     return newRev;
+  }
+
+  deleteReview(productId, reviewId) {
+    if (!this.reviews[productId]) return false;
+    const initialLen = this.reviews[productId].length;
+    this.reviews[productId] = this.reviews[productId].filter(r => r.id !== reviewId);
+
+    if (this.reviews[productId].length === initialLen) return false;
+
+    // Recalculate product rating average & count
+    const prod = this.products.find(p => p.id === productId);
+    if (prod) {
+      const revs = this.reviews[productId];
+      if (revs.length > 0) {
+        const sum = revs.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
+        prod.rating = parseFloat((sum / revs.length).toFixed(1));
+        prod.reviewsCount = revs.length;
+      } else {
+        prod.rating = 5.0;
+        prod.reviewsCount = 0;
+      }
+      this.saveProductsToStorage();
+    }
+
+    this.saveReviewsToStorage();
+    return true;
   }
 
   // --- GOOGLE SHEETS & EXCEL CSV INTEGRATION ---
@@ -844,6 +965,25 @@ export class ProductStore {
       case 'lanterns': return 'Lanterns & Decor';
       case 'heirlooms': return 'Artisanal Heirlooms';
       default: return 'Festive Home Decor';
+    }
+  }
+
+  getDefaultFestival(id, category) {
+    switch (id) {
+      case 'ub-001': return { festival: 'diwali', festivalTag: '🪔 Deepawali Pujan' };
+      case 'ub-002': return { festival: 'bhai-dooj', festivalTag: '🌸 Bhai Dooj Shahi Hamper' };
+      case 'ub-003': return { festival: 'diwali', festivalTag: '🪔 Diwali Kandil' };
+      case 'ub-004': return { festival: 'karwa-chauth', festivalTag: '🌕 Karwa Chauth Shringar' };
+      case 'ub-005': return { festival: 'chhath-puja', festivalTag: '☀️ Chhath Surya Arghya' };
+      case 'ub-006': return { festival: 'dhanteras', festivalTag: '🪙 Dhanteras Auspicious Brass' };
+      case 'ub-007': return { festival: 'diwali', festivalTag: '🪔 Diwali Bandhanwar' };
+      case 'ub-008': return { festival: 'navratri', festivalTag: '🌺 Navratri & Durga Puja' };
+      case 'ub-009': return { festival: 'wedding', festivalTag: '👑 Vivah & Sangeet' };
+      case 'ub-010': return { festival: 'karwa-chauth', festivalTag: '🌕 Karwa Chauth Vrat Thali' };
+      default:
+        if (category === 'diyas' || category === 'torans') return { festival: 'diwali', festivalTag: '🪔 Diwali Special' };
+        if (category === 'apparel' || category === 'heirlooms') return { festival: 'wedding', festivalTag: '👑 Vivah Special' };
+        return { festival: 'diwali', festivalTag: '✨ Festive Special' };
     }
   }
 

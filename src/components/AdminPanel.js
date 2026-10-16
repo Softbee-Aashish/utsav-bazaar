@@ -10,10 +10,15 @@ export class AdminPanel {
     this.activeTab = 'overview';
     this.orderFilter = 'all';
     this.orderSearchQuery = '';
+    this.catalogFestivalFilter = 'all';
+    this.catalogSearchQuery = '';
     this.editingProduct = null;
     this.currentImageBase64 = '';
     this.currentMediaList = []; // Array of { type: 'image'|'video'|'gif', url: string, name?: string }
     this.activePreviewMediaIdx = 0;
+    this.currentRevAvatarBase64 = '';
+    this.currentRevPhotoBase64 = '';
+    this.reviewsViewFilter = 'selected'; // 'selected' | 'all'
 
     this.render();
   }
@@ -25,7 +30,7 @@ export class AdminPanel {
       </div>
 
       <!-- ADD / EDIT PRODUCT MODAL (Live Storefront Post Preview + Multi-Media CMS) -->
-      <div class="admin-modal-overlay" id="product-editor-modal" style="display: none; z-index: 360;">
+      <div class="admin-modal-overlay" id="product-editor-modal" style="display: none; z-index: 100005;">
         <div class="admin-window editor-window">
           <div class="admin-header">
             <div class="admin-title-group">
@@ -72,8 +77,28 @@ export class AdminPanel {
                     </select>
                   </div>
                   <div class="form-group">
+                    <label>Festive Occasion / Mahotsav *</label>
+                    <select id="edit-festival" class="admin-select">
+                      <option value="diwali">🪔 Diwali (Deepavali Mahotsav)</option>
+                      <option value="dhanteras">🪙 Dhanteras (Auspicious Gold & Brass)</option>
+                      <option value="karwa-chauth">🌕 Karwa Chauth (Shringar & Vrat)</option>
+                      <option value="bhai-dooj">🌸 Bhai Dooj (Sister-Brother Blessings)</option>
+                      <option value="chhath-puja">☀️ Chhath Puja (Surya Mahaparv)</option>
+                      <option value="navratri">🌺 Navratri & Durga Puja (Shakti Mahotsav)</option>
+                      <option value="wedding">👑 Shahi Vivah & Royal Weddings</option>
+                      <option value="general">✨ All-Year Auspicious Heritage</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
                     <label>Geographic Origin *</label>
                     <input type="text" id="edit-origin" class="admin-input" placeholder="e.g. Moradabad, Uttar Pradesh" />
+                  </div>
+                  <div class="form-group">
+                    <label>Custom Festive Tag / Collection Name</label>
+                    <input type="text" id="edit-festival-tag" class="admin-input" placeholder="e.g. Laxmi-Ganesh Pujan Special" />
                   </div>
                 </div>
 
@@ -512,7 +537,7 @@ export class AdminPanel {
           <div class="admin-tab-pane" id="tab-pane-products" style="${this.activeTab === 'products' ? 'display:block;' : 'display:none;'}">
             <div class="pane-action-bar">
               <div class="pane-search-box">
-                <input type="text" id="admin-product-search" placeholder="Search by name, category, origin..." class="admin-input-sm" />
+                <input type="text" id="admin-product-search" placeholder="Search by name, category, origin, festival..." class="admin-input-sm" />
               </div>
               <div class="pane-btn-group">
                 <button class="admin-btn-secondary" id="btn-reset-default-catalog">↺ Reset to Default Offerings</button>
@@ -522,6 +547,18 @@ export class AdminPanel {
               </div>
             </div>
 
+            <!-- Festival Filter Chips -->
+            <div class="orders-filter-group" id="catalog-festival-filter-group" style="margin-bottom: 16px;">
+              <button class="filter-chip active" data-fest-filter="all">All Festivals & Occasions</button>
+              <button class="filter-chip" data-fest-filter="diwali">🪔 Diwali</button>
+              <button class="filter-chip" data-fest-filter="dhanteras">🪙 Dhanteras</button>
+              <button class="filter-chip" data-fest-filter="karwa-chauth">🌕 Karwa Chauth</button>
+              <button class="filter-chip" data-fest-filter="bhai-dooj">🌸 Bhai Dooj</button>
+              <button class="filter-chip" data-fest-filter="chhath-puja">☀️ Chhath Puja</button>
+              <button class="filter-chip" data-fest-filter="navratri">🌺 Navratri & Durga Puja</button>
+              <button class="filter-chip" data-fest-filter="wedding">👑 Vivah & Weddings</button>
+            </div>
+
             <!-- Product Inventory Table -->
             <div class="admin-table-wrapper">
               <table class="admin-data-table">
@@ -529,12 +566,12 @@ export class AdminPanel {
                   <tr>
                     <th style="width: 70px;">Visual</th>
                     <th>Product Title & Origin</th>
-                    <th>Category</th>
+                    <th style="width: 150px;">Category & Festival</th>
                     <th>Marked Price</th>
                     <th>Sale Price</th>
                     <th>Discount</th>
                     <th>Stock</th>
-                    <th style="text-align: right;">Actions</th>
+                    <th style="text-align: right; width: 180px;">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="admin-products-table-body">
@@ -716,52 +753,157 @@ export class AdminPanel {
           <!-- TAB 6: CUSTOMER REVIEWS -->
           <div class="admin-tab-pane" id="tab-pane-reviews" style="${this.activeTab === 'reviews' ? 'display:block;' : 'display:none;'}">
             <div class="reviews-admin-layout">
+              <!-- Left: Add Real Customer Review / Testimonial -->
               <div class="admin-card">
                 <div class="card-head">
                   <span class="c-icon">✍️</span>
                   <h3>Add Real Customer Review / Testimonial</h3>
                 </div>
-                <p class="c-desc">Post verified customer blessings, feedback, and star ratings directly to any product Quick View modal.</p>
+                <p class="c-desc">Upload real customer unboxing photos, authentic avatars, verified purchase badges, and star ratings linked directly to any product post.</p>
 
+                <!-- 1. Select Product Offering -->
                 <div class="form-group" style="margin-top: 16px;">
-                  <label>Select Product</label>
+                  <label>Select Product Offering to Link Review *</label>
                   <select id="review-product-select" class="admin-select"></select>
                 </div>
 
+                <!-- 2. Customer Name & Location/City -->
                 <div class="form-row-2">
                   <div class="form-group">
-                    <label>Customer Name</label>
-                    <input type="text" id="rev-customer-name" class="admin-input" placeholder="e.g. Meera Singhal" />
+                    <label>Customer Full Name *</label>
+                    <input type="text" id="rev-customer-name" class="admin-input" placeholder="e.g. Radhika Deshmukh" />
                   </div>
                   <div class="form-group">
-                    <label>Star Rating (1 to 5)</label>
-                    <select id="rev-rating-val" class="admin-select">
-                      <option value="5">★★★★★ (5 Stars)</option>
-                      <option value="4">★★★★☆ (4 Stars)</option>
-                      <option value="3">★★★☆☆ (3 Stars)</option>
-                      <option value="2">★★☆☆☆ (2 Stars)</option>
-                      <option value="1">★☆☆☆☆ (1 Star)</option>
-                    </select>
+                    <label>City / Location</label>
+                    <input type="text" id="rev-customer-city" class="admin-input" placeholder="e.g. Mumbai, Maharashtra" />
                   </div>
                 </div>
 
-                <div class="form-group">
-                  <label>Review Commentary / Blessing</label>
-                  <textarea id="rev-comment-text" class="admin-textarea" rows="3" placeholder="Share how this handcrafted brass diya, urli, or toran blessed their home..."></textarea>
+                <!-- 3. Customer Profile Picture / Avatar -->
+                <div class="form-group review-avatar-upload-section">
+                  <label>Customer Profile Picture (Avatar)</label>
+                  <div class="rev-avatar-row">
+                    <div class="rev-avatar-preview-circle" id="rev-avatar-preview-box">
+                      <span class="avatar-placeholder-icon" id="rev-avatar-placeholder">👤</span>
+                      <img id="rev-avatar-preview-img" src="" alt="Avatar preview" style="display:none;" />
+                    </div>
+                    <div class="rev-avatar-controls">
+                      <div class="rev-file-btn-wrap">
+                        <label for="rev-avatar-file-input" class="admin-btn-secondary btn-sm" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                          <span>📁 Upload Picture</span>
+                        </label>
+                        <input type="file" id="rev-avatar-file-input" accept="image/*" style="display:none;" />
+                        <button type="button" class="tbl-action-btn danger btn-sm" id="btn-remove-rev-avatar" style="display:none; height:28px;">✕ Remove</button>
+                      </div>
+                      <input type="url" id="rev-avatar-url-input" class="admin-input" placeholder="Or paste image URL (https://...)" style="margin-top:6px; font-size:11px;" />
+                      
+                      <!-- Quick Authentic Avatar Presets -->
+                      <div class="quick-avatar-presets">
+                        <span class="preset-label">Quick Patrons:</span>
+                        <div class="preset-avatars-row" id="preset-avatars-row">
+                          <button type="button" class="preset-avatar-btn" data-avatar="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80" data-name="Sunita Deshmukh" data-city="Mumbai, Maharashtra" title="Sunita (Mumbai)">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80" alt="Sunita" />
+                          </button>
+                          <button type="button" class="preset-avatar-btn" data-avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" data-name="Rajesh Kulkarni" data-city="Pune, Maharashtra" title="Rajesh (Pune)">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Rajesh" />
+                          </button>
+                          <button type="button" class="preset-avatar-btn" data-avatar="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80" data-name="Pooja Malhotra" data-city="Jaipur, Rajasthan" title="Pooja (Jaipur)">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80" alt="Pooja" />
+                          </button>
+                          <button type="button" class="preset-avatar-btn" data-avatar="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80" data-name="Anil Singhania" data-city="New Delhi" title="Anil (Delhi)">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80" alt="Anil" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <button class="admin-btn-primary" id="btn-submit-review">
-                  <span>Publish Customer Review</span>
+                <!-- 4. Real Customer Product Unboxing Photo Upload -->
+                <div class="form-group review-photo-upload-section">
+                  <label>Customer Product Photo (Real Unboxing / In-Home Decor Photo)</label>
+                  <div class="rev-product-photo-wrap">
+                    <div class="rev-photo-dropzone" id="rev-photo-dropzone">
+                      <input type="file" id="rev-photo-file-input" accept="image/*" style="display:none;" />
+                      <div class="photo-dropzone-inner">
+                        <span class="camera-icon">📸</span>
+                        <span><strong>Click or drop photo here</strong> to attach real customer photo</span>
+                        <small>Shows up directly on the customer's review card</small>
+                      </div>
+                    </div>
+                    <div class="rev-photo-preview-bar" id="rev-photo-preview-bar" style="display:none;">
+                      <img id="rev-photo-preview-img" src="" alt="Customer unboxing photo" />
+                      <div class="photo-preview-meta">
+                        <span id="rev-photo-preview-name">unboxing.jpg</span>
+                        <button type="button" class="tbl-action-btn danger btn-sm" id="btn-remove-rev-photo" style="height:26px;">✕ Remove Photo</button>
+                      </div>
+                    </div>
+                    <input type="url" id="rev-photo-url-input" class="admin-input" placeholder="Or paste product image URL (https://...)" style="margin-top:8px; font-size:11px;" />
+                  </div>
+                </div>
+
+                <!-- 5. Rating & Review Headline -->
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>Star Rating (1 to 5) *</label>
+                    <select id="rev-rating-val" class="admin-select">
+                      <option value="5">★★★★★ (5 Stars - Auspicious)</option>
+                      <option value="4">★★★★☆ (4 Stars - Very Good)</option>
+                      <option value="3">★★★☆☆ (3 Stars - Average)</option>
+                      <option value="2">★★☆☆☆ (2 Stars - Fair)</option>
+                      <option value="1">★☆☆☆☆ (1 Star - Poor)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Review Headline / Title</label>
+                    <input type="text" id="rev-title-input" class="admin-input" placeholder="e.g. Magnificent Moradabad brass finish!" />
+                  </div>
+                </div>
+
+                <!-- 6. Review Commentary -->
+                <div class="form-group">
+                  <label>Review Commentary / Blessing *</label>
+                  <textarea id="rev-comment-text" class="admin-textarea" rows="3" placeholder="Share how this handcrafted brass diya, urli, toran or silk attire blessed their home..."></textarea>
+                </div>
+
+                <!-- 7. Verified & Custom Date -->
+                <div class="form-row-2" style="align-items:center;">
+                  <div class="form-group">
+                    <label>Review Date</label>
+                    <input type="text" id="rev-date-input" class="admin-input" placeholder="e.g. 16 Oct 2026" />
+                  </div>
+                  <div class="form-group" style="padding-top:22px;">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="rev-verified-check" checked />
+                      <span>Mark as <strong>✓ Verified Purchase</strong></span>
+                    </label>
+                  </div>
+                </div>
+
+                <button class="admin-btn-primary" id="btn-submit-review" style="width:100%; margin-top:10px; justify-content:center;">
+                  <span>➕ Publish Real Review & Link to Product</span>
                 </button>
               </div>
 
+              <!-- Right: Existing Reviews & Deletion Command -->
               <div class="admin-card">
-                <div class="card-head">
-                  <span class="c-icon">🌟</span>
-                  <h3>Existing Reviews on Selected Product</h3>
+                <div class="card-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="c-icon">🌟</span>
+                    <h3 style="margin:0;">Existing Customer Reviews</h3>
+                  </div>
+                  <div class="orders-filter-group" id="reviews-filter-group">
+                    <button type="button" class="filter-chip active" id="btn-rev-filter-selected">Current Offering</button>
+                    <button type="button" class="filter-chip" id="btn-rev-filter-all">All Offerings</button>
+                  </div>
                 </div>
+
+                <div class="rev-product-summary-bar" id="rev-product-summary-bar" style="margin-top:14px;">
+                  <!-- Shows selected product miniature, rating score, reviews count -->
+                </div>
+
                 <div class="admin-reviews-list" id="admin-reviews-container">
-                  <!-- Populated dynamically -->
+                  <!-- Populated dynamically with rich review cards and delete buttons -->
                 </div>
               </div>
             </div>
@@ -936,9 +1078,21 @@ export class AdminPanel {
     const prodSearch = this.container.querySelector('#admin-product-search');
     if (prodSearch) {
       prodSearch.addEventListener('input', (e) => {
-        this.renderProductsTable(e.target.value.toLowerCase().trim());
+        this.catalogSearchQuery = e.target.value.toLowerCase().trim();
+        this.renderProductsTable(this.catalogSearchQuery);
       });
     }
+
+    // Product Festival Filter Group
+    const festChips = this.container.querySelectorAll('#catalog-festival-filter-group .filter-chip');
+    festChips.forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        festChips.forEach(c => c.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        this.catalogFestivalFilter = e.currentTarget.getAttribute('data-fest-filter');
+        this.renderProductsTable(this.catalogSearchQuery);
+      });
+    });
 
     // Reset Catalog
     const resetCatalogBtn = this.container.querySelector('#btn-reset-default-catalog');
@@ -1231,31 +1385,227 @@ export class AdminPanel {
       });
     }
 
-    // Customer Reviews Tab
+    // Customer Reviews Tab Events
     const reviewSelect = this.container.querySelector('#review-product-select');
     if (reviewSelect) {
-      reviewSelect.addEventListener('change', (e) => {
-        this.renderReviewsForProduct(e.target.value);
+      reviewSelect.addEventListener('change', () => {
+        this.renderReviewsView();
       });
     }
 
+    // Filter Buttons (Current Offering vs All Offerings)
+    const btnFilterSelected = this.container.querySelector('#btn-rev-filter-selected');
+    const btnFilterAll = this.container.querySelector('#btn-rev-filter-all');
+    if (btnFilterSelected && btnFilterAll) {
+      btnFilterSelected.addEventListener('click', () => {
+        this.reviewsViewFilter = 'selected';
+        this.renderReviewsView();
+      });
+      btnFilterAll.addEventListener('click', () => {
+        this.reviewsViewFilter = 'all';
+        this.renderReviewsView();
+      });
+    }
+
+    // Avatar File Upload
+    const avatarFileInput = this.container.querySelector('#rev-avatar-file-input');
+    if (avatarFileInput) {
+      avatarFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (!file.type.startsWith('image/')) {
+            alert('Please select an image file (PNG, JPG, WebP).');
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            this.setReviewAvatar(re.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // Avatar URL Input
+    const avatarUrlInput = this.container.querySelector('#rev-avatar-url-input');
+    if (avatarUrlInput) {
+      avatarUrlInput.addEventListener('change', (e) => {
+        const url = e.target.value.trim();
+        if (url) this.setReviewAvatar(url);
+      });
+    }
+
+    // Remove Avatar Button
+    const btnRemoveAvatar = this.container.querySelector('#btn-remove-rev-avatar');
+    if (btnRemoveAvatar) {
+      btnRemoveAvatar.addEventListener('click', () => {
+        this.clearReviewAvatar();
+      });
+    }
+
+    // Preset Patron Avatar Buttons
+    this.container.querySelectorAll('.preset-avatar-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const avatarUrl = btn.getAttribute('data-avatar');
+        const patronName = btn.getAttribute('data-name');
+        const patronCity = btn.getAttribute('data-city');
+
+        if (avatarUrl) this.setReviewAvatar(avatarUrl);
+
+        const nameInput = this.container.querySelector('#rev-customer-name');
+        const cityInput = this.container.querySelector('#rev-customer-city');
+        if (nameInput && !nameInput.value.trim() && patronName) {
+          nameInput.value = patronName;
+        }
+        if (cityInput && !cityInput.value.trim() && patronCity) {
+          cityInput.value = patronCity;
+        }
+      });
+    });
+
+    // Customer Product Photo Dropzone & File Input
+    const photoFileInput = this.container.querySelector('#rev-photo-file-input');
+    const photoDropzone = this.container.querySelector('#rev-photo-dropzone');
+    const photoUrlInput = this.container.querySelector('#rev-photo-url-input');
+    const btnRemovePhoto = this.container.querySelector('#btn-remove-rev-photo');
+
+    if (photoDropzone && photoFileInput) {
+      photoDropzone.addEventListener('click', () => photoFileInput.click());
+
+      photoDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        photoDropzone.style.borderColor = '#D4AF37';
+        photoDropzone.style.background = 'rgba(212, 175, 55, 0.12)';
+      });
+
+      photoDropzone.addEventListener('dragleave', () => {
+        photoDropzone.style.borderColor = '';
+        photoDropzone.style.background = '';
+      });
+
+      photoDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        photoDropzone.style.borderColor = '';
+        photoDropzone.style.background = '';
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          const file = e.dataTransfer.files[0];
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            this.setReviewPhoto(re.target.result, file.name);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      photoFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            this.setReviewPhoto(re.target.result, file.name);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    if (photoUrlInput) {
+      photoUrlInput.addEventListener('change', (e) => {
+        const url = e.target.value.trim();
+        if (url) this.setReviewPhoto(url, 'Product Photo URL');
+      });
+    }
+
+    if (btnRemovePhoto) {
+      btnRemovePhoto.addEventListener('click', () => {
+        this.clearReviewPhoto();
+      });
+    }
+
+    // Review Submission
     const submitReviewBtn = this.container.querySelector('#btn-submit-review');
     if (submitReviewBtn) {
       submitReviewBtn.addEventListener('click', () => {
-        const prodId = this.container.querySelector('#review-product-select').value;
-        const name = this.container.querySelector('#rev-customer-name').value.trim() || 'Auspicious Buyer';
-        const rating = this.container.querySelector('#rev-rating-val').value;
-        const comment = this.container.querySelector('#rev-comment-text').value.trim();
-
-        if (!comment) {
-          alert("Please write a short review commentary.");
+        const select = this.container.querySelector('#review-product-select');
+        const prodId = select ? select.value : null;
+        if (!prodId) {
+          alert('Please select a product offering first.');
           return;
         }
 
-        productStore.addReview(prodId, { name, rating, comment });
-        this.container.querySelector('#rev-comment-text').value = '';
-        this.renderReviewsForProduct(prodId);
-        alert("✓ Customer review published live!");
+        const nameInput = this.container.querySelector('#rev-customer-name');
+        const cityInput = this.container.querySelector('#rev-customer-city');
+        const ratingSelect = this.container.querySelector('#rev-rating-val');
+        const titleInput = this.container.querySelector('#rev-title-input');
+        const commentText = this.container.querySelector('#rev-comment-text');
+        const dateInput = this.container.querySelector('#rev-date-input');
+        const verifiedCheck = this.container.querySelector('#rev-verified-check');
+
+        const name = nameInput ? nameInput.value.trim() : '';
+        const city = cityInput ? cityInput.value.trim() : '';
+        const rating = ratingSelect ? ratingSelect.value : 5;
+        const title = titleInput ? titleInput.value.trim() : '';
+        const comment = commentText ? commentText.value.trim() : '';
+        const date = dateInput ? dateInput.value.trim() : '';
+        const verified = verifiedCheck ? verifiedCheck.checked : true;
+
+        if (!comment) {
+          alert('Please write a review commentary / blessing.');
+          if (commentText) commentText.focus();
+          return;
+        }
+
+        const newReview = productStore.addReview(prodId, {
+          name: name || 'Auspicious Patron',
+          city: city || 'Verified Buyer',
+          avatarUrl: this.currentRevAvatarBase64 || '',
+          photoUrl: this.currentRevPhotoBase64 || '',
+          rating,
+          title,
+          comment,
+          date,
+          verified
+        });
+
+        // Reset form inputs & previews
+        if (nameInput) nameInput.value = '';
+        if (cityInput) cityInput.value = '';
+        if (titleInput) titleInput.value = '';
+        if (commentText) commentText.value = '';
+        this.clearReviewAvatar();
+        this.clearReviewPhoto();
+
+        // Refresh views
+        this.renderReviewsView();
+        this.renderProductsTable();
+
+        alert(`✓ Real review published and linked to product offering! (ID: ${newReview.id})`);
+      });
+    }
+
+    // Delete Review Click Delegation on #admin-reviews-container
+    const reviewsContainer = this.container.querySelector('#admin-reviews-container');
+    if (reviewsContainer) {
+      reviewsContainer.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.btn-delete-review');
+        if (delBtn) {
+          e.stopPropagation();
+          const revId = delBtn.getAttribute('data-del-review-id');
+          const prodId = delBtn.getAttribute('data-del-prod-id');
+
+          if (!revId || !prodId) return;
+
+          if (confirm('Are you sure you want to delete this customer review? The product average rating and review count will be updated automatically.')) {
+            const success = productStore.deleteReview(prodId, revId);
+            if (success) {
+              this.renderReviewsView();
+              this.renderProductsTable();
+              alert('✓ Customer review deleted successfully!');
+            } else {
+              alert('Could not find the review to delete.');
+            }
+          }
+        }
       });
     }
 
@@ -1296,6 +1646,12 @@ export class AdminPanel {
     window.addEventListener('orders-updated', () => {
       this.renderOverviewTab();
       this.renderOrdersTable();
+    });
+
+    window.addEventListener('reviews-updated', () => {
+      if (this.activeTab === 'reviews') {
+        this.renderReviewsView();
+      }
     });
   }
 
@@ -1889,16 +2245,32 @@ export class AdminPanel {
     if (!tbody) return;
 
     let prods = productStore.getProducts();
+
+    // 1. Festival Filter
+    if (this.catalogFestivalFilter && this.catalogFestivalFilter !== 'all') {
+      prods = prods.filter(p => {
+        const fest = (p.festival || 'diwali').toLowerCase();
+        const tag = (p.festivalTag || '').toLowerCase();
+        const filt = this.catalogFestivalFilter.toLowerCase();
+        return fest === filt || fest.includes(filt) || tag.includes(filt);
+      });
+    }
+
+    // 2. Search Query Filter
     if (query) {
+      const q = query.toLowerCase();
       prods = prods.filter(p => 
-        p.name.toLowerCase().includes(query) ||
-        p.category.toLowerCase().includes(query) ||
-        p.origin.toLowerCase().includes(query)
+        p.name.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        p.origin.toLowerCase().includes(q) ||
+        (p.festival && p.festival.toLowerCase().includes(q)) ||
+        (p.festivalTag && p.festivalTag.toLowerCase().includes(q)) ||
+        (p.sku && p.sku.toLowerCase().includes(q))
       );
     }
 
     if (prods.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:#94A3B8;">No offerings match your search.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:36px; color:#94A3B8;">No festive offerings match your selected filter or search query.</td></tr>`;
       return;
     }
 
@@ -1920,6 +2292,8 @@ export class AdminPanel {
         ? `<img src="${p.imageUrl}" class="table-thumb-img" alt="${p.name}" />`
         : `<div class="table-thumb-svg"></div>`;
 
+      const festivalLabel = p.festivalTag || this.formatFestivalName(p.festival || 'diwali');
+
       return `
         <tr>
           <td>${visual}</td>
@@ -1930,18 +2304,44 @@ export class AdminPanel {
               <span class="row-origin-text">${p.origin || 'Moradabad'}</span>
             </div>
           </td>
-          <td><span class="category-tag-pill">${p.category}</span></td>
+          <td>
+            <div class="row-category-stack">
+              <span class="category-tag-pill">${p.categoryName || p.category}</span>
+              <span class="festival-tag-pill" title="Festive Occasion">${festivalLabel}</span>
+            </div>
+          </td>
           <td><span class="price-strikethrough-sm">${orig}</span></td>
           <td><span class="price-sale-highlight">${sale}</span></td>
           <td><span class="discount-badge-table">${disc}</span></td>
           <td>${stockBadge}</td>
           <td style="text-align: right;">
-            <button class="tbl-action-btn" data-edit-id="${p.id}" title="Edit Offering">Edit</button>
-            <button class="tbl-action-btn danger" data-delete-id="${p.id}" title="Delete Offering">Delete</button>
+            <div class="product-actions-stack">
+              <button class="tbl-action-btn btn-edit-product" data-edit-id="${p.id}" title="Edit Offering Details & Stock">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                <span>Edit</span>
+              </button>
+              <button class="tbl-action-btn danger btn-delete-product" data-delete-id="${p.id}" title="Remove Offering">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <span>Delete</span>
+              </button>
+            </div>
           </td>
         </tr>
       `;
     }).join('');
+  }
+
+  formatFestivalName(fest) {
+    switch (fest) {
+      case 'diwali': return '🪔 Diwali';
+      case 'dhanteras': return '🪙 Dhanteras';
+      case 'karwa-chauth': return '🌕 Karwa Chauth';
+      case 'bhai-dooj': return '🌸 Bhai Dooj';
+      case 'chhath-puja': return '☀️ Chhath Puja';
+      case 'navratri': return '🌺 Navratri';
+      case 'wedding': return '👑 Shahi Vivah';
+      default: return '✨ Auspicious';
+    }
   }
 
   // --- CUSTOMER CRM & RETARGETING TAB ---
@@ -2041,35 +2441,249 @@ export class AdminPanel {
     if (!select) return;
 
     const prods = productStore.getProducts();
+    const currentVal = select.value;
     select.innerHTML = prods.map(p => `
-      <option value="${p.id}">${p.name} (${p.categoryName || p.category})</option>
+      <option value="${p.id}" ${currentVal === p.id ? 'selected' : ''}>${p.name} (${p.categoryName || p.category})</option>
     `).join('');
 
-    if (prods.length > 0) {
-      this.renderReviewsForProduct(prods[0].id);
+    // Pre-fill today's date if empty
+    const dateInput = this.container.querySelector('#rev-date-input');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    this.renderReviewsView();
+  }
+
+  setReviewAvatar(urlOrData) {
+    if (!urlOrData) return;
+    this.currentRevAvatarBase64 = urlOrData;
+    const img = this.container.querySelector('#rev-avatar-preview-img');
+    const placeholder = this.container.querySelector('#rev-avatar-placeholder');
+    const removeBtn = this.container.querySelector('#btn-remove-rev-avatar');
+    const urlInput = this.container.querySelector('#rev-avatar-url-input');
+
+    if (img) {
+      img.src = urlOrData;
+      img.style.display = 'block';
+    }
+    if (placeholder) placeholder.style.display = 'none';
+    if (removeBtn) removeBtn.style.display = 'inline-flex';
+    if (urlInput && urlOrData.startsWith('http')) {
+      urlInput.value = urlOrData;
+    }
+  }
+
+  clearReviewAvatar() {
+    this.currentRevAvatarBase64 = '';
+    const img = this.container.querySelector('#rev-avatar-preview-img');
+    const placeholder = this.container.querySelector('#rev-avatar-placeholder');
+    const removeBtn = this.container.querySelector('#btn-remove-rev-avatar');
+    const fileInput = this.container.querySelector('#rev-avatar-file-input');
+    const urlInput = this.container.querySelector('#rev-avatar-url-input');
+
+    if (img) {
+      img.src = '';
+      img.style.display = 'none';
+    }
+    if (placeholder) placeholder.style.display = 'block';
+    if (removeBtn) removeBtn.style.display = 'none';
+    if (fileInput) fileInput.value = '';
+    if (urlInput) urlInput.value = '';
+  }
+
+  setReviewPhoto(urlOrData, filename = 'customer_photo.jpg') {
+    if (!urlOrData) return;
+    this.currentRevPhotoBase64 = urlOrData;
+    const dropzone = this.container.querySelector('#rev-photo-dropzone');
+    const previewBar = this.container.querySelector('#rev-photo-preview-bar');
+    const img = this.container.querySelector('#rev-photo-preview-img');
+    const nameEl = this.container.querySelector('#rev-photo-preview-name');
+    const urlInput = this.container.querySelector('#rev-photo-url-input');
+
+    if (img) img.src = urlOrData;
+    if (nameEl) nameEl.textContent = filename;
+    if (previewBar) previewBar.style.display = 'flex';
+    if (dropzone) dropzone.style.display = 'none';
+    if (urlInput && urlOrData.startsWith('http')) {
+      urlInput.value = urlOrData;
+    }
+  }
+
+  clearReviewPhoto() {
+    this.currentRevPhotoBase64 = '';
+    const dropzone = this.container.querySelector('#rev-photo-dropzone');
+    const previewBar = this.container.querySelector('#rev-photo-preview-bar');
+    const img = this.container.querySelector('#rev-photo-preview-img');
+    const fileInput = this.container.querySelector('#rev-photo-file-input');
+    const urlInput = this.container.querySelector('#rev-photo-url-input');
+
+    if (img) img.src = '';
+    if (previewBar) previewBar.style.display = 'none';
+    if (dropzone) dropzone.style.display = 'block';
+    if (fileInput) fileInput.value = '';
+    if (urlInput) urlInput.value = '';
+  }
+
+  renderReviewsView() {
+    const filterSelectedBtn = this.container.querySelector('#btn-rev-filter-selected');
+    const filterAllBtn = this.container.querySelector('#btn-rev-filter-all');
+    if (filterSelectedBtn && filterAllBtn) {
+      if (this.reviewsViewFilter === 'all') {
+        filterSelectedBtn.classList.remove('active');
+        filterAllBtn.classList.add('active');
+      } else {
+        filterSelectedBtn.classList.add('active');
+        filterAllBtn.classList.remove('active');
+      }
+    }
+
+    if (this.reviewsViewFilter === 'all') {
+      this.renderAllReviews();
+    } else {
+      const select = this.container.querySelector('#review-product-select');
+      const prodId = select ? select.value : null;
+      if (prodId) {
+        this.renderReviewsForProduct(prodId);
+      } else {
+        const prods = productStore.getProducts();
+        if (prods.length > 0) this.renderReviewsForProduct(prods[0].id);
+      }
     }
   }
 
   renderReviewsForProduct(productId) {
     const container = this.container.querySelector('#admin-reviews-container');
+    const summaryBar = this.container.querySelector('#rev-product-summary-bar');
     if (!container) return;
 
+    const prod = productStore.getProductById(productId);
     const reviews = productStore.getProductReviews(productId);
+
+    if (summaryBar && prod) {
+      summaryBar.innerHTML = `
+        <div class="rev-summary-inner">
+          <img src="${prod.imageUrl || '/assets/products/diya_peacock.jpg'}" class="rev-summary-img" alt="${prod.name}" />
+          <div class="rev-summary-details">
+            <h4 class="rev-summary-title">${prod.name}</h4>
+            <div class="rev-summary-meta">
+              <span class="rev-stars-highlight">${'★'.repeat(Math.round(prod.rating || 5))}</span>
+              <strong>${prod.rating || 5.0}</strong>
+              <span>(${reviews.length} total customer reviews)</span>
+              <span class="rev-cat-pill">${prod.categoryName || prod.category}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     if (reviews.length === 0) {
-      container.innerHTML = `<div style="text-align: center; color: #94A3B8; padding: 24px;">No customer reviews yet on this offering.</div>`;
+      container.innerHTML = `
+        <div class="admin-empty-reviews-state">
+          <div class="empty-diya">🪔</div>
+          <h4>No Reviews Yet on This Offering</h4>
+          <p>Use the form on the left to add a customer blessing, avatar, and unboxing photo!</p>
+        </div>
+      `;
       return;
     }
 
-    container.innerHTML = reviews.map(r => `
-      <div class="admin-review-card">
-        <div class="rev-card-head">
-          <strong class="rev-author">${r.name}</strong>
-          <span class="rev-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
-          <span class="rev-date">${r.date}</span>
+    container.innerHTML = reviews.map(r => this.generateReviewCardHtml(r, productId, false)).join('');
+  }
+
+  renderAllReviews() {
+    const container = this.container.querySelector('#admin-reviews-container');
+    const summaryBar = this.container.querySelector('#rev-product-summary-bar');
+    if (!container) return;
+
+    const allReviews = productStore.getAllReviewsList();
+
+    if (summaryBar) {
+      summaryBar.innerHTML = `
+        <div class="rev-summary-inner">
+          <div class="rev-summary-all-badge">📚</div>
+          <div class="rev-summary-details">
+            <h4 class="rev-summary-title">All Store Customer Reviews & Blessings</h4>
+            <div class="rev-summary-meta">
+              <span>Showing <strong>${allReviews.length} verified customer reviews</strong> across all festive offerings</span>
+            </div>
+          </div>
         </div>
-        <p class="rev-comment">"${r.comment}"</p>
+      `;
+    }
+
+    if (allReviews.length === 0) {
+      container.innerHTML = `
+        <div class="admin-empty-reviews-state">
+          <div class="empty-diya">🪔</div>
+          <h4>No Customer Reviews Recorded Yet</h4>
+          <p>Add your first customer review using the form on the left.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = allReviews.map(r => this.generateReviewCardHtml(r, r.productId, true)).join('');
+  }
+
+  generateReviewCardHtml(r, productId, isAllMode = false) {
+    const hasAvatar = !!(r.avatarUrl && r.avatarUrl.trim().length > 5);
+    const hasPhoto = !!((r.photoUrl || r.imageUrl) && (r.photoUrl || r.imageUrl).trim().length > 5);
+    const photoSrc = r.photoUrl || r.imageUrl || '';
+    const initial = (r.name || 'P').trim().charAt(0).toUpperCase();
+
+    return `
+      <div class="admin-real-review-card" data-card-review-id="${r.id}" data-card-prod-id="${productId}">
+        <div class="admin-rev-card-header">
+          <div class="rev-user-info-cluster">
+            ${hasAvatar ? `
+              <img src="${r.avatarUrl}" class="admin-rev-avatar-img" alt="${r.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <div class="admin-rev-avatar-fallback" style="display:none;">${initial}</div>
+            ` : `
+              <div class="admin-rev-avatar-fallback">${initial}</div>
+            `}
+            <div class="rev-user-meta">
+              <div class="rev-user-name-line">
+                <strong class="rev-author-name">${r.name}</strong>
+                ${r.verified !== false ? `<span class="rev-verified-tag">✓ Verified Purchase</span>` : ''}
+              </div>
+              <div class="rev-sub-meta">
+                ${r.city ? `<span class="rev-city-tag">📍 ${r.city}</span> <span class="meta-dot">•</span> ` : ''}
+                <span class="rev-date-tag">${r.date || 'Recent'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rev-header-right-actions">
+            <button type="button" class="tbl-action-btn danger btn-delete-review" data-del-review-id="${r.id}" data-del-prod-id="${productId}" title="Delete this review">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-rev-rating-headline">
+          <span class="rev-stars-gold">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
+          <span class="rev-rating-num">${r.rating || 5}.0</span>
+          ${r.title ? `<strong class="rev-headline-text">${r.title}</strong>` : ''}
+        </div>
+
+        <p class="admin-rev-comment-body">"${r.comment}"</p>
+
+        ${hasPhoto ? `
+          <div class="admin-rev-attached-photo">
+            <img src="${photoSrc}" class="admin-rev-thumb-photo" alt="Customer unboxing photo" onclick="window.open(this.src, '_blank')" title="Click to open full unboxing photo" />
+            <span class="photo-ugc-pill">📸 Real Unboxing Photo</span>
+          </div>
+        ` : ''}
+
+        ${isAllMode && r.productName ? `
+          <div class="admin-rev-linked-product-bar">
+            <small>Linked Offering:</small> <strong>${r.productName}</strong>
+          </div>
+        ` : ''}
       </div>
-    `).join('');
+    `;
   }
 
   // --- PRODUCT EDITOR & MULTI-MEDIA CMS ---
@@ -2232,12 +2846,19 @@ export class AdminPanel {
     const modal = this.container.querySelector('#product-editor-modal');
     const title = this.container.querySelector('#editor-dialog-title');
     modal.style.display = 'flex';
+    modal.scrollTop = 0;
 
     if (product) {
       title.textContent = `Edit Offering: ${product.name}`;
       this.container.querySelector('#edit-id').value = product.id;
       this.container.querySelector('#edit-name').value = product.name;
       this.container.querySelector('#edit-category').value = product.category;
+      if (this.container.querySelector('#edit-festival')) {
+        this.container.querySelector('#edit-festival').value = product.festival || 'diwali';
+      }
+      if (this.container.querySelector('#edit-festival-tag')) {
+        this.container.querySelector('#edit-festival-tag').value = product.festivalTag || '';
+      }
       this.container.querySelector('#edit-tagline').value = product.tagline || '';
       this.container.querySelector('#edit-price').value = product.priceINR;
       this.container.querySelector('#edit-orig-price').value = product.originalPriceINR || Math.round(product.priceINR * 1.25);
@@ -2270,6 +2891,12 @@ export class AdminPanel {
       title.textContent = "Add New Festive Offering";
       this.container.querySelector('#product-editor-form').reset();
       this.container.querySelector('#edit-id').value = '';
+      if (this.container.querySelector('#edit-festival')) {
+        this.container.querySelector('#edit-festival').value = 'diwali';
+      }
+      if (this.container.querySelector('#edit-festival-tag')) {
+        this.container.querySelector('#edit-festival-tag').value = 'Diwali Mahotsav Special';
+      }
       this.container.querySelector('#edit-instock').checked = true;
       this.container.querySelector('#edit-price').value = '2499';
       this.container.querySelector('#edit-orig-price').value = '3299';
@@ -2306,6 +2933,8 @@ export class AdminPanel {
     }
 
     const category = this.container.querySelector('#edit-category').value;
+    const festival = this.container.querySelector('#edit-festival')?.value || 'diwali';
+    const festivalTag = this.container.querySelector('#edit-festival-tag')?.value.trim() || this.formatFestivalName(festival);
     const tagline = this.container.querySelector('#edit-tagline').value.trim();
     const priceINR = parseFloat(this.container.querySelector('#edit-price').value) || 999;
     const origInput = parseFloat(this.container.querySelector('#edit-orig-price').value);
@@ -2336,6 +2965,8 @@ export class AdminPanel {
       name,
       category,
       categoryName: productStore.getCategoryDisplayName(category),
+      festival,
+      festivalTag,
       tagline,
       priceINR,
       originalPriceINR,
@@ -2360,9 +2991,9 @@ export class AdminPanel {
 
     productStore.saveProduct(productData);
     this.closeProductEditor();
-    this.renderProductsTable();
+    this.renderProductsTable(this.catalogSearchQuery);
     this.renderOverviewTab();
-    alert(`✓ Saved "${name}" with SKU ${sku} (${stockQty} units) to storefront!`);
+    alert(`✓ Saved "${name}" under ${festivalTag} (${stockQty} units) to storefront!`);
   }
 }
 
