@@ -8,7 +8,7 @@ export class AdminPanel {
     this.isOpen = false;
     this.isAuthenticated = sessionStorage.getItem('utsav_admin_auth') === 'true';
     this.activeTab = 'overview';
-    this.orderFilter = 'all';
+    this.orderFilter = 'unshipped';
     this.orderSearchQuery = '';
     this.catalogFestivalFilter = 'all';
     this.catalogSearchQuery = '';
@@ -461,14 +461,16 @@ export class AdminPanel {
           <!-- TAB 2: LIVE ORDERS & FULFILLMENT -->
           <div class="admin-tab-pane" id="tab-pane-orders" style="${this.activeTab === 'orders' ? 'display:block;' : 'display:none;'}">
             <div class="pane-action-bar">
-              <!-- Status Filter Buttons with Cancelled & Return -->
+              <!-- 5-Stage Order Lifecycle Filter Chips with Unshipped Default -->
               <div class="orders-filter-group" id="orders-filter-buttons">
-                <button class="filter-chip active" data-filter="all">All Orders</button>
-                <button class="filter-chip" data-filter="Processing">Processing</button>
-                <button class="filter-chip" data-filter="Dispatched">Dispatched</button>
-                <button class="filter-chip" data-filter="Out for Delivery">Out for Delivery</button>
-                <button class="filter-chip" data-filter="Delivered">Delivered</button>
-                <button class="filter-chip" data-filter="Cancelled" style="color: #EF4444;">Cancelled / RTO</button>
+                <button class="filter-chip active" data-filter="unshipped" title="New orders placed and packed awaiting courier dispatch">⚡ Action Needed (Unshipped)</button>
+                <button class="filter-chip" data-filter="New Order" title="Stage 1: Placed by Client">1. Placed</button>
+                <button class="filter-chip" data-filter="Packed" title="Stage 2: Processed & Packed">2. Packed</button>
+                <button class="filter-chip" data-filter="Shipped" title="Stage 3: Shipped / In-Transit">3. Shipped</button>
+                <button class="filter-chip" data-filter="Out for Delivery" title="Stage 4: Out for Delivery">4. Out for Delivery</button>
+                <button class="filter-chip" data-filter="Delivered" title="Stage 5: Delivered">5. Delivered</button>
+                <button class="filter-chip" data-filter="all" title="View all order history">All Orders</button>
+                <button class="filter-chip" data-filter="Cancelled" style="color: #EF4444;" title="Cancelled or Returned">Cancelled / RTO</button>
               </div>
 
               <!-- Live Search & CSV Export -->
@@ -479,6 +481,11 @@ export class AdminPanel {
                   <span>Export CSV</span>
                 </button>
               </div>
+            </div>
+
+            <!-- Active Queue Status Banner -->
+            <div class="orders-queue-banner" id="orders-queue-banner">
+              <!-- Populated dynamically -->
             </div>
 
             <!-- Orders & Fulfillment Master Table -->
@@ -1009,7 +1016,7 @@ export class AdminPanel {
     if (btnViewAllOrders) btnViewAllOrders.addEventListener('click', () => this.switchTab('orders'));
 
     // Orders Filtering & Search
-    const filterChips = this.container.querySelectorAll('.orders-filter-group .filter-chip');
+    const filterChips = this.container.querySelectorAll('#orders-filter-buttons .filter-chip');
     filterChips.forEach(chip => {
       chip.addEventListener('click', (e) => {
         filterChips.forEach(c => c.classList.remove('active'));
@@ -1798,8 +1805,8 @@ export class AdminPanel {
         </div>
         <div class="kpi-value">${stats.totalOrders}</div>
         <div class="kpi-meta">
-          <span class="kpi-pill warning">${stats.processingCount} Processing</span>
-          <span class="kpi-subtext">${stats.cancelledCount > 0 ? `${stats.cancelledCount} Cancelled/RTO` : '100% Retained'}</span>
+          <span class="kpi-pill warning">⚡ ${stats.unshippedCount} Action Needed</span>
+          <span class="kpi-subtext">${stats.newOrdersCount} New • ${stats.packedCount} Packed</span>
         </div>
       </div>
 
@@ -1822,8 +1829,8 @@ export class AdminPanel {
         </div>
         <div class="kpi-value">${stats.deliveredCount} Delivered</div>
         <div class="kpi-meta">
-          <span class="kpi-pill success">● ${stats.dispatchedCount + stats.outForDeliveryCount} In-Transit</span>
-          <span class="kpi-subtext">Avg. AOV: ${formattedAOV}</span>
+          <span class="kpi-pill success">● ${stats.shippedCount + stats.outForDeliveryCount} In-Transit</span>
+          <span class="kpi-subtext">${stats.deliveredCount} Delivered • Avg: ${formattedAOV}</span>
         </div>
       </div>
     `;
@@ -1857,15 +1864,107 @@ export class AdminPanel {
   }
 
   // --- 2. LIVE ORDERS & CUSTOMER DIRECTORY TAB ---
+  updateOrderFilterBadges() {
+    const stats = productStore.getDashboardStats();
+    const btnGroup = this.container.querySelector('#orders-filter-buttons');
+    if (!btnGroup) return;
+
+    const chips = btnGroup.querySelectorAll('.filter-chip');
+    chips.forEach(chip => {
+      const f = chip.getAttribute('data-filter');
+      let label = '';
+      if (f === 'unshipped') {
+        label = `⚡ Action Needed (${stats.unshippedCount})`;
+      } else if (f === 'New Order') {
+        label = `1. Placed (${stats.newOrdersCount})`;
+      } else if (f === 'Packed') {
+        label = `2. Packed (${stats.packedCount})`;
+      } else if (f === 'Shipped') {
+        label = `3. Shipped (${stats.shippedCount})`;
+      } else if (f === 'Out for Delivery') {
+        label = `4. Out for Delivery (${stats.outForDeliveryCount})`;
+      } else if (f === 'Delivered') {
+        label = `5. Delivered (${stats.deliveredCount})`;
+      } else if (f === 'all') {
+        label = `All Orders (${stats.totalOrders})`;
+      } else if (f === 'Cancelled') {
+        label = `Cancelled / RTO (${stats.cancelledCount})`;
+      }
+      if (label) chip.textContent = label;
+      if (f === this.orderFilter) {
+        chip.classList.add('active');
+      } else {
+        chip.classList.remove('active');
+      }
+    });
+
+    const banner = this.container.querySelector('#orders-queue-banner');
+    if (banner) {
+      if (this.orderFilter === 'unshipped') {
+        banner.innerHTML = `
+          <div class="queue-banner-inner alert-amber">
+            <span class="queue-icon">⚡</span>
+            <div class="queue-text">
+              <strong>Merchant Fulfillment Queue (Default View):</strong> Showing <strong>${stats.unshippedCount} order(s)</strong> awaiting packaging & shipping. Dispatched & delivered orders are safely archived under their respective stage filters to keep your workspace clear.
+            </div>
+            <button class="queue-view-all-link" id="btn-show-all-orders-banner">View All History (${stats.totalOrders})</button>
+          </div>
+        `;
+        const viewAllBtn = banner.querySelector('#btn-show-all-orders-banner');
+        if (viewAllBtn) {
+          viewAllBtn.addEventListener('click', () => {
+            this.orderFilter = 'all';
+            this.renderOrdersTable();
+          });
+        }
+      } else {
+        const stageTitles = {
+          'New Order': 'Stage 1: Placed by Client (Awaiting Processing)',
+          'Packed': 'Stage 2: Processed & Packed in Luxury Boxes',
+          'Shipped': 'Stage 3: Shipped / In-Transit with Courier',
+          'Out for Delivery': 'Stage 4: Out for Delivery in Local Hubs',
+          'Delivered': 'Stage 5: Delivered to Patrons',
+          'Cancelled': 'Cancelled or Returned (RTO)',
+          'all': 'All Historic Customer Orders'
+        };
+        banner.innerHTML = `
+          <div class="queue-banner-inner">
+            <span class="queue-icon">📋</span>
+            <div class="queue-text">
+              Showing: <strong>${stageTitles[this.orderFilter] || this.orderFilter}</strong>.
+            </div>
+            <button class="queue-view-all-link" id="btn-back-to-unshipped-banner">⚡ Back to Action Needed (${stats.unshippedCount})</button>
+          </div>
+        `;
+        const backBtn = banner.querySelector('#btn-back-to-unshipped-banner');
+        if (backBtn) {
+          backBtn.addEventListener('click', () => {
+            this.orderFilter = 'unshipped';
+            this.renderOrdersTable();
+          });
+        }
+      }
+    }
+  }
+
   renderOrdersTable() {
     const tbody = this.container.querySelector('#admin-orders-table-body');
     if (!tbody) return;
 
+    this.updateOrderFilterBadges();
+
     let orders = productStore.getOrders();
 
-    // 1. Filter by status
-    if (this.orderFilter !== 'all') {
-      orders = orders.filter(o => o.orderStatus === this.orderFilter);
+    // 1. Filter by 5-Stage Lifecycle
+    if (this.orderFilter === 'unshipped') {
+      // By default: Only show orders not yet shipped (New Order / Packed / Processing)
+      orders = orders.filter(o => ['New Order', 'Processing', 'Packed'].includes(o.orderStatus));
+    } else if (this.orderFilter !== 'all') {
+      orders = orders.filter(o => 
+        o.orderStatus === this.orderFilter ||
+        (this.orderFilter === 'Shipped' && o.orderStatus === 'Dispatched') ||
+        (this.orderFilter === 'New Order' && o.orderStatus === 'Processing')
+      );
     }
 
     // 2. Search query filter
@@ -1882,7 +1981,15 @@ export class AdminPanel {
     }
 
     if (orders.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:36px; color:#94A3B8;">No orders match the selected filter or search query.</td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align:center; padding:48px 24px; color:#94A3B8;">
+            <div style="font-size:24px; margin-bottom:8px;">📦</div>
+            <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">No orders found in this view</div>
+            <div style="font-size:12px;">${this.orderFilter === 'unshipped' ? 'Great job! All customer orders have been processed and shipped.' : 'Try selecting another lifecycle stage or clearing your search filter.'}</div>
+          </td>
+        </tr>
+      `;
       return;
     }
 
@@ -1936,10 +2043,11 @@ export class AdminPanel {
           <td>
             <div class="status-selector-wrap">
               <select class="admin-order-status-select select-${this.getStatusSlug(o.orderStatus)}" data-order-id="${o.id}">
-                <option value="Processing" ${o.orderStatus === 'Processing' ? 'selected' : ''}>Processing</option>
-                <option value="Dispatched" ${o.orderStatus === 'Dispatched' ? 'selected' : ''}>Dispatched</option>
-                <option value="Out for Delivery" ${o.orderStatus === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
-                <option value="Delivered" ${o.orderStatus === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="New Order" ${o.orderStatus === 'New Order' || o.orderStatus === 'Processing' ? 'selected' : ''}>1. New Order (Client Placed)</option>
+                <option value="Packed" ${o.orderStatus === 'Packed' ? 'selected' : ''}>2. Processed & Packed</option>
+                <option value="Shipped" ${o.orderStatus === 'Shipped' || o.orderStatus === 'Dispatched' ? 'selected' : ''}>3. Shipped (In-Transit)</option>
+                <option value="Out for Delivery" ${o.orderStatus === 'Out for Delivery' ? 'selected' : ''}>4. Out for Delivery</option>
+                <option value="Delivered" ${o.orderStatus === 'Delivered' ? 'selected' : ''}>5. Delivered</option>
                 <option value="Cancelled" ${o.orderStatus === 'Cancelled' ? 'selected' : ''}>Cancelled (Restock)</option>
                 <option value="Returned" ${o.orderStatus === 'Returned' ? 'selected' : ''}>Returned (RTO)</option>
               </select>
@@ -1991,8 +2099,17 @@ export class AdminPanel {
         }, 4000);
       }
 
-      // Refresh overview stats
+      // Refresh overview stats & update badge counts
       this.renderOverviewTab();
+      this.updateOrderFilterBadges();
+
+      // If merchant is currently on unshipped view and marked item Shipped/Delivered/Cancelled,
+      // refresh table smoothly after a moment
+      if (this.orderFilter === 'unshipped') {
+        setTimeout(() => {
+          this.renderOrdersTable();
+        }, 500);
+      }
     }
   }
 
@@ -2227,16 +2344,21 @@ export class AdminPanel {
 
   getStatusBadgeClass(status) {
     switch (status) {
-      case 'Processing': return 'badge-processing';
-      case 'Dispatched': return 'badge-dispatched';
+      case 'New Order':
+      case 'Processing': return 'badge-new-order';
+      case 'Packed': return 'badge-packed';
+      case 'Shipped':
+      case 'Dispatched': return 'badge-shipped';
       case 'Out for Delivery': return 'badge-out-for-delivery';
       case 'Delivered': return 'badge-delivered';
-      default: return 'badge-processing';
+      case 'Cancelled': return 'badge-cancelled';
+      case 'Returned': return 'badge-returned';
+      default: return 'badge-new-order';
     }
   }
 
   getStatusSlug(status) {
-    return (status || 'processing').toLowerCase().replace(/\s+/g, '-');
+    return (status || 'new-order').toLowerCase().replace(/\s+/g, '-');
   }
 
   // --- 3. PRODUCTS TAB ---

@@ -146,6 +146,17 @@ export class ProductStore {
       const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
       if (savedOrders) {
         this.orders = JSON.parse(savedOrders);
+        let migrated = false;
+        this.orders.forEach(o => {
+          if (o.orderStatus === 'Processing') {
+            o.orderStatus = 'New Order';
+            migrated = true;
+          } else if (o.orderStatus === 'Dispatched') {
+            o.orderStatus = 'Shipped';
+            migrated = true;
+          }
+        });
+        if (migrated) this.saveOrdersToStorage();
       } else {
         this.seedInitialOrders();
       }
@@ -179,7 +190,7 @@ export class ProductStore {
         totalINR: 4998,
         paymentMode: "UPI Instant (PhonePe / GPay)",
         paymentStatus: "Paid (Verified)",
-        orderStatus: "Processing",
+        orderStatus: "New Order",
         trackingNumber: "UB-TRK-771822"
       },
       {
@@ -205,7 +216,7 @@ export class ProductStore {
         totalINR: 7378,
         paymentMode: "Credit Card (HDFC Regalia)",
         paymentStatus: "Paid (Verified)",
-        orderStatus: "Dispatched",
+        orderStatus: "Packed",
         trackingNumber: "UB-TRK-992140"
       },
       {
@@ -231,7 +242,7 @@ export class ProductStore {
         totalINR: 9602,
         paymentMode: "Net Banking (SBI)",
         paymentStatus: "Paid (Verified)",
-        orderStatus: "Out for Delivery",
+        orderStatus: "Shipped",
         trackingNumber: "UB-TRK-883912"
       },
       {
@@ -257,8 +268,33 @@ export class ProductStore {
         totalINR: 3198,
         paymentMode: "Cash on Delivery (COD)",
         paymentStatus: "Paid (COD Collected)",
-        orderStatus: "Delivered",
+        orderStatus: "Out for Delivery",
         trackingNumber: "UB-TRK-554190"
+      },
+      {
+        id: "UB-ORD-410928",
+        invoiceNumber: "UB-INV-2026-219803",
+        date: "08 Oct 2026",
+        timestamp: Date.now() - 3600000 * 140,
+        customer: {
+          name: "Devendra Patel",
+          email: "devendra.patel@gujaratcrafts.in",
+          phone: "+91 98250 87654",
+          address: "18 Ambli Road, Bodakdev",
+          city: "Ahmedabad",
+          pincode: "380054"
+        },
+        items: [
+          { id: "ub-002", name: "Swarna Kamal Handcrafted Brass Diya Set", category: "diyas", priceINR: 1899, quantity: 2, subtotalINR: 3798 }
+        ],
+        subtotalINR: 3798,
+        discountINR: 379.8,
+        taxINR: 0,
+        totalINR: 3418,
+        paymentMode: "UPI Instant (PhonePe)",
+        paymentStatus: "Paid (Verified)",
+        orderStatus: "Delivered",
+        trackingNumber: "UB-TRK-441209"
       }
     ];
     this.saveOrdersToStorage();
@@ -361,8 +397,10 @@ export class ProductStore {
     const netProfit = Math.max(0, totalRevenue - totalCost);
     const profitMargin = totalRevenue > 0 ? Math.round((netProfit / totalRevenue) * 100) : 0;
 
-    const processingCount = this.orders.filter(o => o.orderStatus === 'Processing').length;
-    const dispatchedCount = this.orders.filter(o => o.orderStatus === 'Dispatched').length;
+    const newOrdersCount = this.orders.filter(o => o.orderStatus === 'New Order' || o.orderStatus === 'Processing').length;
+    const packedCount = this.orders.filter(o => o.orderStatus === 'Packed').length;
+    const unshippedCount = this.orders.filter(o => ['New Order', 'Processing', 'Packed'].includes(o.orderStatus)).length;
+    const shippedCount = this.orders.filter(o => o.orderStatus === 'Shipped' || o.orderStatus === 'Dispatched').length;
     const outForDeliveryCount = this.orders.filter(o => o.orderStatus === 'Out for Delivery').length;
     const deliveredCount = this.orders.filter(o => o.orderStatus === 'Delivered').length;
     const cancelledCount = this.orders.filter(o => o.orderStatus === 'Cancelled' || o.orderStatus === 'Returned').length;
@@ -379,11 +417,15 @@ export class ProductStore {
       netProfit,
       profitMargin,
       avgOrderValue,
-      processingCount,
-      dispatchedCount,
+      unshippedCount,
+      newOrdersCount,
+      packedCount,
+      shippedCount,
       outForDeliveryCount,
       deliveredCount,
       cancelledCount,
+      processingCount: newOrdersCount,
+      dispatchedCount: shippedCount,
       prepaidCount: prepaidOrders.length,
       codCount: codOrders.length,
       prepaidAmount,

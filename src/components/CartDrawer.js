@@ -1191,7 +1191,7 @@ export class CartDrawer {
         totalINR,
         paymentMode: paymentMode,
         paymentStatus: paymentMode.includes('COD') ? 'Pending (COD)' : 'Paid (Verified)',
-        orderStatus: 'Processing',
+        orderStatus: 'New Order',
         trackingNumber: `UB-TRK-${Math.floor(1000000 + Math.random() * 9000000)}`
       };
       productStore.recordOrder(orderData);
