@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   PRODUCTS: 'utsav_products_v6',
   DISCOUNT_BAR: 'utsav_discount_bar_v6',
   GOOGLE_SHEET_URL: 'utsav_gsheet_url_v6',
+  APPS_SCRIPT_URL: 'utsav_apps_script_url_v1',
   REVIEWS: 'utsav_product_reviews_v6',
   ORDERS: 'utsav_orders_v6'
 };
@@ -15,11 +16,12 @@ export class ProductStore {
     this.orders = [];
     this.discountSettings = {
       enabled: true,
-      text: "🪔 DIWALI MAHOTSAV SALE: FLAT 15% OFF ALL HANDCRAFTED OFFERINGS • USE CODE: DIWALI2026",
+      text: "DIWALI MAHOTSAV SALE: FLAT 15% OFF ALL HANDCRAFTED OFFERINGS • USE CODE: DIWALI2026",
       couponCode: "DIWALI2026",
       discountPercent: 15
     };
     this.googleSheetUrl = "";
+    this.appsScriptUrl = "";
     this.reviews = {};
 
     this.init();
@@ -35,7 +37,7 @@ export class ProductStore {
       const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (saved) {
         this.products = JSON.parse(saved);
-        // Ensure all products have real imageUrl backfilled from FESTIVE_PRODUCTS and add new default items
+        // Ensure all products have real imageUrl, stock count, SKU, and cost price backfilled
         let updated = false;
         FESTIVE_PRODUCTS.forEach(fp => {
           const existing = this.products.find(p => p.id === fp.id);
@@ -43,30 +45,52 @@ export class ProductStore {
             const markupRatio = 1.25 + (Math.round((fp.priceINR % 100)) / 400);
             const originalPriceINR = Math.round((fp.priceINR * markupRatio) / 100) * 100 - 1;
             const discountPercent = Math.round(((originalPriceINR - fp.priceINR) / originalPriceINR) * 100);
+            const costPriceINR = Math.round(fp.priceINR * 0.55); // Estimated artisan manufacturing cost
             this.products.push({
               ...fp,
               originalPriceINR,
+              costPriceINR,
+              sku: `UB-${fp.category.toUpperCase().slice(0, 4)}-${fp.id.replace('ub-', '')}`,
+              hsnCode: '7419', // Brass / Metal Handicrafts HSN
+              stockQty: 25,
+              lowStockThreshold: 5,
               discountPercent,
               imageUrl: fp.imageUrl || '',
               inStock: fp.inStock !== false
             });
             updated = true;
-          } else if (!existing.imageUrl || existing.imageUrl.trim() === '') {
-            existing.imageUrl = fp.imageUrl;
-            updated = true;
+          } else {
+            if (!existing.imageUrl || existing.imageUrl.trim() === '') {
+              existing.imageUrl = fp.imageUrl;
+              updated = true;
+            }
+            if (existing.stockQty === undefined) {
+              existing.stockQty = 25;
+              existing.lowStockThreshold = 5;
+              existing.costPriceINR = Math.round(existing.priceINR * 0.55);
+              existing.sku = `UB-${existing.category.toUpperCase().slice(0, 4)}-${existing.id.replace('ub-', '')}`;
+              existing.hsnCode = '7419';
+              updated = true;
+            }
           }
         });
         if (updated) this.saveProductsToStorage();
       } else {
-        // Seed initial products with original marked prices & discounts
+        // Seed initial products with original marked prices, costs, SKU, & discounts
         this.products = FESTIVE_PRODUCTS.map(p => {
           const markupRatio = 1.25 + (Math.round((p.priceINR % 100)) / 400);
           const originalPriceINR = Math.round((p.priceINR * markupRatio) / 100) * 100 - 1;
           const discountPercent = Math.round(((originalPriceINR - p.priceINR) / originalPriceINR) * 100);
+          const costPriceINR = Math.round(p.priceINR * 0.55);
 
           return {
             ...p,
             originalPriceINR,
+            costPriceINR,
+            sku: `UB-${p.category.toUpperCase().slice(0, 4)}-${p.id.replace('ub-', '')}`,
+            hsnCode: '7419',
+            stockQty: 25,
+            lowStockThreshold: 5,
             discountPercent,
             imageUrl: p.imageUrl || '',
             inStock: p.inStock !== false
@@ -247,21 +271,58 @@ export class ProductStore {
 
   recordOrder(orderData) {
     this.orders.unshift(orderData);
+    // Auto deduct stock for items ordered
+    (orderData.items || []).forEach(item => {
+      this.adjustProductStock(item.id, -(item.quantity || 1));
+    });
     this.saveOrdersToStorage();
+
+    // Trigger async sync with Apps Script if configured
+    this.syncOrderToBackend(orderData);
     return orderData;
   }
 
   updateOrderStatus(orderId, newStatus) {
     const order = this.orders.find(o => o.id === orderId);
     if (order) {
+      const oldStatus = order.orderStatus;
       order.orderStatus = newStatus;
       if (newStatus === 'Delivered' && order.paymentMode.includes('COD')) {
         order.paymentStatus = 'Paid (COD Collected)';
       }
+      // If order is Cancelled or Returned, restore stock automatically!
+      if ((newStatus === 'Cancelled' || newStatus === 'Returned') && oldStatus !== 'Cancelled' && oldStatus !== 'Returned') {
+        (order.items || []).forEach(item => {
+          this.adjustProductStock(item.id, item.quantity || 1);
+        });
+      }
       this.saveOrdersToStorage();
+
+      // Sync status update to Apps Script if configured
+      this.syncOrderStatusToBackend(orderId, newStatus, order.trackingNumber);
       return true;
     }
     return false;
+  }
+
+  toggleCodVerification(orderId) {
+    const order = this.orders.find(o => o.id === orderId);
+    if (order) {
+      order.codVerified = !order.codVerified;
+      this.saveOrdersToStorage();
+      return order.codVerified;
+    }
+    return false;
+  }
+
+  adjustProductStock(productId, delta) {
+    const p = this.products.find(prod => prod.id === productId);
+    if (p) {
+      const current = Number(p.stockQty) || 0;
+      p.stockQty = Math.max(0, current + delta);
+      p.inStock = p.stockQty > 0;
+      this.saveProductsToStorage();
+    }
   }
 
   deleteOrder(orderId) {
@@ -270,23 +331,148 @@ export class ProductStore {
   }
 
   getDashboardStats() {
-    const totalOrders = this.orders.length;
-    const totalRevenue = this.orders.reduce((sum, o) => sum + (Number(o.totalINR) || 0), 0);
+    const validOrders = this.orders.filter(o => o.orderStatus !== 'Cancelled');
+    const totalOrders = validOrders.length;
+    const totalRevenue = validOrders.reduce((sum, o) => sum + (Number(o.totalINR) || 0), 0);
     const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+    
+    // Net profit calculation: Revenue minus (artisan cost + packaging + shipping)
+    let totalCost = 0;
+    validOrders.forEach(o => {
+      (o.items || []).forEach(item => {
+        const p = this.products.find(prod => prod.id === item.id);
+        const costPerUnit = p ? (p.costPriceINR || Math.round(p.priceINR * 0.55)) : Math.round((item.priceINR || 0) * 0.55);
+        totalCost += costPerUnit * (item.quantity || 1);
+      });
+      totalCost += 150; // Packaging & Insured Shipping average
+    });
+    const netProfit = Math.max(0, totalRevenue - totalCost);
+    const profitMargin = totalRevenue > 0 ? Math.round((netProfit / totalRevenue) * 100) : 0;
+
     const processingCount = this.orders.filter(o => o.orderStatus === 'Processing').length;
     const dispatchedCount = this.orders.filter(o => o.orderStatus === 'Dispatched').length;
     const outForDeliveryCount = this.orders.filter(o => o.orderStatus === 'Out for Delivery').length;
     const deliveredCount = this.orders.filter(o => o.orderStatus === 'Delivered').length;
+    const cancelledCount = this.orders.filter(o => o.orderStatus === 'Cancelled' || o.orderStatus === 'Returned').length;
+
+    // Prepaid vs COD Breakdown
+    const prepaidOrders = validOrders.filter(o => !o.paymentMode.includes('COD'));
+    const codOrders = validOrders.filter(o => o.paymentMode.includes('COD'));
+    const prepaidAmount = prepaidOrders.reduce((sum, o) => sum + (Number(o.totalINR) || 0), 0);
+    const codAmount = codOrders.reduce((sum, o) => sum + (Number(o.totalINR) || 0), 0);
 
     return {
       totalOrders,
       totalRevenue,
+      netProfit,
+      profitMargin,
       avgOrderValue,
       processingCount,
       dispatchedCount,
       outForDeliveryCount,
-      deliveredCount
+      deliveredCount,
+      cancelledCount,
+      prepaidCount: prepaidOrders.length,
+      codCount: codOrders.length,
+      prepaidAmount,
+      codAmount
     };
+  }
+
+  getCustomerDirectory() {
+    const customerMap = {};
+    this.orders.forEach(o => {
+      const cust = o.customer || {};
+      const key = (cust.phone || cust.email || cust.name || 'guest').trim().toLowerCase();
+      if (!customerMap[key]) {
+        customerMap[key] = {
+          key,
+          name: cust.name || 'Festive Patron',
+          email: cust.email || '',
+          phone: cust.phone || '',
+          city: cust.city || '',
+          address: cust.address || '',
+          pincode: cust.pincode || '',
+          totalOrders: 0,
+          totalSpent: 0,
+          orders: [],
+          lastOrderDate: o.date,
+          vip: false
+        };
+      }
+      customerMap[key].totalOrders += 1;
+      if (o.orderStatus !== 'Cancelled') {
+        customerMap[key].totalSpent += Number(o.totalINR) || 0;
+      }
+      customerMap[key].orders.push(o.id);
+      if (customerMap[key].totalOrders >= 2 || customerMap[key].totalSpent >= 5000) {
+        customerMap[key].vip = true;
+      }
+    });
+
+    return Object.values(customerMap).sort((a, b) => b.totalSpent - a.totalSpent);
+  }
+
+  // --- TWO-WAY APPS SCRIPT SYNC ---
+  setAppsScriptUrl(url) {
+    this.appsScriptUrl = url ? url.trim() : '';
+    localStorage.setItem(STORAGE_KEYS.APPS_SCRIPT_URL, this.appsScriptUrl);
+  }
+
+  getAppsScriptUrl() {
+    if (!this.appsScriptUrl) {
+      this.appsScriptUrl = localStorage.getItem(STORAGE_KEYS.APPS_SCRIPT_URL) || '';
+    }
+    return this.appsScriptUrl;
+  }
+
+  async syncOrderToBackend(order) {
+    const url = this.getAppsScriptUrl();
+    if (!url) return;
+    try {
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "CREATE_ORDER",
+          order: {
+            OrderID: order.id,
+            InvoiceID: order.invoiceNumber,
+            Date: order.date,
+            CustomerName: order.customer?.name,
+            Email: order.customer?.email,
+            Phone: order.customer?.phone,
+            CityPin: `${order.customer?.city || ''} ${order.customer?.pincode || ''}`,
+            Items: order.items,
+            TotalAmount: order.totalINR,
+            PaymentMethod: order.paymentMode,
+            PaymentStatus: order.paymentStatus,
+            TrackingID: order.trackingNumber
+          }
+        })
+      });
+    } catch (e) {
+      console.warn("Apps Script syncOrderToBackend failed", e);
+    }
+  }
+
+  async syncOrderStatusToBackend(orderId, newStatus, trackingId) {
+    const url = this.getAppsScriptUrl();
+    if (!url) return;
+    try {
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "UPDATE_ORDER_STATUS",
+          OrderID: orderId,
+          NewStatus: newStatus,
+          TrackingID: trackingId
+        })
+      });
+    } catch (e) {
+      console.warn("Apps Script syncOrderStatusToBackend failed", e);
+    }
   }
 
   exportOrdersToCSV() {

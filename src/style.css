@@ -3432,23 +3432,31 @@ body {
   color: #000;
 }
 
+/* 1. Lock the main website body when Admin Panel is open to prevent background bleed-through */
+body.admin-mode-active {
+  overflow: hidden !important;
+  height: 100vh !important;
+  position: fixed;
+  width: 100%;
+}
+
 /* ==========================================================================
-   MERCHANT ADMIN SUITE & CMS MODAL
+   MERCHANT ADMIN SUITE & CMS APP SHELL (Zero Background Bleed)
    ========================================================================== */
 .admin-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(2, 1, 4, 0.98);
-  backdrop-filter: blur(20px);
-  z-index: 350;
+  background: #09050F;
+  z-index: 99999;
   display: flex;
   align-items: stretch;
   justify-content: stretch;
   padding: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain; /* Prevents scroll chaining to background storefront */
 }
 
 .admin-window {
@@ -3458,10 +3466,10 @@ body {
   width: 100vw;
   min-height: 100vh;
   max-width: 100vw;
-  max-height: none;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: none;
 }
 
@@ -3788,6 +3796,116 @@ body {
   background: rgba(239, 68, 68, 0.3);
 }
 
+/* Custom PNG Icons & Table Print Actions */
+.tab-png-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.kpi-png-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(212, 175, 55, 0.4));
+}
+
+.btn-action-png {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.wa-inline-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.tbl-action-btn-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--color-gold-light);
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.tbl-action-btn-print:hover {
+  background: var(--gold-gradient);
+  color: #000;
+  border-color: #D4AF37;
+  transform: translateY(-1px);
+}
+
+/* Glow Profit & Net Margin KPIs */
+.kpi-card.glow-profit {
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+}
+
+.profit-highlight {
+  color: #10B981 !important;
+  font-weight: 800;
+}
+
+[data-theme="light"] .kpi-card.glow-profit {
+  border-color: #059669 !important;
+  background: linear-gradient(135deg, #FFFDF7 0%, #ECFDF5 100%) !important;
+}
+
+[data-theme="light"] .profit-highlight {
+  color: #047857 !important;
+}
+
+/* Customer CRM Badges */
+.vip-crown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(245, 158, 11, 0.25) 100%);
+  border: 1px solid #D4AF37;
+  color: #FCD34D;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.04em;
+}
+
+[data-theme="light"] .vip-crown-badge {
+  background: #FEF3C7;
+  color: #92400E;
+  border-color: #D97706;
+}
+
+.guest-patron-badge {
+  display: inline-block;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #94A3B8;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+[data-theme="light"] .guest-patron-badge {
+  background: #F3F4F6;
+  color: #4B5563;
+  border-color: #D1D5DB;
+}
+
 /* ==========================================================================
    CARDS & FORMS IN ADMIN
    ========================================================================== */
@@ -3952,20 +4070,31 @@ body {
 }
 
 /* ==========================================================================
-   PRODUCT EDITOR MODAL & REAL IMAGE UPLOAD & LIVE STOREFRONT CARD PREVIEW
+   PRODUCT OFFERING EDITOR MODAL & LIVE STOREFRONT CARD PREVIEW (DRAWER)
    ========================================================================== */
 .editor-window {
-  width: 1100px;
-  max-width: 96vw;
-  max-height: 92vh;
+  position: relative;
+  width: 100%;
+  max-width: 1240px;
+  margin: 2vh auto;
+  height: 96vh;
+  max-height: 96vh;
+  border-radius: 16px;
+  background: #0E0816;
+  border: 1px solid var(--color-gold);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 40px rgba(212, 175, 55, 0.2);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .editor-content-body {
   overflow-y: auto;
-  max-height: calc(92vh - 140px);
+  overflow-x: hidden;
+  flex: 1;
   padding: 24px 28px;
+  overscroll-behavior: contain;
 }
 
 .editor-form-grid {
@@ -5537,6 +5666,111 @@ body {
 
 [data-theme="light"] .login-passcode-hint code {
   color: #B91C1C !important;
+}
+
+/* Fix low-contrast grey text in Google Sheets instructions & Step Guide (Light Mode) */
+[data-theme="light"] .instructions-card {
+  background: #FFFFFF !important;
+  border: 1.5px solid #D4AF37 !important;
+}
+
+[data-theme="light"] .step-guide-list li {
+  color: #1F1A14 !important;
+  font-weight: 500;
+}
+
+[data-theme="light"] .step-guide-list li strong {
+  color: #78350F !important;
+}
+
+[data-theme="light"] .step-guide-list li code {
+  background: #FFF8E6 !important;
+  color: #92400E !important;
+  border: 1px solid #FDE68A !important;
+}
+
+[data-theme="light"] .columns-reference {
+  background: #FFF9E6 !important;
+  border: 1px solid #E5D5B5 !important;
+  color: #1F1A14 !important;
+}
+
+[data-theme="light"] .columns-reference strong {
+  color: #78350F !important;
+}
+
+[data-theme="light"] .columns-reference code {
+  color: #92400E !important;
+}
+
+/* Light mode for Offering Editor drawer */
+[data-theme="light"] .editor-window {
+  background: #FFFDF7 !important;
+  border: 1.5px solid #D4AF37 !important;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3), 0 0 40px rgba(212, 175, 55, 0.25) !important;
+}
+
+[data-theme="light"] .editor-window .admin-header {
+  background: #FFF8E6 !important;
+  border-bottom: 1.5px solid rgba(212, 175, 55, 0.4) !important;
+}
+
+[data-theme="light"] .editor-window label {
+  color: #1F1A14 !important;
+  font-weight: 700;
+}
+
+[data-theme="light"] .editor-section-title {
+  color: #78350F !important;
+  border-bottom-color: rgba(212, 175, 55, 0.4) !important;
+}
+
+[data-theme="light"] .media-manager-card {
+  background: #FFF9E6 !important;
+  border: 1.5px solid rgba(212, 175, 55, 0.4) !important;
+}
+
+[data-theme="light"] .media-strip-label {
+  color: #78350F !important;
+}
+
+[data-theme="light"] .empty-media-note {
+  background: #FFFFFF !important;
+  border-color: #D1D5DB !important;
+  color: #4B5563 !important;
+}
+
+[data-theme="light"] .media-thumb-item {
+  border-color: #E5D5B5;
+  background: #FFF;
+}
+
+[data-theme="light"] .live-preview-container {
+  background: radial-gradient(circle at center, rgba(212, 175, 55, 0.15) 0%, #FFF8E6 100%) !important;
+  border: 1.5px solid rgba(212, 175, 55, 0.4) !important;
+}
+
+[data-theme="light"] .live-card-mockup {
+  background: #FFFFFF !important;
+  border-color: #D4AF37 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="light"] .mockup-body {
+  background: #FFFFFF !important;
+}
+
+[data-theme="light"] .mockup-title {
+  color: #1F1A14 !important;
+}
+
+[data-theme="light"] .mockup-tagline {
+  color: #4B5563 !important;
+}
+
+[data-theme="light"] .admin-footer {
+  background: #FFF8E6 !important;
+  border-top: 1.5px solid rgba(212, 175, 55, 0.4) !important;
 }
 
 /* ==========================================================================

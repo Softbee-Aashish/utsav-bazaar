@@ -78,7 +78,7 @@ export class AdminPanel {
                 </div>
 
                 <div class="editor-section-title" style="margin-top: 14px;">
-                  <span>2. Commercial Pricing (Zero GST • All-Inclusive)</span>
+                  <span>2. Commercial Pricing & Profit Intelligence (Zero GST)</span>
                 </div>
 
                 <div class="form-row-3">
@@ -91,22 +91,51 @@ export class AdminPanel {
                     <input type="number" id="edit-orig-price" class="admin-input" min="1" placeholder="3299" />
                   </div>
                   <div class="form-group">
+                    <label>Artisan Cost Price (₹)</label>
+                    <input type="number" id="edit-cost-price" class="admin-input" min="0" placeholder="1350" />
+                    <span class="admin-hint-text">Used to calculate your real Net Profit.</span>
+                  </div>
+                </div>
+
+                <div class="editor-section-title" style="margin-top: 14px;">
+                  <span>3. Inventory & Logistics (SKU / Exact Units)</span>
+                </div>
+
+                <div class="form-row-3">
+                  <div class="form-group">
+                    <label>Stock Quantity (Units) *</label>
+                    <input type="number" id="edit-stock-qty" class="admin-input" required min="0" placeholder="25" />
+                  </div>
+                  <div class="form-group">
+                    <label>Low Stock Warning Limit</label>
+                    <input type="number" id="edit-low-stock" class="admin-input" min="1" placeholder="5" />
+                  </div>
+                  <div class="form-group">
                     <label>Discount Badge (%)</label>
                     <input type="number" id="edit-discount" class="admin-input" min="0" max="95" placeholder="24" />
                   </div>
                 </div>
 
-                <div class="form-row-2">
+                <div class="form-row-3">
+                  <div class="form-group">
+                    <label>Unique SKU Code</label>
+                    <input type="text" id="edit-sku" class="admin-input" placeholder="e.g. UB-DIYA-MBD-01" />
+                  </div>
+                  <div class="form-group">
+                    <label>HSN Code (Brass / Craft)</label>
+                    <input type="text" id="edit-hsn" class="admin-input" placeholder="e.g. 7419" />
+                  </div>
                   <div class="form-group">
                     <label>Storefront Badge</label>
                     <input type="text" id="edit-badge" class="admin-input" placeholder="e.g. Best Seller / Royal Selection" />
                   </div>
-                  <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 8px;">
-                    <label class="checkbox-label">
-                      <input type="checkbox" id="edit-instock" checked />
-                      <span>Available in Stock</span>
-                    </label>
-                  </div>
+                </div>
+
+                <div class="form-group" style="padding-bottom: 4px;">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="edit-instock" checked />
+                    <span>Storefront Available for Customer Orders</span>
+                  </label>
                 </div>
 
                 <div class="form-group">
@@ -302,11 +331,14 @@ export class AdminPanel {
           </div>
           <div class="admin-header-actions">
             <span class="live-status-pill">● Store Live</span>
+            <button class="theme-toggle-btn admin-theme-toggle" id="btn-admin-theme-toggle" title="Switch Light/Dark Mode">
+              <span id="admin-theme-icon">☀️ Light Mode</span>
+            </button>
             <button class="admin-btn-secondary btn-storefront-return" id="btn-admin-return-store" title="Return to Storefront">
-              <span>🏠 Return to Storefront</span>
+              <span>Return to Storefront</span>
             </button>
             <button class="admin-logout-btn" id="admin-logout-btn" title="Lock & Logout">
-              <span>🔒 Logout</span>
+              <span>Lock Console</span>
             </button>
             <button class="admin-close-btn" id="admin-close-btn" title="Close Admin Console">✕</button>
           </div>
@@ -315,25 +347,35 @@ export class AdminPanel {
         <!-- Live Orders Notification Banner -->
         <div class="admin-toast-banner" id="admin-orders-toast" style="display: none;"></div>
 
-        <!-- Admin Navigation Tabs -->
+        <!-- Admin Navigation Tabs with Luxury PNG Icons -->
         <div class="admin-tabs-nav">
           <button class="admin-tab-btn ${this.activeTab === 'overview' ? 'active' : ''}" data-tab="overview">
-            <span>📊</span> Overview & KPIs
+            <img src="/assets/icons/icon-overview.png" class="tab-png-icon" alt="" />
+            <span>Overview & KPIs</span>
           </button>
           <button class="admin-tab-btn ${this.activeTab === 'orders' ? 'active' : ''}" data-tab="orders">
-            <span>🛍️</span> Live Orders & Customers
+            <img src="/assets/icons/icon-orders.png" class="tab-png-icon" alt="" />
+            <span>Orders & Dispatch</span>
+          </button>
+          <button class="admin-tab-btn ${this.activeTab === 'crm' ? 'active' : ''}" data-tab="crm">
+            <img src="/assets/icons/icon-customers.png" class="tab-png-icon" alt="" />
+            <span>Customer CRM</span>
           </button>
           <button class="admin-tab-btn ${this.activeTab === 'products' ? 'active' : ''}" data-tab="products">
-            <span>📦</span> Products & Pricing
+            <img src="/assets/icons/icon-products.png" class="tab-png-icon" alt="" />
+            <span>Catalog & Inventory</span>
           </button>
           <button class="admin-tab-btn ${this.activeTab === 'discounts' ? 'active' : ''}" data-tab="discounts">
-            <span>🏷️</span> Festive Discount Bar
+            <img src="/assets/icons/icon-discounts.png" class="tab-png-icon" alt="" />
+            <span>Festive Discounts</span>
           </button>
           <button class="admin-tab-btn ${this.activeTab === 'gsheet' ? 'active' : ''}" data-tab="gsheet">
-            <span>📈</span> Google Sheets Sync
+            <img src="/assets/icons/icon-gsheet.png" class="tab-png-icon" alt="" />
+            <span>Google Sheets & Backend</span>
           </button>
           <button class="admin-tab-btn ${this.activeTab === 'reviews' ? 'active' : ''}" data-tab="reviews">
-            <span>🌟</span> Customer Reviews
+            <img src="/assets/icons/icon-reviews.png" class="tab-png-icon" alt="" />
+            <span>Customer Reviews</span>
           </button>
         </div>
 
@@ -391,39 +433,41 @@ export class AdminPanel {
             </div>
           </div>
 
-          <!-- TAB 2: LIVE ORDERS & CUSTOMER DIRECTORY -->
+          <!-- TAB 2: LIVE ORDERS & FULFILLMENT -->
           <div class="admin-tab-pane" id="tab-pane-orders" style="${this.activeTab === 'orders' ? 'display:block;' : 'display:none;'}">
             <div class="pane-action-bar">
-              <!-- Status Filter Buttons -->
+              <!-- Status Filter Buttons with Cancelled & Return -->
               <div class="orders-filter-group" id="orders-filter-buttons">
                 <button class="filter-chip active" data-filter="all">All Orders</button>
-                <button class="filter-chip" data-filter="Processing">🟡 Processing</button>
-                <button class="filter-chip" data-filter="Dispatched">🔵 Dispatched</button>
-                <button class="filter-chip" data-filter="Out for Delivery">🟣 Out for Delivery</button>
-                <button class="filter-chip" data-filter="Delivered">🟢 Delivered</button>
+                <button class="filter-chip" data-filter="Processing">Processing</button>
+                <button class="filter-chip" data-filter="Dispatched">Dispatched</button>
+                <button class="filter-chip" data-filter="Out for Delivery">Out for Delivery</button>
+                <button class="filter-chip" data-filter="Delivered">Delivered</button>
+                <button class="filter-chip" data-filter="Cancelled" style="color: #EF4444;">Cancelled / RTO</button>
               </div>
 
               <!-- Live Search & CSV Export -->
               <div class="pane-btn-group">
                 <input type="text" id="admin-orders-search" placeholder="Search by ID, Customer Name, Email, City..." class="admin-input-sm" style="width: 260px;" />
                 <button class="admin-btn-secondary" id="btn-export-orders-csv">
-                  <span>📥 Export CSV</span>
+                  <img src="/assets/icons/icon-billing.png" class="btn-inline-icon" alt="" />
+                  <span>Export CSV</span>
                 </button>
               </div>
             </div>
 
-            <!-- Orders & Customers Master Table -->
+            <!-- Orders & Fulfillment Master Table -->
             <div class="admin-table-wrapper">
               <table class="admin-data-table">
                 <thead>
                   <tr>
                     <th style="width: 140px;">Order ID & Date</th>
-                    <th>Customer & Shipping Address</th>
+                    <th>Customer & Direct WhatsApp</th>
                     <th>Ordered Offerings</th>
-                    <th>Total & Payment</th>
-                    <th style="width: 170px;">Live Status Selector</th>
-                    <th style="width: 140px;">Tracking & Notification</th>
-                    <th style="text-align: right; width: 60px;">Action</th>
+                    <th>Total & COD Status</th>
+                    <th style="width: 170px;">Live Status (Auto-Stock)</th>
+                    <th style="width: 130px;">Tracking Code</th>
+                    <th style="text-align: right; width: 150px;">Billing & Actions</th>
                   </tr>
                 </thead>
                 <tbody id="admin-orders-table-body">
@@ -433,7 +477,38 @@ export class AdminPanel {
             </div>
           </div>
 
-          <!-- TAB 3: PRODUCTS & PRICING -->
+          <!-- TAB 3: CUSTOMER CRM & RETARGETING DIRECTORY -->
+          <div class="admin-tab-pane" id="tab-pane-crm" style="${this.activeTab === 'crm' ? 'display:block;' : 'display:none;'}">
+            <div class="pane-action-bar">
+              <div class="pane-search-box">
+                <input type="text" id="admin-crm-search" placeholder="Search customer directory by phone, name, city..." class="admin-input-sm" style="width: 320px;" />
+              </div>
+              <div class="pane-btn-group">
+                <span class="live-pulse-badge" id="crm-total-patrons-badge">● Customer Directory</span>
+              </div>
+            </div>
+
+            <div class="admin-table-wrapper">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>Customer Name & VIP Status</th>
+                    <th>Phone & Direct WhatsApp</th>
+                    <th>Email Address</th>
+                    <th>City & Pincode</th>
+                    <th style="text-align: center;">Lifetime Orders</th>
+                    <th>Lifetime Value (LTV)</th>
+                    <th style="text-align: right;">1-Click Retargeting</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-crm-table-body">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 4: PRODUCTS & INVENTORY -->
           <div class="admin-tab-pane" id="tab-pane-products" style="${this.activeTab === 'products' ? 'display:block;' : 'display:none;'}">
             <div class="pane-action-bar">
               <div class="pane-search-box">
@@ -544,26 +619,47 @@ export class AdminPanel {
             </div>
           </div>
 
-          <!-- TAB 5: GOOGLE SHEETS & EXCEL SYNC -->
+          <!-- TAB 6: GOOGLE SHEETS & APPS SCRIPT 2-WAY BACKEND -->
           <div class="admin-tab-pane" id="tab-pane-gsheet" style="${this.activeTab === 'gsheet' ? 'display:block;' : 'display:none;'}">
             <div class="gsheet-sync-grid">
               <div class="admin-card">
                 <div class="card-head">
-                  <span class="c-icon">📊</span>
-                  <h3>Live Google Sheets Synchronization</h3>
+                  <img src="/assets/icons/icon-gsheet.png" class="card-head-png-icon" alt="" />
+                  <h3>2-Way Live Google Apps Script Server Sync</h3>
                 </div>
                 <p class="c-desc">
-                  Connect any Google Sheet published as a CSV. Every time you update prices, stock, or discounts in your sheet, click "Sync Now" to instantly update the website.
+                  Connect your Google Apps Script Webhook API. New customer orders, status changes, inventory deductions, and Gmail notifications sync automatically both ways for ₹0/month.
                 </p>
 
-                <div class="form-group" style="margin-top: 18px;">
-                  <label>Google Sheet Published CSV URL</label>
+                <div class="form-group" style="margin-top: 16px;">
+                  <label>Google Apps Script Web App Webhook URL (2-Way Full-Stack API)</label>
+                  <input type="url" id="apps-script-url-input" class="admin-input" placeholder="https://script.google.com/macros/s/.../exec" />
+                  <span class="admin-hint-text">Paste the Web App URL from Apps Script Deploy to enable live 2-way updates.</span>
+                </div>
+
+                <div class="gsheet-actions-row" style="margin-top: 8px;">
+                  <button class="admin-btn-primary" id="btn-save-apps-script">
+                    <span>Save 2-Way API Webhook</span>
+                  </button>
+                  <button class="admin-btn-secondary" id="btn-test-apps-script">
+                    <span>Test Live Connection</span>
+                  </button>
+                </div>
+
+                <div class="divider-line" style="margin: 20px 0 16px;"></div>
+
+                <div class="card-head">
+                  <span class="c-icon"></span>
+                  <h3>Read-Only Google Sheet Published CSV</h3>
+                </div>
+                <div class="form-group">
+                  <label>Published CSV Link</label>
                   <input type="url" id="gsheet-url-input" class="admin-input" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv" />
                 </div>
 
                 <div class="gsheet-actions-row">
-                  <button class="admin-btn-primary" id="btn-sync-gsheet">
-                    <span>⚡ Fetch & Sync Live from Google Sheet</span>
+                  <button class="admin-btn-secondary" id="btn-sync-gsheet">
+                    <span>Fetch & Sync from Google Sheet</span>
                   </button>
                 </div>
 
@@ -727,6 +823,27 @@ export class AdminPanel {
       if (this.onNavigateHome) this.onNavigateHome();
     });
 
+    // Theme Toggle in Admin Header (Light/Dark Switcher)
+    const adminThemeToggle = this.container.querySelector('#btn-admin-theme-toggle');
+    const adminThemeIcon = this.container.querySelector('#admin-theme-icon');
+    const updateThemeButtonLabel = () => {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      if (adminThemeIcon) {
+        adminThemeIcon.innerHTML = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+      }
+    };
+    updateThemeButtonLabel();
+
+    if (adminThemeToggle) {
+      adminThemeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('utsav_theme', newTheme);
+        updateThemeButtonLabel();
+      });
+    }
+
     // Tabs switching
     const tabBtns = this.container.querySelectorAll('.admin-tab-btn');
     tabBtns.forEach(btn => {
@@ -771,21 +888,32 @@ export class AdminPanel {
     const exportOrdersBtn = this.container.querySelector('#btn-export-orders-csv');
     if (exportOrdersBtn) exportOrdersBtn.addEventListener('click', () => this.exportOrdersCSV());
 
-    // Orders Table Status Change delegation
+    // Orders Table Status Change & COD Verification delegation
     const ordersTable = this.container.querySelector('#admin-orders-table-body');
     if (ordersTable) {
       ordersTable.addEventListener('change', (e) => {
         const select = e.target.closest('.admin-order-status-select');
+        const codToggle = e.target.closest('.cod-verify-toggle');
+
         if (select) {
           const ordId = select.getAttribute('data-order-id');
           const newStatus = select.value;
           this.handleOrderStatusChange(ordId, newStatus, select);
+        } else if (codToggle) {
+          const ordId = codToggle.getAttribute('data-order-id');
+          productStore.toggleCodVerification(ordId);
+          this.renderOrdersTable();
         }
       });
 
       ordersTable.addEventListener('click', (e) => {
         const delBtn = e.target.closest('[data-delete-order-id]');
-        if (delBtn) {
+        const printBtn = e.target.closest('[data-print-order-id]');
+
+        if (printBtn) {
+          const ordId = printBtn.getAttribute('data-print-order-id');
+          this.printOrderInvoice(ordId);
+        } else if (delBtn) {
           const ordId = delBtn.getAttribute('data-delete-order-id');
           if (confirm(`Remove Order ${ordId} from merchant records?`)) {
             productStore.deleteOrder(ordId);
@@ -793,6 +921,14 @@ export class AdminPanel {
             this.renderOrdersTable();
           }
         }
+      });
+    }
+
+    // Customer CRM Real-Time Search
+    const crmSearch = this.container.querySelector('#admin-crm-search');
+    if (crmSearch) {
+      crmSearch.addEventListener('input', (e) => {
+        this.renderCRMTable(e.target.value.toLowerCase().trim());
       });
     }
 
@@ -1019,6 +1155,44 @@ export class AdminPanel {
       });
     }
 
+    // 2-Way Google Apps Script Webhook Save & Test
+    const saveAppsScriptBtn = this.container.querySelector('#btn-save-apps-script');
+    if (saveAppsScriptBtn) {
+      saveAppsScriptBtn.addEventListener('click', () => {
+        const url = this.container.querySelector('#apps-script-url-input').value.trim();
+        productStore.setAppsScriptUrl(url);
+        alert("✓ 2-Way Google Apps Script Webhook URL saved successfully!");
+      });
+    }
+
+    const testAppsScriptBtn = this.container.querySelector('#btn-test-apps-script');
+    if (testAppsScriptBtn) {
+      testAppsScriptBtn.addEventListener('click', async () => {
+        const url = this.container.querySelector('#apps-script-url-input').value.trim();
+        if (!url) {
+          alert("Please enter your Google Apps Script Web App URL first.");
+          return;
+        }
+        testAppsScriptBtn.disabled = true;
+        testAppsScriptBtn.textContent = 'Testing...';
+        try {
+          // Send a test ping payload
+          const res = await fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'ping', store: 'Utsav Bazaar', timestamp: new Date().toISOString() })
+          });
+          alert("✓ Signal transmitted to Google Apps Script Web App! Check your Executions log in Google Apps Script console.");
+        } catch (err) {
+          alert(`Notice: ${err.message}. If using standard Google Apps Script Web App, no-cors ping has been dispatched.`);
+        } finally {
+          testAppsScriptBtn.disabled = false;
+          testAppsScriptBtn.textContent = 'Test Live Connectivity';
+        }
+      });
+    }
+
     // Catalog CSV Export
     const exportCsvBtn = this.container.querySelector('#btn-export-csv');
     if (exportCsvBtn) {
@@ -1155,6 +1329,7 @@ export class AdminPanel {
       overlay.style.display = 'flex';
       overlay.scrollTop = 0;
     }
+    document.body.classList.add('admin-mode-active');
     document.body.style.overflow = 'hidden';
     window.scrollTo({ top: 0, behavior: 'instant' });
 
@@ -1177,6 +1352,7 @@ export class AdminPanel {
     this.isOpen = false;
     const overlay = this.container.querySelector('#admin-modal-overlay');
     if (overlay) overlay.style.display = 'none';
+    document.body.classList.remove('admin-mode-active');
     document.body.style.overflow = '';
 
     if (syncHash && window.location.hash.startsWith('#/admin')) {
@@ -1206,6 +1382,7 @@ export class AdminPanel {
 
     if (tab === 'overview') this.renderOverviewTab();
     if (tab === 'orders') this.renderOrdersTable();
+    if (tab === 'crm') this.renderCRMTable();
     if (tab === 'products') this.renderProductsTable();
     if (tab === 'discounts') this.populateDiscountSettings();
     if (tab === 'gsheet') this.populateGsheetSettings();
@@ -1215,6 +1392,7 @@ export class AdminPanel {
   populateInitialData() {
     this.renderOverviewTab();
     this.renderOrdersTable();
+    this.renderCRMTable();
     this.renderProductsTable();
     this.populateDiscountSettings();
     this.populateGsheetSettings();
@@ -1229,13 +1407,14 @@ export class AdminPanel {
 
     const stats = productStore.getDashboardStats();
     const formattedRevenue = `₹${stats.totalRevenue.toLocaleString('en-IN')}`;
+    const formattedProfit = `₹${stats.netProfit.toLocaleString('en-IN')}`;
     const formattedAOV = `₹${stats.avgOrderValue.toLocaleString('en-IN')}`;
 
     kpiContainer.innerHTML = `
       <div class="kpi-card glow-gold">
         <div class="kpi-header">
           <span class="kpi-label">GROSS STORE REVENUE</span>
-          <span class="kpi-icon">💰</span>
+          <img src="/assets/icons/icon-billing.png" class="kpi-png-icon" alt="" />
         </div>
         <div class="kpi-value">${formattedRevenue}</div>
         <div class="kpi-meta">
@@ -1244,39 +1423,51 @@ export class AdminPanel {
         </div>
       </div>
 
+      <div class="kpi-card glow-profit">
+        <div class="kpi-header">
+          <span class="kpi-label">ESTIMATED NET PROFIT</span>
+          <img src="/assets/icons/icon-overview.png" class="kpi-png-icon" alt="" />
+        </div>
+        <div class="kpi-value profit-highlight">${formattedProfit}</div>
+        <div class="kpi-meta">
+          <span class="kpi-pill success">${stats.profitMargin}% Net Margin</span>
+          <span class="kpi-subtext">Post artisan, courier & packing costs</span>
+        </div>
+      </div>
+
       <div class="kpi-card">
         <div class="kpi-header">
           <span class="kpi-label">TOTAL ORDERS PLACED</span>
-          <span class="kpi-icon">🛍️</span>
+          <img src="/assets/icons/icon-orders.png" class="kpi-png-icon" alt="" />
         </div>
         <div class="kpi-value">${stats.totalOrders}</div>
         <div class="kpi-meta">
-          <span class="kpi-pill warning">${stats.processingCount} Awaiting Dispatch</span>
-          <span class="kpi-subtext">Real-time captured</span>
+          <span class="kpi-pill warning">${stats.processingCount} Processing</span>
+          <span class="kpi-subtext">${stats.cancelledCount > 0 ? `${stats.cancelledCount} Cancelled/RTO` : '100% Retained'}</span>
         </div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-header">
-          <span class="kpi-label">AVG. ORDER VALUE (AOV)</span>
-          <span class="kpi-icon">🏷️</span>
+          <span class="kpi-label">PREPAID VS COD SPLIT</span>
+          <img src="/assets/icons/icon-discounts.png" class="kpi-png-icon" alt="" />
         </div>
-        <div class="kpi-value">${formattedAOV}</div>
+        <div class="kpi-value">${stats.prepaidCount} Prep / ${stats.codCount} COD</div>
         <div class="kpi-meta">
-          <span class="kpi-pill info">High-Ticket Heirlooms</span>
-          <span class="kpi-subtext">Solid Brass & Silk Carts</span>
+          <span class="kpi-pill info">₹${stats.prepaidAmount.toLocaleString('en-IN')} Prepaid</span>
+          <span class="kpi-subtext">₹${stats.codAmount.toLocaleString('en-IN')} Cash on Delivery</span>
         </div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-header">
-          <span class="kpi-label">FULFILLMENT DISPATCH</span>
-          <span class="kpi-icon">🚚</span>
+          <span class="kpi-label">DISPATCH FULFILLMENT</span>
+          <img src="/assets/icons/icon-products.png" class="kpi-png-icon" alt="" />
         </div>
-        <div class="kpi-value">${stats.deliveredCount} / ${stats.totalOrders}</div>
+        <div class="kpi-value">${stats.deliveredCount} Delivered</div>
         <div class="kpi-meta">
           <span class="kpi-pill success">● ${stats.dispatchedCount + stats.outForDeliveryCount} In-Transit</span>
-          <span class="kpi-subtext">Live SMS / Email Updates</span>
+          <span class="kpi-subtext">Avg. AOV: ${formattedAOV}</span>
         </div>
       </div>
     `;
@@ -1361,6 +1552,12 @@ export class AdminPanel {
             <a href="mailto:${cust.email}" class="cust-email-link" title="Send Direct Email">${cust.email || '—'}</a>
             <div class="cust-phone-dim">${cust.phone || ''}</div>
             <div class="cust-address-dim">${cust.city ? `${cust.city} (${cust.pincode || ''})` : ''}</div>
+            ${cust.phone ? `
+              <a href="https://wa.me/${cust.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaste ${cust.name || ''}! Thank you for ordering from Utsav Bazaar. Your order ${o.id} is confirmed with Insured Delivery. Tracking: ${o.trackingNumber || ''}`)}" target="_blank" rel="noopener noreferrer" class="whatsapp-direct-link" title="Chat on WhatsApp">
+                <img src="/assets/icons/icon-whatsapp.png" class="wa-inline-icon" alt="" />
+                <span>Chat Customer</span>
+              </a>
+            ` : ''}
           </td>
           <td>
             <div class="order-items-column">
@@ -1373,25 +1570,41 @@ export class AdminPanel {
             <div class="paystatus-sub ${o.paymentStatus?.includes('Paid') ? 'paid' : 'pending'}">
               ● ${o.paymentStatus || 'Verified'}
             </div>
+            ${o.paymentMode && o.paymentMode.includes('COD') ? `
+              <label class="cod-verify-checkbox" title="Confirm COD before shipping heavy brass items">
+                <input type="checkbox" class="cod-verify-toggle" data-order-id="${o.id}" ${o.codVerified ? 'checked' : ''} />
+                <span>${o.codVerified ? 'COD Confirmed' : 'Confirm COD'}</span>
+              </label>
+            ` : ''}
           </td>
           <td>
             <div class="status-selector-wrap">
               <select class="admin-order-status-select select-${this.getStatusSlug(o.orderStatus)}" data-order-id="${o.id}">
-                <option value="Processing" ${o.orderStatus === 'Processing' ? 'selected' : ''}>🟡 Processing</option>
-                <option value="Dispatched" ${o.orderStatus === 'Dispatched' ? 'selected' : ''}>🔵 Dispatched</option>
-                <option value="Out for Delivery" ${o.orderStatus === 'Out for Delivery' ? 'selected' : ''}>🟣 Out for Delivery</option>
-                <option value="Delivered" ${o.orderStatus === 'Delivered' ? 'selected' : ''}>🟢 Delivered</option>
+                <option value="Processing" ${o.orderStatus === 'Processing' ? 'selected' : ''}>Processing</option>
+                <option value="Dispatched" ${o.orderStatus === 'Dispatched' ? 'selected' : ''}>Dispatched</option>
+                <option value="Out for Delivery" ${o.orderStatus === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
+                <option value="Delivered" ${o.orderStatus === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="Cancelled" ${o.orderStatus === 'Cancelled' ? 'selected' : ''}>Cancelled (Restock)</option>
+                <option value="Returned" ${o.orderStatus === 'Returned' ? 'selected' : ''}>Returned (RTO)</option>
               </select>
             </div>
           </td>
           <td>
             <div class="tracking-pill">${o.trackingNumber || 'UB-TRK-771822'}</div>
             <div class="email-alert-indicator">
-              <span class="pulse-dot">●</span> Auto Email Active
+              <span class="pulse-dot">●</span> 2-Way Sync
             </div>
           </td>
           <td style="text-align: right;">
-            <button class="tbl-action-btn danger" data-delete-order-id="${o.id}" title="Remove Order">🗑️</button>
+            <div class="order-actions-stack">
+              <button class="tbl-action-btn-print" data-print-order-id="${o.id}" title="1-Click Print Tax Invoice & Shipping Label">
+                <img src="/assets/icons/icon-print.png" class="btn-action-png" alt="" />
+                <span>Bill</span>
+              </button>
+              <button class="tbl-action-btn danger" data-delete-order-id="${o.id}" title="Remove Order Record">
+                <span>Delete</span>
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -1424,6 +1637,223 @@ export class AdminPanel {
 
       // Refresh overview stats
       this.renderOverviewTab();
+    }
+  }
+
+  printOrderInvoice(orderId) {
+    const o = productStore.getOrderById(orderId);
+    if (!o) {
+      alert(`Order ${orderId} not found.`);
+      return;
+    }
+
+    const items = o.items || [];
+    const cust = o.customer || {};
+    const invoiceNum = o.invoiceNumber || `UB-INV-2026-${orderId.replace(/[^0-9]/g, '').slice(-6) || '881204'}`;
+    const trackingNum = o.trackingNumber || `UB-TRK-${orderId.replace(/[^0-9]/g, '').slice(-6) || '771822'}`;
+    const totalINR = o.totalINR || 0;
+    const isPrepaid = (o.paymentMethod || 'prepaid').toLowerCase().includes('prepaid') || (o.paymentMethod || '').toLowerCase().includes('card') || (o.paymentMethod || '').toLowerCase().includes('upi');
+
+    const printHtml = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>Invoice & Shipping Label - ${invoiceNum}</title>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+          body { background: #FFF; color: #111; padding: 24px; font-size: 13px; line-height: 1.4; }
+          .print-container { max-width: 800px; margin: 0 auto; }
+          
+          /* SECTION 1: OFFICIAL PACKING INVOICE (INSIDE BOX) */
+          .invoice-box { border: 2px solid #111; border-radius: 8px; padding: 24px; margin-bottom: 24px; }
+          .inv-head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #D4AF37; padding-bottom: 16px; margin-bottom: 16px; }
+          .brand-title { font-size: 24px; font-weight: 800; color: #92400E; letter-spacing: 0.05em; }
+          .brand-subtitle { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.1em; }
+          .inv-meta { text-align: right; }
+          .inv-num { font-size: 16px; font-weight: 800; color: #111; }
+          .inv-date { font-size: 12px; color: #555; }
+          
+          .grid-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; background: #FAF8F5; padding: 12px 16px; border-radius: 6px; }
+          .party-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #92400E; margin-bottom: 4px; }
+          
+          table.inv-items { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+          table.inv-items th { background: #F3F4F6; text-align: left; padding: 8px 10px; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #CCC; }
+          table.inv-items td { padding: 8px 10px; border-bottom: 1px solid #EEE; font-size: 12px; }
+          
+          .inv-totals { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+          .totals-table { width: 280px; }
+          .totals-table tr td { padding: 4px 0; }
+          .totals-table tr.grand-total td { font-size: 15px; font-weight: 800; border-top: 2px solid #111; padding-top: 6px; color: #92400E; }
+          
+          .legal-zero-gst { font-size: 10.5px; color: #047857; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; }
+          
+          /* CUT LINE */
+          .cut-divider { border-top: 2px dashed #999; margin: 30px 0; position: relative; text-align: center; }
+          .cut-label { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #FFF; padding: 0 12px; font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; }
+          
+          /* SECTION 2: SHIPPING BOX STICKER (OUTSIDE BOX) */
+          .shipping-label-box { border: 3px solid #000; border-radius: 8px; padding: 20px; background: #FFF; }
+          .label-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 14px; }
+          .courier-badge { font-size: 16px; font-weight: 900; background: #000; color: #FFF; padding: 4px 12px; border-radius: 4px; }
+          .trk-badge { font-size: 14px; font-weight: 800; font-family: monospace; }
+          
+          .ship-dest { font-size: 15px; font-weight: 700; line-height: 1.5; margin-bottom: 14px; border: 1.5px solid #111; padding: 12px; border-radius: 6px; background: #FFF; }
+          .ship-dest .dest-name { font-size: 18px; font-weight: 900; color: #000; }
+          
+          .label-footer-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: center; }
+          .pay-mode-stamp { border: 2px solid #000; padding: 10px; text-align: center; border-radius: 6px; }
+          .pay-mode-stamp.prepaid { background: #ECFDF5; border-color: #059669; color: #047857; font-weight: 900; font-size: 15px; }
+          .pay-mode-stamp.cod { background: #FEF2F2; border-color: #DC2626; color: #B91C1C; font-weight: 900; font-size: 15px; }
+          
+          @media print {
+            body { padding: 0; }
+            .no-print { display: none !important; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="print-container">
+          <div class="no-print" style="margin-bottom: 16px; display: flex; justify-content: space-between;">
+            <button onclick="window.print()" style="padding: 10px 24px; background: #92400E; color: #FFF; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">🖨️ Print Tax Invoice & Box Label</button>
+            <button onclick="window.close()" style="padding: 10px 16px; background: #EEE; border: 1px solid #CCC; border-radius: 6px; cursor: pointer;">Close Window</button>
+          </div>
+
+          <!-- DOCUMENT 1: OFFICIAL PACKING SLIP & RETAIL INVOICE -->
+          <div class="invoice-box">
+            <div class="inv-head">
+              <div>
+                <div class="brand-title">UTSAV BAZAAR</div>
+                <div class="brand-subtitle">Artisanal Heritage Store • All-Inclusive Retail Invoice</div>
+              </div>
+              <div class="inv-meta">
+                <div class="inv-num">${invoiceNum}</div>
+                <div class="inv-date">Order ID: ${o.id} • ${o.date}</div>
+              </div>
+            </div>
+
+            <div class="grid-parties">
+              <div>
+                <div class="party-title">Dispatched From (Merchant):</div>
+                <strong>Utsav Bazaar Master Atelier</strong><br>
+                Moradabad Crafts Enclave, Uttar Pradesh, PIN 244001<br>
+                Email: care@utsavbazaar.in | Web: utsavbazaar.in
+              </div>
+              <div>
+                <div class="party-title">Customer Shipping Details:</div>
+                <strong>${cust.name || 'Valued Patron'}</strong><br>
+                ${cust.address || 'Standard Address'}<br>
+                ${cust.city || 'City'}, ${cust.state || 'State'} - ${cust.pincode || 'Postal PIN'}<br>
+                Phone: ${cust.phone || '—'}
+              </div>
+            </div>
+
+            <table class="inv-items">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Offering Description</th>
+                  <th>SKU</th>
+                  <th>HSN</th>
+                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: right;">Rate (₹)</th>
+                  <th style="text-align: right;">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map((it, idx) => `
+                  <tr>
+                    <td>${idx + 1}</td>
+                    <td><strong>${it.name}</strong></td>
+                    <td><code>${it.sku || 'UB-HAND-7718'}</code></td>
+                    <td><code>${it.hsnCode || '7419'}</code></td>
+                    <td style="text-align: center;">${it.quantity}</td>
+                    <td style="text-align: right;">₹${it.priceINR.toLocaleString('en-IN')}</td>
+                    <td style="text-align: right;">₹${(it.priceINR * it.quantity).toLocaleString('en-IN')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="inv-totals">
+              <table class="totals-table">
+                <tr>
+                  <td>Subtotal:</td>
+                  <td style="text-align: right;">₹${totalINR.toLocaleString('en-IN')}</td>
+                </tr>
+                <tr>
+                  <td>GST / CGST / SGST:</td>
+                  <td style="text-align: right; color: #047857; font-weight: 700;">₹0 (All-Inclusive)</td>
+                </tr>
+                <tr>
+                  <td>Insured Express Delivery:</td>
+                  <td style="text-align: right; color: #047857; font-weight: 700;">₹0 (FREE)</td>
+                </tr>
+                <tr class="grand-total">
+                  <td>Total Payable:</td>
+                  <td style="text-align: right;">₹${totalINR.toLocaleString('en-IN')}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="legal-zero-gst">
+              ✓ <strong>Zero GST • All-Inclusive Pricing Guarantee:</strong> You saved 100% on taxes and delivery fees with Utsav Bazaar! The rate shown above is the final net price paid.
+            </div>
+
+            <div style="font-size: 11px; color: #777; text-align: center; border-top: 1px solid #EEE; padding-top: 8px;">
+              Thank you for supporting traditional Indian artisans. Handcrafted with reverence and devotion.
+            </div>
+          </div>
+
+          <!-- CUT SCISSORS DIVIDER -->
+          <div class="cut-divider">
+            <span class="cut-label">✂ CUT HERE • AFFIX LABEL BELOW TO OUTSIDE OF SHIPPING BOX</span>
+          </div>
+
+          <!-- DOCUMENT 2: SHIPPING BOX LABEL -->
+          <div class="shipping-label-box">
+            <div class="label-head">
+              <div>
+                <span class="courier-badge">EXPRESS LOGISTICS</span>
+              </div>
+              <div class="trk-badge">
+                TRACKING AWB: <strong>${trackingNum}</strong>
+              </div>
+            </div>
+
+            <div class="ship-dest">
+              <div style="font-size: 11px; text-transform: uppercase; color: #666; margin-bottom: 2px;">DELIVER SHIPMENT TO:</div>
+              <div class="dest-name">${cust.name || 'Valued Patron'}</div>
+              <div>${cust.address || ''}</div>
+              <div><strong>${cust.city || 'City'}, ${cust.state || ''} - ${cust.pincode || ''}</strong></div>
+              <div style="margin-top: 4px;">CONTACT: <strong>${cust.phone || '—'}</strong></div>
+            </div>
+
+            <div class="label-footer-grid">
+              <div>
+                <div style="font-size: 11px; color: #555;"><strong>RETURN / SHIPPER:</strong> Utsav Bazaar Master Atelier, Moradabad, UP 244001</div>
+                <div style="font-size: 10px; color: #777; margin-top: 2px;">Fragile Artisanal Artifact • Handle with Extreme Care</div>
+              </div>
+              <div>
+                <div class="pay-mode-stamp ${isPrepaid ? 'prepaid' : 'cod'}">
+                  ${isPrepaid ? 'PAID PREPAID<br><span style="font-size:11px; font-weight:normal;">Do not collect cash</span>' : `COLLECT COD<br>₹${totalINR.toLocaleString('en-IN')}`}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const printWin = window.open('', '_blank', 'width=900,height=800');
+    if (printWin) {
+      printWin.document.open();
+      printWin.document.write(printHtml);
+      printWin.document.close();
+      printWin.focus();
+    } else {
+      alert("Please allow pop-ups for this site to view and print invoices.");
     }
   }
 
@@ -1476,20 +1906,29 @@ export class AdminPanel {
       const orig = p.originalPriceINR ? `₹${p.originalPriceINR.toLocaleString('en-IN')}` : '—';
       const sale = `₹${p.priceINR.toLocaleString('en-IN')}`;
       const disc = p.discountPercent ? `-${p.discountPercent}%` : '0%';
-      const stockBadge = p.inStock
-        ? `<span class="stock-pill in-stock" data-toggle-stock-id="${p.id}" title="Click to toggle">In Stock</span>`
-        : `<span class="stock-pill out-stock" data-toggle-stock-id="${p.id}" title="Click to toggle">Sold Out</span>`;
+      const stockQty = p.stockQty !== undefined ? p.stockQty : (p.inStock ? 25 : 0);
+      const isLowStock = stockQty <= (p.lowStockThreshold || 5) && stockQty > 0;
+      const isSoldOut = stockQty <= 0 || !p.inStock;
+
+      const stockBadge = isSoldOut
+        ? `<span class="stock-pill out-stock" data-toggle-stock-id="${p.id}" title="Click to restock">Sold Out (0)</span>`
+        : (isLowStock
+          ? `<span class="stock-pill low-stock" data-toggle-stock-id="${p.id}" title="Low stock alert!">${stockQty} Left (Low)</span>`
+          : `<span class="stock-pill in-stock" data-toggle-stock-id="${p.id}" title="Click to adjust">${stockQty} in Stock</span>`);
 
       const visual = p.imageUrl
         ? `<img src="${p.imageUrl}" class="table-thumb-img" alt="${p.name}" />`
-        : `<div class="table-thumb-svg">🪔</div>`;
+        : `<div class="table-thumb-svg"></div>`;
 
       return `
         <tr>
           <td>${visual}</td>
           <td>
             <div class="row-product-name">${p.name}</div>
-            <div class="row-product-origin">${p.origin}</div>
+            <div class="row-product-meta">
+              <span class="row-sku-badge">${p.sku || `UB-${p.id}`}</span>
+              <span class="row-origin-text">${p.origin || 'Moradabad'}</span>
+            </div>
           </td>
           <td><span class="category-tag-pill">${p.category}</span></td>
           <td><span class="price-strikethrough-sm">${orig}</span></td>
@@ -1497,8 +1936,76 @@ export class AdminPanel {
           <td><span class="discount-badge-table">${disc}</span></td>
           <td>${stockBadge}</td>
           <td style="text-align: right;">
-            <button class="tbl-action-btn" data-edit-id="${p.id}" title="Edit Offering">✏️</button>
-            <button class="tbl-action-btn danger" data-delete-id="${p.id}" title="Delete Offering">🗑️</button>
+            <button class="tbl-action-btn" data-edit-id="${p.id}" title="Edit Offering">Edit</button>
+            <button class="tbl-action-btn danger" data-delete-id="${p.id}" title="Delete Offering">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // --- CUSTOMER CRM & RETARGETING TAB ---
+  renderCRMTable(query = '') {
+    const tbody = this.container.querySelector('#admin-crm-table-body');
+    const badge = this.container.querySelector('#crm-total-patrons-badge');
+    if (!tbody) return;
+
+    let patrons = productStore.getCustomerDirectory();
+    if (badge) badge.textContent = `● ${patrons.length} Lifetime Customers`;
+
+    if (query) {
+      const q = query.toLowerCase();
+      patrons = patrons.filter(c => 
+        c.name.toLowerCase().includes(q) ||
+        c.phone.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.city.toLowerCase().includes(q)
+      );
+    }
+
+    if (patrons.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:32px; color:#94A3B8;">No customer profiles match your search.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = patrons.map(c => {
+      const vipBadge = c.vip
+        ? `<span class="vip-crown-badge">★ VIP Repeat Patron</span>`
+        : `<span class="guest-patron-badge">Registered Patron</span>`;
+
+      const cleanPhone = c.phone.replace(/[^0-9]/g, '');
+      const waMsg = encodeURIComponent(`Namaste ${c.name}! We hope your handcrafted treasures from Utsav Bazaar brought auspicious blessings to your home. Here is an exclusive 15% VIP festive coupon: DIWALI2026 for your next order!`);
+
+      return `
+        <tr>
+          <td>
+            <div class="cust-name-bold">${c.name}</div>
+            ${vipBadge}
+          </td>
+          <td>
+            <div class="cust-phone-dim">${c.phone || '—'}</div>
+            ${cleanPhone ? `
+              <a href="https://wa.me/${cleanPhone}?text=${waMsg}" target="_blank" rel="noopener noreferrer" class="whatsapp-direct-link" style="margin-top:4px;">
+                <img src="/assets/icons/icon-whatsapp.png" class="wa-inline-icon" alt="" />
+                <span>WhatsApp VIP Perk</span>
+              </a>
+            ` : ''}
+          </td>
+          <td><a href="mailto:${c.email}" class="cust-email-link">${c.email || '—'}</a></td>
+          <td>
+            <div>${c.city || '—'}</div>
+            <small style="color:#94A3B8;">${c.pincode || ''}</small>
+          </td>
+          <td style="text-align: center;">
+            <strong style="font-size: 14px; color: var(--color-gold);">${c.totalOrders}</strong>
+          </td>
+          <td>
+            <strong style="color: var(--color-gold-light); font-size: 14px;">₹${c.totalSpent.toLocaleString('en-IN')}</strong>
+          </td>
+          <td style="text-align: right;">
+            <button class="admin-btn-secondary btn-sm" onclick="alert('VIP Festive Offer WhatsApp message opened for ${c.name}!')">
+              <span>Send Promo</span>
+            </button>
           </td>
         </tr>
       `;
@@ -1519,10 +2026,13 @@ export class AdminPanel {
     if (pctInput) pctInput.value = s.discountPercent || 15;
   }
 
-  // --- 5. GOOGLE SHEETS TAB ---
+  // --- 5. GOOGLE SHEETS & APPS SCRIPT SETTINGS ---
   populateGsheetSettings() {
     const urlInput = this.container.querySelector('#gsheet-url-input');
     if (urlInput) urlInput.value = productStore.googleSheetUrl || '';
+
+    const appsScriptInput = this.container.querySelector('#apps-script-url-input');
+    if (appsScriptInput) appsScriptInput.value = productStore.getAppsScriptUrl() || '';
   }
 
   // --- 6. REVIEWS TAB ---
@@ -1736,6 +2246,11 @@ export class AdminPanel {
       this.container.querySelector('#edit-badge').value = product.badge || 'Festive Special';
       this.container.querySelector('#edit-instock').checked = product.inStock !== false;
       this.container.querySelector('#edit-description').value = product.description || '';
+      this.container.querySelector('#edit-stock-qty').value = product.stockQty !== undefined ? product.stockQty : 25;
+      this.container.querySelector('#edit-low-stock').value = product.lowStockThreshold || 5;
+      this.container.querySelector('#edit-cost-price').value = product.costPriceINR || Math.round(product.priceINR * 0.55);
+      this.container.querySelector('#edit-sku').value = product.sku || `UB-${product.category.toUpperCase().slice(0, 4)}-${product.id.replace('ub-', '')}`;
+      this.container.querySelector('#edit-hsn').value = product.hsnCode || '7419';
 
       // Populate media list
       this.currentMediaList = [];
@@ -1758,6 +2273,11 @@ export class AdminPanel {
       this.container.querySelector('#edit-instock').checked = true;
       this.container.querySelector('#edit-price').value = '2499';
       this.container.querySelector('#edit-orig-price').value = '3299';
+      this.container.querySelector('#edit-cost-price').value = '1350';
+      this.container.querySelector('#edit-stock-qty').value = '25';
+      this.container.querySelector('#edit-low-stock').value = '5';
+      this.container.querySelector('#edit-sku').value = `UB-HAND-${Date.now().toString().slice(-4)}`;
+      this.container.querySelector('#edit-hsn').value = '7419';
       this.container.querySelector('#edit-discount').value = '24';
       this.container.querySelector('#edit-badge').value = 'Royal Selection';
       this.container.querySelector('#edit-origin').value = 'Moradabad, Uttar Pradesh';
@@ -1793,9 +2313,15 @@ export class AdminPanel {
     const discInput = parseFloat(this.container.querySelector('#edit-discount').value);
     const discountPercent = discInput !== undefined && !isNaN(discInput) ? discInput : Math.round(((originalPriceINR - priceINR) / originalPriceINR) * 100);
 
+    const costPriceINR = parseFloat(this.container.querySelector('#edit-cost-price').value) || Math.round(priceINR * 0.55);
+    const stockQty = parseInt(this.container.querySelector('#edit-stock-qty').value, 10) || 0;
+    const lowStockThreshold = parseInt(this.container.querySelector('#edit-low-stock').value, 10) || 5;
+    const sku = this.container.querySelector('#edit-sku').value.trim() || `UB-${category.toUpperCase().slice(0, 4)}-${id}`;
+    const hsnCode = this.container.querySelector('#edit-hsn').value.trim() || '7419';
+
     const origin = this.container.querySelector('#edit-origin').value.trim() || 'Moradabad, India';
     const badge = this.container.querySelector('#edit-badge').value.trim() || 'Festive Special';
-    const inStock = this.container.querySelector('#edit-instock').checked;
+    const inStock = this.container.querySelector('#edit-instock').checked && stockQty > 0;
     const description = this.container.querySelector('#edit-description').value.trim() || 'Handcrafted artisanal offering with pure heritage.';
 
     // Primary image is first image/video in currentMediaList, or fallback
@@ -1813,6 +2339,11 @@ export class AdminPanel {
       tagline,
       priceINR,
       originalPriceINR,
+      costPriceINR,
+      stockQty,
+      lowStockThreshold,
+      sku,
+      hsnCode,
       priceUSD: Math.round(priceINR * 0.012),
       discountPercent,
       origin,
@@ -1831,7 +2362,7 @@ export class AdminPanel {
     this.closeProductEditor();
     this.renderProductsTable();
     this.renderOverviewTab();
-    alert(`✓ Saved "${name}" to storefront!`);
+    alert(`✓ Saved "${name}" with SKU ${sku} (${stockQty} units) to storefront!`);
   }
 }
 
