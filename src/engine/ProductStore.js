@@ -19,9 +19,10 @@ export class ProductStore {
     this.orders = [];
     this.payments = [];
     this.youpiSettings = {
-      mode: 'sandbox', // 'sandbox' (Safe Simulator) | 'connected' (Live YouPI Host)
-      upiVpa: 'utsavbazaar@icici',
-      merchantName: 'Utsav Bazaar Master Atelier',
+      mode: 'sandbox', // 'sandbox' (Direct Bank UPI) | 'connected' (YouPI Local Daemon)
+      upiVpa: '9625351970@axisbank',
+      merchantVpa: '9625351970@axisbank',
+      merchantName: 'Utsav Bazaar Crafts',
       gatewayUrl: 'http://localhost:7000',
       merchantId: '00000000-0000-0000-0000-000000000001',
       webhookSecret: 'sec_utsav_youpi_2026',

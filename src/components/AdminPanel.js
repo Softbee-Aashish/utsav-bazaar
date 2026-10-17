@@ -1000,37 +1000,48 @@ export class AdminPanel {
                       <span style="font-size:0.72rem; color:var(--accent-gold);">No Approval Required</span>
                     </label>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:4px;">
-                      <label class="radio-card" style="padding:8px 12px; border:1px solid var(--border-gold); border-radius:8px; display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem;">
-                        <input type="radio" name="youpi-mode-radio" value="sandbox" checked />
+                      <label class="radio-card" style="padding:10px 12px; border:1px solid var(--border-gold); border-radius:8px; display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-size:0.8rem; background:rgba(255,255,255,0.02);">
+                        <input type="radio" name="youpi-mode-radio" value="sandbox" checked style="margin-top:2px;" />
                         <div>
-                          <strong>Safe Sandbox</strong>
-                          <div style="font-size:0.7rem; color:var(--text-secondary);">Client-side safe simulator</div>
+                          <strong style="color:var(--color-gold-light); display:block;">Direct Bank UPI (Instant)</strong>
+                          <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:2px;">★ Recommended: Zero server needed. Money deposits directly into your bank VPA 24/7.</div>
                         </div>
                       </label>
-                      <label class="radio-card" style="padding:8px 12px; border:1px solid var(--border-gold); border-radius:8px; display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem;">
-                        <input type="radio" name="youpi-mode-radio" value="connected" />
+                      <label class="radio-card" style="padding:10px 12px; border:1px solid var(--border-gold); border-radius:8px; display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-size:0.8rem; background:rgba(255,255,255,0.02);">
+                        <input type="radio" name="youpi-mode-radio" value="connected" style="margin-top:2px;" />
                         <div>
-                          <strong>Connected Node</strong>
-                          <div style="font-size:0.7rem; color:var(--text-secondary);">localhost:7000 (YouPI-PG)</div>
+                          <strong style="color:var(--color-gold-light); display:block;">YouPI Daemon Node</strong>
+                          <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:2px;">Advanced: Pairs with background bot & phone SMS for auto-approval.</div>
                         </div>
                       </label>
                     </div>
                   </div>
 
                   <div class="form-group" style="margin:0;">
-                    <label for="cfg-youpi-vpa" style="font-size:0.8rem; font-weight:600;">Merchant UPI VPA ID (Virtual Payment Address)</label>
-                    <input type="text" id="cfg-youpi-vpa" class="admin-input" placeholder="e.g. merchant@okhdfcbank or 9876543210@paytm" style="margin-top:4px;" required />
-                    <small style="font-size:0.72rem; color:var(--text-secondary);">Customers transfer funds directly to this Indian bank VPA.</small>
+                    <label for="cfg-youpi-vpa" style="font-size:0.8rem; font-weight:600;">Merchant UPI VPA ID (Your Real Receiving Bank Handle)</label>
+                    <input type="text" id="cfg-youpi-vpa" class="admin-input" placeholder="e.g. 9625351970@axisbank" style="margin-top:4px;" required />
+                    <small style="font-size:0.72rem; color:var(--text-secondary);">Customer payments from GPay, PhonePe, Paytm, or BHIM land directly into this bank account with 0% fees.</small>
                   </div>
 
                   <div class="form-group" style="margin:0;">
                     <label for="cfg-youpi-name" style="font-size:0.8rem; font-weight:600;">Merchant Legal / Trade Name</label>
                     <input type="text" id="cfg-youpi-name" class="admin-input" placeholder="e.g. Utsav Bazaar Crafts" style="margin-top:4px;" required />
+                    <small style="font-size:0.72rem; color:var(--text-secondary);">Displayed on the customer's phone during UPI confirmation.</small>
                   </div>
 
-                  <div class="form-group" style="margin:0;">
-                    <label for="cfg-youpi-endpoint" style="font-size:0.8rem; font-weight:600;">YouPI Local Server Endpoint (For Connected Mode)</label>
+                  <!-- Direct Mode Explanatory Banner -->
+                  <div id="youpi-direct-mode-banner" style="display:block; padding:10px 14px; background:rgba(34, 197, 94, 0.08); border:1px solid rgba(34, 197, 94, 0.25); border-radius:8px; font-size:0.75rem; color:#4ADE80; line-height:1.45;">
+                    💡 <strong>Zero Server Required:</strong> In Direct Bank UPI mode, your customers pay directly to your Axis Bank account via QR or 1-tap PhonePe/GPay buttons. <strong>No localhost:7000 or background server is needed!</strong>
+                  </div>
+
+                  <!-- Connected Mode Server Endpoint -->
+                  <div class="form-group" id="cfg-youpi-endpoint-group" style="margin:0; display:none;">
+                    <label for="cfg-youpi-endpoint" style="font-size:0.8rem; font-weight:600; display:flex; justify-content:space-between;">
+                      <span>YouPI Daemon Server URL</span>
+                      <span style="font-size:0.72rem; color:var(--accent-gold);">Port 7000</span>
+                    </label>
                     <input type="text" id="cfg-youpi-endpoint" class="admin-input" placeholder="http://localhost:7000" value="http://localhost:7000" style="margin-top:4px;" />
+                    <small style="font-size:0.72rem; color:var(--text-secondary);">Use <code>http://localhost:7000</code> while testing on your PC, or your Cloudflare Tunnel URL when your website is public.</small>
                   </div>
 
                   <button type="submit" class="admin-btn-primary" id="btn-save-youpi-settings" style="margin-top:8px; justify-content:center; width:100%;">
@@ -1879,7 +1890,14 @@ export class AdminPanel {
         });
 
         this.renderPaymentsTab();
-        alert("✓ YouPI Sovereign Gateway settings saved! Storefront checkout now routes directly to your UPI ID: " + vpa);
+        alert("✓ Merchant Sovereign Gateway settings saved! Storefront checkout now routes directly to your UPI ID: " + vpa);
+      });
+
+      const modeRadios = this.container.querySelectorAll('input[name="youpi-mode-radio"]');
+      modeRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          this.updateYoupiModeUI(e.target.value);
+        });
       });
     }
 
@@ -3596,7 +3614,7 @@ export class AdminPanel {
     if (modeRadio) modeRadio.checked = true;
 
     const vpaInput = this.container.querySelector('#cfg-youpi-vpa');
-    if (vpaInput) vpaInput.value = settings.merchantVpa || settings.upiVpa || 'utsavbazaar@okhdfcbank';
+    if (vpaInput) vpaInput.value = settings.merchantVpa || settings.upiVpa || '9625351970@axisbank';
 
     const nameInput = this.container.querySelector('#cfg-youpi-name');
     if (nameInput) nameInput.value = settings.merchantName || 'Utsav Bazaar Crafts';
@@ -3604,19 +3622,35 @@ export class AdminPanel {
     const endpointInput = this.container.querySelector('#cfg-youpi-endpoint');
     if (endpointInput) endpointInput.value = settings.endpointUrl || settings.gatewayUrl || 'http://localhost:7000';
 
+    this.updateYoupiModeUI(settings.mode);
+  }
+
+  updateYoupiModeUI(mode) {
+    const isConnected = mode === 'connected';
+    const directBanner = this.container.querySelector('#youpi-direct-mode-banner');
+    const endpointGroup = this.container.querySelector('#cfg-youpi-endpoint-group');
     const modePill = this.container.querySelector('#youpi-mode-pill');
+    const pingBtn = this.container.querySelector('#btn-test-youpi-ping');
+
+    if (directBanner) directBanner.style.display = isConnected ? 'none' : 'block';
+    if (endpointGroup) endpointGroup.style.display = isConnected ? 'block' : 'none';
+
     if (modePill) {
-      if (settings.mode === 'connected') {
-        modePill.textContent = '🌐 Connected Node (Port 7000)';
+      if (isConnected) {
+        modePill.textContent = '🌐 YouPI Node Active (Port 7000)';
         modePill.style.background = 'rgba(59, 130, 246, 0.15)';
         modePill.style.color = '#60A5FA';
         modePill.style.borderColor = 'rgba(59, 130, 246, 0.3)';
       } else {
-        modePill.textContent = '🔒 Safe Sandbox Active';
+        modePill.textContent = '⚡ Direct Bank UPI Active';
         modePill.style.background = 'rgba(34, 197, 94, 0.15)';
         modePill.style.color = '#4ADE80';
         modePill.style.borderColor = 'rgba(34, 197, 94, 0.3)';
       }
+    }
+
+    if (pingBtn) {
+      pingBtn.textContent = isConnected ? '⚡ Ping Local Node' : '⚡ Test Node Status';
     }
   }
 
