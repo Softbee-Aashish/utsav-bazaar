@@ -142,42 +142,54 @@ export class ProductStore {
       if (savedUrl) this.googleSheetUrl = savedUrl;
     } catch (e) {}
 
-    // 4. Load Custom Reviews
+    // 4. Load Customer Reviews & Ratings
     try {
       const savedReviews = localStorage.getItem(STORAGE_KEYS.REVIEWS);
       if (savedReviews) {
         this.reviews = JSON.parse(savedReviews);
-        if (this.reviews["ub-001"] && (!this.reviews["ub-001"][0].avatarUrl || !this.reviews["ub-001"][0].photoUrl)) {
-          this.seedInitialReviews();
-        }
+        // Clean out any legacy mock reviews
+        let cleaned = false;
+        Object.keys(this.reviews).forEach(k => {
+          const before = (this.reviews[k] || []).length;
+          this.reviews[k] = (this.reviews[k] || []).filter(r => 
+            r.name !== 'Sunita Deshmukh' && 
+            r.name !== 'Rajesh Kulkarni' && 
+            r.name !== 'Anil Singhania' && 
+            !['rev-1', 'rev-2', 'rev-3'].includes(r.id)
+          );
+          if (this.reviews[k].length === 0) delete this.reviews[k];
+          if ((this.reviews[k] || []).length !== before) cleaned = true;
+        });
+        if (cleaned) this.saveReviewsToStorage();
       } else {
-        this.seedInitialReviews();
+        this.reviews = {};
       }
     } catch (e) {
-      this.seedInitialReviews();
+      this.reviews = {};
     }
 
-    // 5. Load Merchant Orders Pipeline
+    // 5. Load Merchant Orders Pipeline (100% Real Live Orders)
     try {
       const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
       if (savedOrders) {
         this.orders = JSON.parse(savedOrders);
-        let migrated = false;
-        this.orders.forEach(o => {
-          if (o.orderStatus === 'Processing') {
-            o.orderStatus = 'New Order';
-            migrated = true;
-          } else if (o.orderStatus === 'Dispatched') {
-            o.orderStatus = 'Shipped';
-            migrated = true;
-          }
-        });
-        if (migrated) this.saveOrdersToStorage();
+        // Purge any legacy mock orders from earlier demos
+        const beforeLen = this.orders.length;
+        this.orders = this.orders.filter(o => 
+          o.customer?.name !== 'Aarav Sharma' && 
+          o.customer?.email !== 'aarav.sharma@utsavbazaar.in' && 
+          o.customer?.name !== 'Meera Rajput' &&
+          o.customer?.name !== 'Vikramaditya Singhania' &&
+          o.customer?.name !== 'Ananya Roy' &&
+          o.customer?.name !== 'Devendra Patel' &&
+          !['UB-ORD-849102', 'UB-ORD-771249', 'UB-ORD-652391', 'UB-ORD-519280', 'UB-ORD-410928'].includes(o.id)
+        );
+        if (this.orders.length !== beforeLen) this.saveOrdersToStorage();
       } else {
-        this.seedInitialOrders();
+        this.orders = [];
       }
     } catch (e) {
-      this.seedInitialOrders();
+      this.orders = [];
     }
 
     // 6. Load YouPI Gateway Settings
@@ -188,16 +200,28 @@ export class ProductStore {
       }
     } catch (e) {}
 
-    // 7. Load Master Payment History Ledger
+    // 7. Load Master Payment History Ledger (100% Real Live Payments)
     try {
       const savedPayments = localStorage.getItem(STORAGE_KEYS.PAYMENTS);
       if (savedPayments) {
         this.payments = JSON.parse(savedPayments);
+        // Purge any legacy mock payments
+        const beforeLen = this.payments.length;
+        this.payments = this.payments.filter(p =>
+          p.customer?.name !== 'Aarav Sharma' &&
+          p.customer?.email !== 'aarav.sharma@utsavbazaar.in' &&
+          p.customer?.name !== 'Meera Rajput' &&
+          p.customer?.name !== 'Vikramaditya Singhania' &&
+          p.customer?.name !== 'Ananya Roy' &&
+          p.customer?.name !== 'Devendra Patel' &&
+          !['YOUPI-PAY-849102', 'YOUPI-PAY-771249', 'YOUPI-PAY-652391', 'YOUPI-PAY-519280', 'YOUPI-PAY-410928'].includes(p.id)
+        );
+        if (this.payments.length !== beforeLen) this.savePaymentsToStorage();
       } else {
-        this.seedInitialPayments();
+        this.payments = [];
       }
     } catch (e) {
-      this.seedInitialPayments();
+      this.payments = [];
     }
 
     // 8. Load Active Staking Session
@@ -215,141 +239,6 @@ export class ProductStore {
     } catch (e) {
       this.activeStakingSession = null;
     }
-  }
-
-  seedInitialOrders() {
-    this.orders = [
-      {
-        id: "UB-ORD-849102",
-        invoiceNumber: "UB-INV-2026-881204",
-        date: "14 Oct 2026",
-        timestamp: Date.now() - 3600000 * 3,
-        customer: {
-          name: "Aarav Sharma",
-          email: "aarav.sharma@utsavbazaar.in",
-          phone: "+91 98765 43210",
-          address: "House 14, Royal Courtyard, M.G. Road",
-          city: "Jaipur",
-          pincode: "302001"
-        },
-        items: [
-          { id: "ub-001", name: "Moradabad Mayur Solid Brass Diya", category: "diyas", priceINR: 2499, quantity: 1, subtotalINR: 2499 },
-          { id: "ub-007", name: "Mangalya Auspicious Velvet Zardozi Toran", category: "torans", priceINR: 2499, quantity: 1, subtotalINR: 2499 }
-        ],
-        subtotalINR: 4998,
-        discountINR: 0,
-        taxINR: 0,
-        totalINR: 4998,
-        paymentMode: "UPI Instant (PhonePe / GPay)",
-        paymentStatus: "Paid (Verified)",
-        orderStatus: "New Order",
-        trackingNumber: "UB-TRK-771822"
-      },
-      {
-        id: "UB-ORD-771249",
-        invoiceNumber: "UB-INV-2026-641920",
-        date: "13 Oct 2026",
-        timestamp: Date.now() - 3600000 * 26,
-        customer: {
-          name: "Meera Rajput",
-          email: "meera.rajput@festiveluxury.in",
-          phone: "+91 98201 12345",
-          address: "Flat 12B, Samudra Mahal, Worli Sea Face",
-          city: "Mumbai",
-          pincode: "400018"
-        },
-        items: [
-          { id: "ub-009", name: "Shahi Benarasi Raw Silk Kurta & Stole", category: "apparel", priceINR: 4699, quantity: 1, subtotalINR: 4699 },
-          { id: "ub-006", name: "Nandini Hand-Hammered Brass Lotus Urli", category: "decor", priceINR: 3499, quantity: 1, subtotalINR: 3499 }
-        ],
-        subtotalINR: 8198,
-        discountINR: 819.8,
-        taxINR: 0,
-        totalINR: 7378,
-        paymentMode: "Credit Card (HDFC Regalia)",
-        paymentStatus: "Paid (Verified)",
-        orderStatus: "Packed",
-        trackingNumber: "UB-TRK-992140"
-      },
-      {
-        id: "UB-ORD-652391",
-        invoiceNumber: "UB-INV-2026-442819",
-        date: "12 Oct 2026",
-        timestamp: Date.now() - 3600000 * 52,
-        customer: {
-          name: "Vikramaditya Singhania",
-          email: "vikram.singh@heritageart.org",
-          phone: "+91 97112 34567",
-          address: "B-4/22 Safdarjung Enclave",
-          city: "New Delhi",
-          pincode: "110029"
-        },
-        items: [
-          { id: "ub-003", name: "Royal Noor Jali Brass Lantern", category: "lanterns", priceINR: 3499, quantity: 2, subtotalINR: 6998 },
-          { id: "ub-010", name: "Noor-e-Chanderi Handloom Zari Silk Dupatta & Kurta", category: "apparel", priceINR: 4299, quantity: 1, subtotalINR: 4299 }
-        ],
-        subtotalINR: 11297,
-        discountINR: 1694.55,
-        taxINR: 0,
-        totalINR: 9602,
-        paymentMode: "Net Banking (SBI)",
-        paymentStatus: "Paid (Verified)",
-        orderStatus: "Shipped",
-        trackingNumber: "UB-TRK-883912"
-      },
-      {
-        id: "UB-ORD-519280",
-        invoiceNumber: "UB-INV-2026-311029",
-        date: "10 Oct 2026",
-        timestamp: Date.now() - 3600000 * 98,
-        customer: {
-          name: "Ananya Roy",
-          email: "ananya.roy@royalbengal.co.in",
-          phone: "+91 94330 98765",
-          address: "7A Southern Avenue, Keyatala",
-          city: "Kolkata",
-          pincode: "700029"
-        },
-        items: [
-          { id: "ub-008", name: "Aakash Deepam Hanging Diya", category: "diyas", priceINR: 1999, quantity: 1, subtotalINR: 1999 },
-          { id: "ub-004", name: "Maha Lakshmi Temple Bell", category: "diyas", priceINR: 1199, quantity: 1, subtotalINR: 1199 }
-        ],
-        subtotalINR: 3198,
-        discountINR: 0,
-        taxINR: 0,
-        totalINR: 3198,
-        paymentMode: "Cash on Delivery (COD)",
-        paymentStatus: "Paid (COD Collected)",
-        orderStatus: "Out for Delivery",
-        trackingNumber: "UB-TRK-554190"
-      },
-      {
-        id: "UB-ORD-410928",
-        invoiceNumber: "UB-INV-2026-219803",
-        date: "08 Oct 2026",
-        timestamp: Date.now() - 3600000 * 140,
-        customer: {
-          name: "Devendra Patel",
-          email: "devendra.patel@gujaratcrafts.in",
-          phone: "+91 98250 87654",
-          address: "18 Ambli Road, Bodakdev",
-          city: "Ahmedabad",
-          pincode: "380054"
-        },
-        items: [
-          { id: "ub-002", name: "Swarna Kamal Handcrafted Brass Diya Set", category: "diyas", priceINR: 1899, quantity: 2, subtotalINR: 3798 }
-        ],
-        subtotalINR: 3798,
-        discountINR: 379.8,
-        taxINR: 0,
-        totalINR: 3418,
-        paymentMode: "UPI Instant (PhonePe)",
-        paymentStatus: "Paid (Verified)",
-        orderStatus: "Delivered",
-        trackingNumber: "UB-TRK-441209"
-      }
-    ];
-    this.saveOrdersToStorage();
   }
 
   saveOrdersToStorage() {
@@ -630,77 +519,7 @@ export class ProductStore {
     return [headers.join(','), ...rows].join('\r\n');
   }
 
-  seedInitialReviews() {
-    this.reviews = {
-      "ub-001": [
-        {
-          id: "rev-1",
-          name: "Sunita Deshmukh",
-          city: "Mumbai, Maharashtra",
-          avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80",
-          photoUrl: "https://images.unsplash.com/photo-1605651202774-7d573fd3f12d?auto=format&fit=crop&w=600&q=80",
-          rating: 5,
-          title: "Magnificent Moradabad brass finish!",
-          date: "12 Oct 2026",
-          comment: "The Moradabad brass finish is truly magnificent. The diya burned all through Diwali night without dripping once!",
-          verified: true
-        },
-        {
-          id: "rev-2",
-          name: "Rajesh Kulkarni",
-          city: "Pune, Maharashtra",
-          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-          photoUrl: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80",
-          rating: 5,
-          title: "Heavier than expected, pure solid brass",
-          date: "08 Oct 2026",
-          comment: "Heavier than expected! Pure solid virgin brass with exquisite peacock engraving. Worth every rupee.",
-          verified: true
-        }
-      ],
-      "ub-007": [
-        {
-          id: "rev-3",
-          name: "Anil Singhania",
-          city: "New Delhi",
-          avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
-          photoUrl: "https://images.unsplash.com/photo-1514517521153-1be72277b32f?auto=format&fit=crop&w=600&q=80",
-          rating: 5,
-          title: "Melodic ghungroo chimes and rich zardozi",
-          date: "14 Oct 2026",
-          comment: "The velvet zardozi work on this door toran is breathtaking! The brass ghungroos make a melodic chime when opening the door.",
-          verified: true
-        },
-        {
-          id: "rev-4",
-          name: "Pooja Malhotra",
-          city: "Jaipur, Rajasthan",
-          avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80",
-          photoUrl: "",
-          rating: 5,
-          title: "Elevated our courtyard entrance",
-          date: "11 Oct 2026",
-          comment: "Completely elevated our courtyard entrance. All our guests complimented the auspicious Shubh-Labh embroidery!",
-          verified: true
-        }
-      ],
-      "ub-006": [
-        {
-          id: "rev-5",
-          name: "Devendra Swaminathan",
-          city: "Chennai, Tamil Nadu",
-          avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80",
-          photoUrl: "https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?auto=format&fit=crop&w=600&q=80",
-          rating: 5,
-          title: "The hand-hammered petals are mesmerizing",
-          date: "15 Oct 2026",
-          comment: "Filled this brass lotus urli with fresh marigolds and floating tealights for Navratri. The reflections are magical!",
-          verified: true
-        }
-      ]
-    };
-    this.saveReviewsToStorage();
-  }
+  // All reviews are 100% dynamic and created by real customers or via the verified review portal
 
   saveProductsToStorage() {
     try {
@@ -1104,111 +923,7 @@ export class ProductStore {
     } catch (e) {}
   }
 
-  seedInitialPayments() {
-    this.payments = [
-      {
-        id: "YOUPI-PAY-849102",
-        orderId: "UB-ORD-849102",
-        invoiceNumber: "UB-INV-2026-881204",
-        customer: {
-          name: "Aarav Sharma",
-          phone: "+91 98765 43210",
-          email: "aarav.sharma@utsavbazaar.in"
-        },
-        amountINR: 4998,
-        feeSavedINR: 147.44, // 2.5% + 18% GST (2.95%) saved
-        paymentMode: "UPI_QR",
-        upiVpa: "utsavbazaar@icici",
-        utr: "428901847120",
-        channel: "BANK_SMS",
-        status: "SUCCESS",
-        timestamp: Date.now() - 3600000 * 3,
-        durationSecs: 14,
-        slotNumber: 1
-      },
-      {
-        id: "YOUPI-PAY-771249",
-        orderId: "UB-ORD-771249",
-        invoiceNumber: "UB-INV-2026-641920",
-        customer: {
-          name: "Meera Rajput",
-          phone: "+91 98201 12345",
-          email: "meera.rajput@festiveluxury.in"
-        },
-        amountINR: 7378,
-        feeSavedINR: 217.65,
-        paymentMode: "GPAY_INTENT",
-        upiVpa: "utsavbazaar@icici",
-        utr: "428901992140",
-        channel: "ANDROID_APK",
-        status: "SUCCESS",
-        timestamp: Date.now() - 3600000 * 26,
-        durationSecs: 11,
-        slotNumber: 1
-      },
-      {
-        id: "YOUPI-PAY-652391",
-        orderId: "UB-ORD-652391",
-        invoiceNumber: "UB-INV-2026-442819",
-        customer: {
-          name: "Vikramaditya Singhania",
-          phone: "+91 97112 34567",
-          email: "vikram.singh@heritageart.org"
-        },
-        amountINR: 9602,
-        feeSavedINR: 283.26,
-        paymentMode: "PHONEPE_INTENT",
-        upiVpa: "utsavbazaar@icici",
-        utr: "428901883912",
-        channel: "GMAIL_CDP",
-        status: "SUCCESS",
-        timestamp: Date.now() - 3600000 * 52,
-        durationSecs: 18,
-        slotNumber: 1
-      },
-      {
-        id: "YOUPI-PAY-519280",
-        orderId: "UB-ORD-519280",
-        invoiceNumber: "UB-INV-2026-311029",
-        customer: {
-          name: "Ananya Roy",
-          phone: "+91 94330 98765",
-          email: "ananya.roy@royalbengal.co.in"
-        },
-        amountINR: 3198,
-        feeSavedINR: 0,
-        paymentMode: "COD_COUNTER",
-        upiVpa: "—",
-        utr: "COD-CASH-COLL",
-        channel: "CASH_DELIVERY",
-        status: "SUCCESS_COD",
-        timestamp: Date.now() - 3600000 * 98,
-        durationSecs: 0,
-        slotNumber: 1
-      },
-      {
-        id: "YOUPI-PAY-410928",
-        orderId: "UB-ORD-410928",
-        invoiceNumber: "UB-INV-2026-219803",
-        customer: {
-          name: "Devendra Patel",
-          phone: "+91 98250 87654",
-          email: "devendra.patel@gujaratcrafts.in"
-        },
-        amountINR: 3418,
-        feeSavedINR: 100.83,
-        paymentMode: "PAYTM_INTENT",
-        upiVpa: "utsavbazaar@icici",
-        utr: "428901441209",
-        channel: "BANK_SMS",
-        status: "SUCCESS",
-        timestamp: Date.now() - 3600000 * 140,
-        durationSecs: 9,
-        slotNumber: 1
-      }
-    ];
-    this.savePaymentsToStorage();
-  }
+  // All payment sessions are 100% dynamic, generated upon customer checkout initiation
 
   getYoupiSettings() {
     return { ...this.youpiSettings };

@@ -138,7 +138,11 @@ export class QuickViewModal {
     const savingsINR = hasDiscount ? (p.originalPriceINR - p.priceINR) : 0;
 
     const hasRealImage = !!(p.imageUrl && p.imageUrl.trim().length > 5);
-    const reviews = productStore.getProductReviews(p.id);
+    const reviews = productStore.getProductReviews(p.id) || [];
+    const reviewCount = reviews.length;
+    const avgScore = reviewCount > 0 
+      ? (reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviewCount).toFixed(1)
+      : null;
 
     body.innerHTML = `
       <div class="qv-left-media">
@@ -164,9 +168,13 @@ export class QuickViewModal {
           <p class="qv-tagline">${p.tagline}</p>
 
           <div class="qv-rating-row">
-            <span class="stars">★★★★★</span>
-            <span class="score">${p.rating} / 5.0</span>
-            <span class="count">(${p.reviewsCount} verified festive orders)</span>
+            ${reviewCount > 0 ? `
+              <span class="stars">${'★'.repeat(Math.min(5, Math.round(avgScore)))}</span>
+              <span class="score">${avgScore} / 5.0</span>
+              <span class="count">(${reviewCount} verified reviews)</span>
+            ` : `
+              <span class="score" style="color:var(--text-secondary); font-size:12px;">★ Authentic Artisan Offering • Be the first to review</span>
+            `}
           </div>
 
           <div class="qv-price-row">

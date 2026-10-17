@@ -2099,7 +2099,7 @@ export class AdminPanel {
         </div>
         <div class="kpi-value">${formattedRevenue}</div>
         <div class="kpi-meta">
-          <span class="kpi-pill success">↑ +24.8% Festive Spike</span>
+          <span class="kpi-pill ${stats.totalOrders > 0 ? 'success' : 'info'}">${stats.totalOrders > 0 ? `● ${stats.totalOrders} Live Order(s)` : '● Store Ready'}</span>
           <span class="kpi-subtext">Across ${stats.totalOrders} total orders</span>
         </div>
       </div>
@@ -2111,7 +2111,7 @@ export class AdminPanel {
         </div>
         <div class="kpi-value profit-highlight">${formattedProfit}</div>
         <div class="kpi-meta">
-          <span class="kpi-pill success">${stats.profitMargin}% Net Margin</span>
+          <span class="kpi-pill ${stats.profitMargin > 0 ? 'success' : 'info'}">${stats.profitMargin > 0 ? `${stats.profitMargin}% Net Margin` : 'Calculated Real-Time'}</span>
           <span class="kpi-subtext">Post artisan, courier & packing costs</span>
         </div>
       </div>
@@ -2123,7 +2123,7 @@ export class AdminPanel {
         </div>
         <div class="kpi-value">${stats.totalOrders}</div>
         <div class="kpi-meta">
-          <span class="kpi-pill warning">⚡ ${stats.unshippedCount} Action Needed</span>
+          <span class="kpi-pill ${stats.unshippedCount > 0 ? 'warning' : 'info'}">⚡ ${stats.unshippedCount} Action Needed</span>
           <span class="kpi-subtext">${stats.newOrdersCount} New • ${stats.packedCount} Packed</span>
         </div>
       </div>
@@ -2147,7 +2147,7 @@ export class AdminPanel {
         </div>
         <div class="kpi-value">${stats.deliveredCount} Delivered</div>
         <div class="kpi-meta">
-          <span class="kpi-pill success">● ${stats.shippedCount + stats.outForDeliveryCount} In-Transit</span>
+          <span class="kpi-pill ${(stats.shippedCount + stats.outForDeliveryCount) > 0 ? 'success' : 'info'}">● ${stats.shippedCount + stats.outForDeliveryCount} In-Transit</span>
           <span class="kpi-subtext">${stats.deliveredCount} Delivered • Avg: ${formattedAOV}</span>
         </div>
       </div>

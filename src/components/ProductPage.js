@@ -302,12 +302,18 @@ export class ProductPage {
     const origPriceFormatted = hasDiscount ? this.formatCurrency(p.originalPriceINR, Math.round(p.originalPriceINR * 0.012)) : '';
     const imgUrl = (p.imageUrl && p.imageUrl.trim().length > 5) ? p.imageUrl : '/assets/products/diya_peacock.jpg';
 
+    const pReviews = productStore.getProductReviews(p.id) || [];
+    const reviewCount = pReviews.length;
+    const avgScore = reviewCount > 0 
+      ? (pReviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviewCount).toFixed(1)
+      : null;
+
     return `
       <div class="ecom-product-card" data-card-id="${p.id}">
         <!-- Image Container -->
         <div class="ecom-card-media" data-click-action="view-detail" data-id="${p.id}">
           <img src="${imgUrl}" alt="${p.name}" class="ecom-card-img" loading="lazy" onerror="this.src='/assets/products/diya_peacock.jpg';" />
-          <span class="ecom-badge-tag">${p.badge || 'Limited Edition'}</span>
+          <span class="ecom-badge-tag">${p.badge || 'Festive Offering'}</span>
         </div>
 
         <!-- Product Content -->
@@ -318,11 +324,15 @@ export class ProductPage {
             </h3>
           </div>
 
-          <!-- Rating Row -->
+          <!-- Dynamic Rating Row -->
           <div class="ecom-card-rating">
-            <span class="rating-stars">${'★'.repeat(Math.floor(p.rating || 5))}☆</span>
-            <span class="rating-score">${p.rating || 4.9}</span>
-            <span class="rating-reviews">(${p.reviewsCount || 120})</span>
+            ${reviewCount > 0 ? `
+              <span class="rating-stars">${'★'.repeat(Math.min(5, Math.round(avgScore)))}</span>
+              <span class="rating-score">${avgScore}</span>
+              <span class="rating-reviews">(${reviewCount})</span>
+            ` : `
+              <span class="rating-score" style="color:var(--text-secondary); font-size:12px;">★ Verified Craft</span>
+            `}
           </div>
 
           <!-- Limited Time Deal Tag -->
@@ -380,18 +390,27 @@ export class ProductPage {
     const salePriceFormatted = this.formatCurrency(product.priceINR, product.priceUSD);
     const origPriceFormatted = hasDiscount ? this.formatCurrency(product.originalPriceINR, Math.round(product.originalPriceINR * 0.012)) : '';
     const imgUrl = (product.imageUrl && product.imageUrl.trim().length > 5) ? product.imageUrl : '/assets/products/diya_peacock.jpg';
-    const reviews = productStore.getProductReviews(product.id);
+    const reviews = productStore.getProductReviews(product.id) || [];
     const totalReviews = reviews.length;
+    const avgScore = totalReviews > 0
+      ? (reviews.reduce((s, r) => s + (Number(r.rating) || 5), 0) / totalReviews).toFixed(1)
+      : null;
     const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     reviews.forEach(r => {
       const s = Math.max(1, Math.min(5, Math.round(r.rating || 5)));
       starCounts[s] = (starCounts[s] || 0) + 1;
     });
-    const pct5 = totalReviews > 0 ? Math.round((starCounts[5] / totalReviews) * 100) : 100;
+    const pct5 = totalReviews > 0 ? Math.round((starCounts[5] / totalReviews) * 100) : 0;
     const pct4 = totalReviews > 0 ? Math.round((starCounts[4] / totalReviews) * 100) : 0;
     const pct3 = totalReviews > 0 ? Math.round((starCounts[3] / totalReviews) * 100) : 0;
     const pct2 = totalReviews > 0 ? Math.round((starCounts[2] / totalReviews) * 100) : 0;
     const pct1 = totalReviews > 0 ? Math.round((starCounts[1] / totalReviews) * 100) : 0;
+
+    const dynamicDeliveryDate = new Date(Date.now() + 3 * 86400000).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
 
     mainContent.innerHTML = `
       <!-- Amazon / Flipkart Style Breadcrumb -->
@@ -470,9 +489,13 @@ export class ProductPage {
 
           <!-- Rating Row -->
           <div class="detail-rating-row">
-            <span class="detail-stars">${'★'.repeat(Math.floor(product.rating || 5))}☆</span>
-            <span class="detail-rating-num">${product.rating || 4.9}</span>
-            <a href="#reviews-section" class="detail-review-count">(${product.reviewsCount || 120} customer ratings)</a>
+            ${totalReviews > 0 ? `
+              <span class="detail-stars">${'★'.repeat(Math.min(5, Math.round(avgScore)))}</span>
+              <span class="detail-rating-num">${avgScore}</span>
+              <a href="#reviews-section" class="detail-review-count">(${totalReviews} verified customer reviews)</a>
+            ` : `
+              <span class="detail-rating-num" style="color:var(--text-secondary); font-size:13px;">★ 100% Authentic Artisan Craft • <a href="#reviews-section" class="detail-review-count">Be the first to review</a></span>
+            `}
           </div>
 
           <div class="detail-hr"></div>
@@ -556,8 +579,8 @@ export class ProductPage {
           <div class="buybox-card">
             <div class="buybox-price">${salePriceFormatted}</div>
             <div class="buybox-delivery-info">
-              <div>FREE delivery <strong>Saturday, 24 October</strong>. <a href="#">Details</a></div>
-              <div class="fastest-delivery">Or fastest delivery <strong>Tomorrow</strong>.</div>
+              <div>FREE delivery by <strong>${dynamicDeliveryDate}</strong>. <a href="#">Details</a></div>
+              <div class="fastest-delivery">Express dispatch within <strong>24-48 hours</strong>.</div>
             </div>
 
             <div class="buybox-stock-status ${product.inStock ? 'in-stock' : 'out-of-stock'}">

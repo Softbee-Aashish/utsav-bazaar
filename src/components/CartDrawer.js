@@ -13,12 +13,12 @@ export class CartDrawer {
 
     // Customer guest details state (no login required)
     this.guestDetails = {
-      name: 'Aarav Sharma',
-      email: 'aarav.sharma@utsavbazaar.in',
-      phone: '+91 98765 43210',
-      address: 'House 14, Royal Courtyard, M.G. Road',
-      city: 'Jaipur',
-      pincode: '302001'
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      pincode: ''
     };
 
     this.youpiTimerInterval = null;
@@ -130,17 +130,17 @@ export class CartDrawer {
                 <div class="form-row-2">
                   <div class="form-group">
                     <label for="guest-name">Full Name *</label>
-                    <input type="text" id="guest-name" required value="Aarav Sharma" class="festive-input" placeholder="e.g. Aarav Sharma" />
+                    <input type="text" id="guest-name" required value="" class="festive-input" placeholder="e.g. Meera Singhania" />
                   </div>
                   <div class="form-group">
                     <label for="guest-phone">Phone Number *</label>
-                    <input type="tel" id="guest-phone" required value="+91 98765 43210" class="festive-input" placeholder="+91 98765 43210" />
+                    <input type="tel" id="guest-phone" required value="" class="festive-input" placeholder="e.g. 98765 43210" />
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label for="guest-email">Email Address (For Instant Order Invoice & Receipt) *</label>
-                  <input type="email" id="guest-email" required value="aarav.sharma@utsavbazaar.in" class="festive-input" placeholder="your.name@example.com" />
+                  <input type="email" id="guest-email" required value="" class="festive-input" placeholder="your.name@example.com" />
                   <span class="input-hint">📧 We will immediately send your official order receipt and invoice here.</span>
                 </div>
 
@@ -160,27 +160,27 @@ export class CartDrawer {
 
                 <div class="form-group">
                   <label for="guest-address">Street / Courtyard Address *</label>
-                  <input type="text" id="guest-address" required value="House 14, Royal Courtyard, M.G. Road" class="festive-input" placeholder="Apartment, building, street address" />
+                  <input type="text" id="guest-address" required value="" class="festive-input" placeholder="Apartment, building, street address" />
                 </div>
 
                 <div class="form-row-3">
                   <div class="form-group">
                     <label for="guest-city">City / District *</label>
-                    <input type="text" id="guest-city" required value="Jaipur" class="festive-input" placeholder="City" />
+                    <input type="text" id="guest-city" required value="" class="festive-input" placeholder="City" />
                   </div>
                   <div class="form-group">
                     <label for="guest-state">State / Province *</label>
-                    <input type="text" id="guest-state" required value="Rajasthan" class="festive-input" placeholder="State" />
+                    <input type="text" id="guest-state" required value="" class="festive-input" placeholder="State" />
                   </div>
                   <div class="form-group">
                     <label for="guest-pincode">Postal PIN Code *</label>
-                    <input type="text" id="guest-pincode" required value="302001" class="festive-input" placeholder="PIN Code" />
+                    <input type="text" id="guest-pincode" required value="" class="festive-input" placeholder="PIN Code" />
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label for="guest-landmark">Nearby Landmark (Optional for Courtyard Dropoff)</label>
-                  <input type="text" id="guest-landmark" value="Near Hawa Mahal Gate 2" class="festive-input" placeholder="e.g. Opposite City Palace, Near Metro Station" />
+                  <input type="text" id="guest-landmark" value="" class="festive-input" placeholder="e.g. Opposite City Palace, Near Metro Station" />
                 </div>
 
                 <!-- 3. Alternate Delivery Acceptor (If primary customer is not available) -->
@@ -262,27 +262,27 @@ export class CartDrawer {
               <div class="confirm-details-summary-box">
                 <div class="confirm-info-row">
                   <span class="c-label">Recipient Name:</span>
-                  <strong class="c-val" id="cfm-name">Aarav Sharma</strong>
+                  <strong class="c-val" id="cfm-name">—</strong>
                 </div>
                 <div class="confirm-info-row">
                   <span class="c-label">Primary Mobile:</span>
-                  <strong class="c-val" id="cfm-phone">+91 98765 43210</strong>
+                  <strong class="c-val" id="cfm-phone">—</strong>
                 </div>
                 <div class="confirm-info-row">
                   <span class="c-label">Email Invoice:</span>
-                  <span class="c-val" id="cfm-email">aarav.sharma@utsavbazaar.in</span>
+                  <span class="c-val" id="cfm-email">—</span>
                 </div>
                 <div class="confirm-info-row address-highlight-row">
                   <span class="c-label">Complete Address:</span>
-                  <strong class="c-val" id="cfm-address">House 14, Royal Courtyard, M.G. Road, Jaipur, Rajasthan - 302001</strong>
+                  <strong class="c-val" id="cfm-address">—</strong>
                 </div>
                 <div class="confirm-info-row">
                   <span class="c-label">Landmark:</span>
-                  <span class="c-val" id="cfm-landmark">Near Hawa Mahal Gate 2</span>
+                  <span class="c-val" id="cfm-landmark">—</span>
                 </div>
                 <div class="confirm-info-row alternate-highlight-row">
                   <span class="c-label">Alternate Acceptor:</span>
-                  <strong class="c-val" id="cfm-alt">Sunita Sharma (Family) • +91 98290 12345</strong>
+                  <strong class="c-val" id="cfm-alt">—</strong>
                 </div>
               </div>
 
@@ -547,7 +547,7 @@ export class CartDrawer {
                   </div>
                   <div class="form-group">
                     <label>Cardholder Name</label>
-                    <input type="text" class="festive-input" id="cardholder-name-val" value="Aarav Sharma" />
+                    <input type="text" class="festive-input" id="cardholder-name-val" value="" placeholder="Cardholder Name as on Card" />
                   </div>
                   <button class="stage-primary-btn" id="btn-pay-card">
                     <span>🔒 Pay via Sacred Encrypted Card</span>
@@ -626,12 +626,12 @@ export class CartDrawer {
               <div class="invoice-customer-row">
                 <div class="cust-col">
                   <span class="cust-label">BILLED & SHIPPED TO:</span>
-                  <div class="cust-val-name" id="inv-cust-name">Aarav Sharma</div>
-                  <div class="cust-val-addr" id="inv-cust-addr">House 14, Royal Courtyard, M.G. Road</div>
-                  <div class="cust-val-city" id="inv-cust-city">Jaipur, 302001</div>
+                  <div class="cust-val-name" id="inv-cust-name">—</div>
+                  <div class="cust-val-addr" id="inv-cust-addr">—</div>
+                  <div class="cust-val-city" id="inv-cust-city">—</div>
                   <div class="cust-val-contact">
-                    Phone: <span id="inv-cust-phone">+91 98765 43210</span> | 
-                    Email: <span id="inv-cust-email">aarav.sharma@utsavbazaar.in</span>
+                    Phone: <span id="inv-cust-phone">—</span> | 
+                    Email: <span id="inv-cust-email">—</span>
                   </div>
                 </div>
                 <div class="compliance-col">
