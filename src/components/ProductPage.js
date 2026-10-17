@@ -803,7 +803,14 @@ export class ProductPage {
                 `}
               </div>
             </div>
-          </div>
+        <!-- Sticky Buy Now Action Fixture on Mobile -->
+        <div class="product-page-mobile-sticky-bar">
+          <button class="mobile-sticky-add-btn" id="btn-mobile-sticky-add" ${!product.inStock ? 'disabled' : ''}>
+            <span>Add to Cart</span>
+          </button>
+          <button class="mobile-sticky-buy-btn" id="btn-mobile-sticky-buy" ${!product.inStock ? 'disabled' : ''}>
+            <span>⚡ Buy Now</span>
+          </button>
         </div>
       </div>
     `;
@@ -940,6 +947,27 @@ export class ProductPage {
         const qty = qtySelect ? parseInt(qtySelect.value, 10) : 1;
         if (this.onBuyNow) {
           this.onBuyNow(product, qty);
+        }
+      });
+    }
+
+    // Mobile sticky bar action listeners
+    const mobileAddBtn = mainContent.querySelector('#btn-mobile-sticky-add');
+    if (mobileAddBtn) {
+      mobileAddBtn.addEventListener('click', () => {
+        if (this.onAddToCart) {
+          this.onAddToCart(product);
+          mobileAddBtn.innerHTML = '<span>✓ Added!</span>';
+          setTimeout(() => { mobileAddBtn.innerHTML = '<span>Add to Cart</span>'; }, 1500);
+        }
+      });
+    }
+
+    const mobileBuyBtn = mainContent.querySelector('#btn-mobile-sticky-buy');
+    if (mobileBuyBtn) {
+      mobileBuyBtn.addEventListener('click', () => {
+        if (this.onBuyNow) {
+          this.onBuyNow(product, 1);
         }
       });
     }

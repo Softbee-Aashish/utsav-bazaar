@@ -309,12 +309,37 @@ export class CartDrawer {
 
           <!-- STAGE 2: INSTANT PAYMENT GATEWAY SIMULATION -->
           <div class="checkout-stage" id="stage-payment-gateway" style="display: none;">
-            <div class="stage-header">
-              <span class="stage-tag">SECURE PAYMENT • भुगतान द्वार</span>
-              <h2 class="stage-title">Select Payment Method</h2>
-              <p class="stage-subtitle">
-                Total Amount: <strong class="pay-highlight" id="pay-stage-amount">₹0</strong> • Complete your auspicious order.
-              </p>
+            
+            <!-- Step Tracker -->
+            <div class="checkout-steps-bar">
+              <div class="step-pill step-completed">
+                <span class="step-dot">✓</span>
+                <span class="step-text">1. Courtyard Address</span>
+              </div>
+              <div class="step-connector active"></div>
+              <div class="step-pill step-active">
+                <span class="step-dot">2</span>
+                <span class="step-text">2. Payment & Authorization</span>
+              </div>
+              <div class="step-connector"></div>
+              <div class="step-pill">
+                <span class="step-dot">3</span>
+                <span class="step-text">3. Blessing Bill</span>
+              </div>
+            </div>
+
+            <!-- Total Payable Ribbon -->
+            <div class="checkout-payable-ribbon">
+              <div class="ribbon-left">
+                <span class="ribbon-tag">OFFICIAL FESTIVE CHECKOUT</span>
+                <div class="ribbon-amount-row">
+                  <span class="ribbon-label">Total Payable:</span>
+                  <strong class="ribbon-amount" id="pay-stage-amount">₹0</strong>
+                </div>
+              </div>
+              <div class="ribbon-right">
+                <span class="ribbon-badge">🛡️ Zero Gateway Fees • 100% Secure</span>
+              </div>
             </div>
 
             <!-- Payment Method Tabs -->
@@ -322,8 +347,8 @@ export class CartDrawer {
               <div class="payment-tabs-header">
                 <button class="pay-tab active" data-tab="upi">
                   <span class="tab-icon">⚡</span>
-                  <span class="tab-label">UPI / QR Code</span>
-                  <span class="tab-badge">Instant</span>
+                  <span class="tab-label">UPI / QR (Instant)</span>
+                  <span class="tab-badge">Fastest</span>
                 </button>
                 <button class="pay-tab" data-tab="card">
                   <span class="tab-icon">💳</span>
@@ -342,24 +367,51 @@ export class CartDrawer {
               <!-- UPI Tab Content (Powered by YouPI Sovereign Gateway) -->
               <div class="payment-tab-content active" id="tab-upi">
                 <div class="youpi-gateway-container">
-                  <!-- Sovereign Trust Bar -->
+                  
+                  <!-- Trust & Security Header -->
                   <div class="youpi-trust-bar">
                     <div class="youpi-badge-left">
-                      <span class="youpi-brand-icon">⚡</span>
+                      <div class="youpi-brand-icon-wrap">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#FFB703"/>
+                          <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#FFB703" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
                       <div class="youpi-brand-text">
-                        <strong>YouPI Sovereign Gateway</strong>
-                        <span>Direct-to-Bank • 0% Middleman Fees • NPCI Rails</span>
+                        <strong>YouPI Sovereign Gateway • NPCI Bharat Rails</strong>
+                        <span>Direct-to-Artisan Bank • 0% Aggregator Fee • 256-Bit SSL</span>
                       </div>
                     </div>
-                    <div class="youpi-timer-pill" id="youpi-session-timer-pill" title="Deterministic 5-minute single-slot payment window">
+                    <div class="youpi-timer-pill" id="youpi-session-timer-pill" title="Exclusive 5-minute single-slot payment session">
                       <span class="pulse-clock-dot">●</span>
-                      <span>Session: </span>
+                      <span>Staked Session: </span>
                       <strong id="youpi-timer-display">05:00</strong>
                     </div>
                   </div>
 
+                  <!-- PRIMARY 1-TAP MOBILE ACTION (HIGH-CONVERTING) -->
+                  <div class="youpi-mobile-primary-block">
+                    <a href="#" class="youpi-primary-intent-btn" id="youpi-primary-intent-btn" title="Tap to open your default UPI app directly">
+                      <div class="intent-btn-left">
+                        <div class="intent-app-icons-cluster">
+                          <span class="icon-circle icon-gpay" title="Google Pay">G</span>
+                          <span class="icon-circle icon-phonepe" title="PhonePe">पे</span>
+                          <span class="icon-circle icon-paytm" title="Paytm">Pay</span>
+                        </div>
+                        <div class="intent-label-group">
+                          <span class="intent-headline">TAP TO PAY WITH ANY UPI APP</span>
+                          <span class="intent-subline">GPay, PhonePe, Paytm, CRED, BHIM & more</span>
+                        </div>
+                      </div>
+                      <div class="intent-btn-right">
+                        <span class="intent-amount" id="youpi-btn-amount">₹0</span>
+                        <span class="intent-arrow">➜</span>
+                      </div>
+                    </a>
+                  </div>
+
                   <div class="youpi-body-grid">
-                    <!-- Left: Dynamic Vector QR Box -->
+                    <!-- Left Column: Dynamic Vector QR Box (for Desktop / Second Device) -->
                     <div class="youpi-qr-box">
                       <div class="qr-glow-frame">
                         <svg viewBox="0 0 180 180" class="upi-qr-svg" width="160" height="160" id="youpi-dynamic-qr-svg">
@@ -396,63 +448,81 @@ export class CartDrawer {
 
                       <div class="youpi-vpa-row">
                         <span class="vpa-label">Merchant VPA:</span>
-                        <div class="vpa-copy-pill" id="youpi-vpa-copy-btn" title="Click to copy VPA">
-                          <code id="youpi-display-vpa">utsavbazaar@icici</code>
+                        <div class="vpa-copy-pill" id="youpi-vpa-copy-btn" title="Click to copy UPI ID">
+                          <code id="youpi-display-vpa">utsavbazaar@okhdfcbank</code>
                           <span class="vpa-copy-icon">📋</span>
                         </div>
                       </div>
                       <div class="youpi-amount-badge">Payable: <strong id="youpi-display-amount">₹0</strong></div>
                     </div>
 
-                    <!-- Right: Mobile App Switcher & UTR Verification -->
+                    <!-- Right Column: Mobile App Switchers & UTR Verification -->
                     <div class="youpi-actions-box">
-                      <!-- 1-Tap Mobile UPI Intent Apps -->
-                      <div class="youpi-apps-title">
-                        <span>📱 1-Tap UPI Apps (Pre-filled):</span>
-                      </div>
-                      <div class="youpi-apps-grid">
-                        <a href="#" class="youpi-app-btn gpay-btn" id="youpi-app-gpay" title="Pay with Google Pay">
-                          <span class="app-icon">🔵</span>
-                          <span>GPay</span>
-                        </a>
-                        <a href="#" class="youpi-app-btn phonepe-btn" id="youpi-app-phonepe" title="Pay with PhonePe">
-                          <span class="app-icon">🟣</span>
-                          <span>PhonePe</span>
-                        </a>
-                        <a href="#" class="youpi-app-btn paytm-btn" id="youpi-app-paytm" title="Pay with Paytm">
-                          <span class="app-icon">🔷</span>
-                          <span>Paytm</span>
-                        </a>
-                        <a href="#" class="youpi-app-btn cred-btn" id="youpi-app-cred" title="Pay with CRED / BHIM">
-                          <span class="app-icon">⚡</span>
-                          <span>BHIM/CRED</span>
-                        </a>
+                      
+                      <!-- Specific UPI Apps Selection -->
+                      <div class="youpi-apps-section">
+                        <div class="youpi-apps-title">
+                          <span>Or open in your favorite app:</span>
+                        </div>
+                        <div class="youpi-apps-grid">
+                          <a href="#" class="youpi-app-btn gpay-btn" id="youpi-app-gpay" title="Pay with Google Pay">
+                            <span class="app-brand-icon">
+                              <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                            </span>
+                            <span class="app-brand-name">Google Pay</span>
+                          </a>
+                          
+                          <a href="#" class="youpi-app-btn phonepe-btn" id="youpi-app-phonepe" title="Pay with PhonePe">
+                            <span class="app-brand-icon">
+                              <svg width="22" height="22" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#5F259F"/><path fill="#FFF" d="M15.5 8.5h-3.2v-2h-2v2H8.5v2.1h1.8v3.2c0 1.9 1.1 3.2 3.1 3.2.8 0 1.5-.1 1.8-.3v-1.9c-.3.1-.7.2-1.2.2-.9 0-1.7-.5-1.7-1.6v-2.8h3.2V8.5z"/></svg>
+                            </span>
+                            <span class="app-brand-name">PhonePe</span>
+                          </a>
+                          
+                          <a href="#" class="youpi-app-btn paytm-btn" id="youpi-app-paytm" title="Pay with Paytm">
+                            <span class="app-brand-icon">
+                              <svg width="22" height="22" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#002E6E"/><path fill="#00BAF2" d="M5 8h3v8H5zm4 0h3v4.5c0 1.5.8 2 2 2s2-.5 2-2V8h3v4.5c0 3-1.8 4.5-5 4.5s-5-1.5-5-4.5V8z"/></svg>
+                            </span>
+                            <span class="app-brand-name">Paytm</span>
+                          </a>
+                          
+                          <a href="#" class="youpi-app-btn cred-btn" id="youpi-app-cred" title="Pay with CRED or BHIM">
+                            <span class="app-brand-icon">
+                              <svg width="22" height="22" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#121212"/><path stroke="#D4AF37" stroke-width="2" fill="none" d="M7 6h10v12H7z M7 12h10 M12 6v12"/></svg>
+                            </span>
+                            <span class="app-brand-name">CRED / BHIM</span>
+                          </a>
+                        </div>
                       </div>
 
-                      <!-- UTR Verification Box -->
+                      <!-- Step 2: 12-Digit UTR Bank Verification Box -->
                       <div class="youpi-utr-box">
-                        <label class="utr-label" for="youpi-utr-input">
-                          <span>Confirm 12-Digit Bank UTR / Ref No:</span>
-                          <span class="utr-help-chip" title="Found in your bank/UPI app payment receipt">Receipt UTR</span>
-                        </label>
+                        <div class="utr-header-row">
+                          <label class="utr-label" for="youpi-utr-input">
+                            <strong>Step 2: Enter 12-Digit Bank UTR / Ref Number</strong>
+                          </label>
+                          <span class="utr-help-chip" title="Found in your UPI app receipt or SMS after completing payment">Receipt UTR</span>
+                        </div>
+                        <p class="utr-instruction">After transferring, copy the 12-digit transaction ID from your UPI app receipt below:</p>
                         <div class="utr-input-row">
-                          <input type="text" id="youpi-utr-input" placeholder="e.g. 428901847120" maxlength="12" class="youpi-utr-field" />
+                          <input type="text" id="youpi-utr-input" placeholder="e.g. 202611884422" maxlength="12" inputmode="numeric" pattern="[0-9]*" class="youpi-utr-field" />
                           <button class="youpi-verify-btn" id="btn-verify-youpi-utr">
-                            <span>Verify UTR</span>
+                            <span>✓ Verify & Complete</span>
                           </button>
                         </div>
                         <div class="utr-status-hint" id="youpi-utr-status-hint">
-                          <span>⚡ Enter the 12-digit transaction ID from your UPI app receipt to confirm immediately.</span>
+                          <span>⚡ Transferred funds reach store atelier directly with zero aggregator deductions.</span>
                         </div>
                       </div>
 
-                      <!-- Fast Simulation / Testing Action -->
+                      <!-- Sandbox Testing Simulator Row -->
                       <div class="youpi-sim-row">
                         <button class="youpi-sim-btn" id="btn-simulate-bank-sms" title="Safe Environment Testing: Simulates instant automated bank SMS alert">
-                          <span>🤖 Test Sandbox: Auto-Detect Payment</span>
+                          <span>🧪 Instant Sandbox Simulator: Auto-Detect & Settle</span>
                         </button>
-                        <button class="stage-back-btn" id="btn-back-to-details">← Back to Details</button>
+                        <button class="stage-back-btn" id="btn-back-to-details">← Back to Address Details</button>
                       </div>
+
                     </div>
                   </div>
                 </div>
@@ -1210,11 +1280,27 @@ export class CartDrawer {
     const vpaEl = this.container.querySelector('#youpi-display-vpa');
     if (vpaEl) vpaEl.textContent = vpa;
 
+    const formattedAmount = `₹${Math.round(totalINR).toLocaleString('en-IN')}`;
     const amountEl = this.container.querySelector('#youpi-display-amount');
-    if (amountEl) amountEl.textContent = `₹${Math.round(totalINR).toLocaleString('en-IN')}`;
+    if (amountEl) amountEl.textContent = formattedAmount;
+
+    const btnAmountEl = this.container.querySelector('#youpi-btn-amount');
+    if (btnAmountEl) btnAmountEl.textContent = formattedAmount;
 
     // Construct NPCI Standard UPI URI
     const upiUri = `upi://pay?pa=${vpa}&pn=${encodeURIComponent(merchantName)}&am=${totalINR.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Utsav Bazaar ' + tempOrderId)}`;
+
+    // Set Primary 1-Tap Mobile Intent Link (Opens any installed UPI app on device)
+    const primaryIntentBtn = this.container.querySelector('#youpi-primary-intent-btn');
+    if (primaryIntentBtn) {
+      primaryIntentBtn.href = upiUri;
+      primaryIntentBtn.onclick = () => {
+        const hint = this.container.querySelector('#youpi-utr-status-hint');
+        if (hint) {
+          hint.innerHTML = `<span style="color:#38BDF8; font-weight:600;">📲 UPI App opened! Complete your transaction in GPay/PhonePe and paste the 12-digit UTR below to confirm.</span>`;
+        }
+      };
+    }
 
     // Set mobile app switcher links
     const gpayBtn = this.container.querySelector('#youpi-app-gpay');
@@ -1233,7 +1319,7 @@ export class CartDrawer {
 
     const hint = this.container.querySelector('#youpi-utr-status-hint');
     if (hint) {
-      hint.innerHTML = `<span>⚡ Scan QR with any UPI app or tap a button above. Enter the 12-digit UTR to confirm.</span>`;
+      hint.innerHTML = `<span>⚡ Tap the button above to pay on phone, or scan the QR code. Enter the 12-digit UTR to confirm.</span>`;
     }
 
     // Record session in ProductStore (for admin live staking visibility!)
