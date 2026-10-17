@@ -1066,7 +1066,7 @@ export class AdminPanel {
               </div>
 
               <div class="table-responsive" style="margin-top:14px; overflow-x:auto;">
-                <table class="admin-table" id="youpi-payments-table">
+                <table class="admin-data-table" id="youpi-payments-table">
                   <thead>
                     <tr>
                       <th>Order ID & Timestamp</th>
@@ -1872,12 +1872,14 @@ export class AdminPanel {
         productStore.saveYoupiSettings({
           mode,
           merchantVpa: vpa,
+          upiVpa: vpa,
           merchantName,
-          endpointUrl: endpoint
+          endpointUrl: endpoint,
+          gatewayUrl: endpoint
         });
 
         this.renderPaymentsTab();
-        alert("✓ YouPI Sovereign Gateway settings saved! Storefront checkout now routes to your configured VPA.");
+        alert("✓ YouPI Sovereign Gateway settings saved! Storefront checkout now routes directly to your UPI ID: " + vpa);
       });
     }
 
@@ -3594,13 +3596,13 @@ export class AdminPanel {
     if (modeRadio) modeRadio.checked = true;
 
     const vpaInput = this.container.querySelector('#cfg-youpi-vpa');
-    if (vpaInput) vpaInput.value = settings.merchantVpa || 'utsavbazaar@okhdfcbank';
+    if (vpaInput) vpaInput.value = settings.merchantVpa || settings.upiVpa || 'utsavbazaar@okhdfcbank';
 
     const nameInput = this.container.querySelector('#cfg-youpi-name');
     if (nameInput) nameInput.value = settings.merchantName || 'Utsav Bazaar Crafts';
 
     const endpointInput = this.container.querySelector('#cfg-youpi-endpoint');
-    if (endpointInput) endpointInput.value = settings.endpointUrl || 'http://localhost:7000';
+    if (endpointInput) endpointInput.value = settings.endpointUrl || settings.gatewayUrl || 'http://localhost:7000';
 
     const modePill = this.container.querySelector('#youpi-mode-pill');
     if (modePill) {

@@ -1271,7 +1271,7 @@ export class CartDrawer {
 
   initYoupiSession(totalINR) {
     const settings = productStore.getYoupiSettings();
-    const vpa = settings.upiVpa || 'utsavbazaar@icici';
+    const vpa = settings.merchantVpa || settings.upiVpa || 'utsavbazaar@okhdfcbank';
     const merchantName = settings.merchantName || 'Utsav Bazaar Master Atelier';
     const tempOrderId = `UB-ORD-${Date.now().toString().slice(-6)}`;
     this.currentPaymentOrderId = tempOrderId;
