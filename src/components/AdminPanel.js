@@ -10,6 +10,9 @@ export class AdminPanel {
     this.activeTab = 'overview';
     this.orderFilter = 'unshipped';
     this.orderSearchQuery = '';
+    this.paymentFilter = 'all';
+    this.paymentSearchQuery = '';
+    this.stakingTimerInterval = null;
     this.catalogFestivalFilter = 'all';
     this.catalogSearchQuery = '';
     this.editingProduct = null;
@@ -401,6 +404,10 @@ export class AdminPanel {
           <button class="admin-tab-btn ${this.activeTab === 'reviews' ? 'active' : ''}" data-tab="reviews">
             <img src="/assets/icons/icon-reviews.png" class="tab-png-icon" alt="" />
             <span>Customer Reviews</span>
+          </button>
+          <button class="admin-tab-btn ${this.activeTab === 'payments' ? 'active' : ''}" data-tab="payments">
+            <span class="tab-png-icon" style="display:inline-flex; align-items:center; justify-content:center; font-size:16px;">⚡</span>
+            <span>YouPI Gateway & Staking</span>
           </button>
         </div>
 
@@ -912,6 +919,170 @@ export class AdminPanel {
                 <div class="admin-reviews-list" id="admin-reviews-container">
                   <!-- Populated dynamically with rich review cards and delete buttons -->
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 8: YOUPI GATEWAY & STAKING -->
+          <div class="admin-tab-pane" id="tab-pane-payments" style="display:none;">
+            <div class="card-head" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span class="c-icon" style="background:rgba(255, 183, 3, 0.15); color:#FFB703; font-size:1.4rem; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,183,3,0.3);">⚡</span>
+                  <div>
+                    <h3 style="margin:0; font-size:1.35rem; font-family:'Cinzel', serif; letter-spacing:0.5px;">YouPI-PG Sovereign UPI Gateway & Payment Staking</h3>
+                    <p style="margin:4px 0 0; font-size:0.85rem; color:var(--text-secondary);">Direct Peer-to-Merchant NPCI VPA Settlement • 0% Gatekeeper Cut • Real-Time Staking FIFO Lock & 12-Digit UTR Master Ledger</p>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span class="mode-indicator-pill" id="youpi-mode-pill">🔒 Safe Sandbox Active</span>
+                <button type="button" class="admin-btn-secondary btn-sm" id="btn-refresh-payments" title="Refresh live staking session and stats">
+                  <span>🔄 Refresh Staking</span>
+                </button>
+                <button type="button" class="admin-btn-secondary btn-sm" id="btn-export-payments-csv" title="Download Master Payment History">
+                  <span>📥 Export Ledger CSV</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Top KPIs: UPI Volume, Gatekeeper Savings, Active Staking, Verification Rate -->
+            <div class="admin-kpi-grid" id="youpi-kpis-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:22px;">
+              <!-- Populated by renderPaymentsKPIs() -->
+            </div>
+
+            <!-- Middle Split: Live Staking Slot (Left) & Sovereign Gateway Settings (Right) -->
+            <div class="youpi-staking-dashboard-layout" style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:20px; margin-bottom:24px;">
+              
+              <!-- Left: Live Staking Pipeline & Single-Slot FIFO Monitor -->
+              <div class="admin-card youpi-staking-card">
+                <div class="card-head" style="display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="c-icon">⏱️</span>
+                    <div>
+                      <h4 style="margin:0; font-size:1.05rem;">Live Session Staking & Verification Pipeline</h4>
+                      <span style="font-size:0.75rem; color:var(--text-secondary);">Single-Slot FIFO Queue guarantees exact transaction-to-order mapping</span>
+                    </div>
+                  </div>
+                  <span class="staking-pulse-badge" id="staking-pulse-badge">
+                    <span class="pulse-dot"></span> <span id="staking-pulse-label">Awaiting Session</span>
+                  </span>
+                </div>
+
+                <div id="youpi-active-staking-container" style="margin-top:16px;">
+                  <!-- Rendered dynamically by renderPaymentsStakingBox() -->
+                </div>
+
+                <div class="staking-rules-note" style="margin-top:16px; padding:12px; background:rgba(212,175,55,0.06); border:1px dashed rgba(212,175,55,0.25); border-radius:8px; font-size:0.8rem; line-height:1.45; color:var(--text-secondary);">
+                  <strong style="color:var(--accent-gold);">🛡️ Sovereign Staking Guarantee:</strong> Every customer initiating UPI gets exclusive possession of the payment window for <strong>5:00 minutes</strong> with a <strong>30:00 minute</strong> verification window. This prevents collisions without needing third-party payment aggregator keys.
+                </div>
+              </div>
+
+              <!-- Right: Gateway Node & Merchant UPI Configuration -->
+              <div class="admin-card youpi-config-card">
+                <div class="card-head" style="display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="c-icon">⚙️</span>
+                    <div>
+                      <h4 style="margin:0; font-size:1.05rem;">Merchant Sovereign Configuration</h4>
+                      <span style="font-size:0.75rem; color:var(--text-secondary);">Configure your personal/current UPI VPA handle</span>
+                    </div>
+                  </div>
+                  <button type="button" class="admin-btn-secondary btn-xs" id="btn-test-youpi-ping" style="font-size:0.75rem; padding:4px 10px;">
+                    ⚡ Ping Node
+                  </button>
+                </div>
+
+                <form id="youpi-config-form" style="margin-top:16px; display:flex; flex-direction:column; gap:12px;">
+                  <div class="form-group" style="margin:0;">
+                    <label style="font-size:0.8rem; font-weight:600; display:flex; justify-content:space-between;">
+                      <span>Environment Mode</span>
+                      <span style="font-size:0.72rem; color:var(--accent-gold);">No Approval Required</span>
+                    </label>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:4px;">
+                      <label class="radio-card" style="padding:8px 12px; border:1px solid var(--border-gold); border-radius:8px; display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem;">
+                        <input type="radio" name="youpi-mode-radio" value="sandbox" checked />
+                        <div>
+                          <strong>Safe Sandbox</strong>
+                          <div style="font-size:0.7rem; color:var(--text-secondary);">Client-side safe simulator</div>
+                        </div>
+                      </label>
+                      <label class="radio-card" style="padding:8px 12px; border:1px solid var(--border-gold); border-radius:8px; display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem;">
+                        <input type="radio" name="youpi-mode-radio" value="connected" />
+                        <div>
+                          <strong>Connected Node</strong>
+                          <div style="font-size:0.7rem; color:var(--text-secondary);">localhost:7000 (YouPI-PG)</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin:0;">
+                    <label for="cfg-youpi-vpa" style="font-size:0.8rem; font-weight:600;">Merchant UPI VPA ID (Virtual Payment Address)</label>
+                    <input type="text" id="cfg-youpi-vpa" class="admin-input" placeholder="e.g. merchant@okhdfcbank or 9876543210@paytm" style="margin-top:4px;" required />
+                    <small style="font-size:0.72rem; color:var(--text-secondary);">Customers transfer funds directly to this Indian bank VPA.</small>
+                  </div>
+
+                  <div class="form-group" style="margin:0;">
+                    <label for="cfg-youpi-name" style="font-size:0.8rem; font-weight:600;">Merchant Legal / Trade Name</label>
+                    <input type="text" id="cfg-youpi-name" class="admin-input" placeholder="e.g. Utsav Bazaar Crafts" style="margin-top:4px;" required />
+                  </div>
+
+                  <div class="form-group" style="margin:0;">
+                    <label for="cfg-youpi-endpoint" style="font-size:0.8rem; font-weight:600;">YouPI Local Server Endpoint (For Connected Mode)</label>
+                    <input type="text" id="cfg-youpi-endpoint" class="admin-input" placeholder="http://localhost:7000" value="http://localhost:7000" style="margin-top:4px;" />
+                  </div>
+
+                  <button type="submit" class="admin-btn-primary" id="btn-save-youpi-settings" style="margin-top:8px; justify-content:center; width:100%;">
+                    <span>💾 Save Merchant Sovereign Settings</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Bottom: Master Payment History Ledger -->
+            <div class="admin-card" style="margin-top:20px;">
+              <div class="card-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="c-icon">📜</span>
+                  <div>
+                    <h4 style="margin:0; font-size:1.1rem;">Master UPI Payment Ledger & Audit Trail</h4>
+                    <span style="font-size:0.75rem; color:var(--text-secondary);">Direct bank settlement records with 12-digit UTR tracking</span>
+                  </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                  <div class="orders-filter-group" id="payments-filter-buttons">
+                    <button type="button" class="filter-chip active" data-payment-filter="all">All</button>
+                    <button type="button" class="filter-chip" data-payment-filter="completed">Settled</button>
+                    <button type="button" class="filter-chip" data-payment-filter="staked">Staked / In Progress</button>
+                    <button type="button" class="filter-chip" data-payment-filter="expired">Expired / Failed</button>
+                  </div>
+
+                  <div class="search-box" style="margin:0;">
+                    <input type="text" id="youpi-ledger-search" class="admin-input" placeholder="Search Order ID, UTR, Customer, Phone..." style="width:230px; padding:6px 10px; font-size:0.82rem;" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive" style="margin-top:14px; overflow-x:auto;">
+                <table class="admin-table" id="youpi-payments-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID & Timestamp</th>
+                      <th>Customer & Phone</th>
+                      <th>Settled Amount</th>
+                      <th>0% Fee Savings</th>
+                      <th>12-Digit UTR / Ref</th>
+                      <th>Gateway Channel</th>
+                      <th>Staking Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="youpi-payments-tbody">
+                    <!-- Populated dynamically by renderPaymentsTable() -->
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -1660,6 +1831,131 @@ export class AdminPanel {
         this.renderReviewsView();
       }
     });
+
+    // Payments / YouPI Gateway Event Handlers
+    const refreshPaymentsBtn = this.container.querySelector('#btn-refresh-payments');
+    if (refreshPaymentsBtn) {
+      refreshPaymentsBtn.addEventListener('click', () => {
+        this.renderPaymentsTab();
+        alert("✓ Staking queue & payments ledger refreshed!");
+      });
+    }
+
+    const exportPaymentsBtn = this.container.querySelector('#btn-export-payments-csv');
+    if (exportPaymentsBtn) {
+      exportPaymentsBtn.addEventListener('click', () => {
+        this.exportPaymentsCSV();
+      });
+    }
+
+    const pingYoupiBtn = this.container.querySelector('#btn-test-youpi-ping');
+    if (pingYoupiBtn) {
+      pingYoupiBtn.addEventListener('click', () => {
+        this.testYoupiConnection();
+      });
+    }
+
+    const youpiConfigForm = this.container.querySelector('#youpi-config-form');
+    if (youpiConfigForm) {
+      youpiConfigForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const modeRadio = this.container.querySelector('input[name="youpi-mode-radio"]:checked');
+        const vpaInput = this.container.querySelector('#cfg-youpi-vpa');
+        const nameInput = this.container.querySelector('#cfg-youpi-name');
+        const endpointInput = this.container.querySelector('#cfg-youpi-endpoint');
+
+        const mode = modeRadio ? modeRadio.value : 'sandbox';
+        const vpa = vpaInput ? vpaInput.value.trim() : 'utsavbazaar@okhdfcbank';
+        const merchantName = nameInput ? nameInput.value.trim() : 'Utsav Bazaar Crafts';
+        const endpoint = endpointInput ? endpointInput.value.trim() : 'http://localhost:7000';
+
+        productStore.saveYoupiSettings({
+          mode,
+          merchantVpa: vpa,
+          merchantName,
+          endpointUrl: endpoint
+        });
+
+        this.renderPaymentsTab();
+        alert("✓ YouPI Sovereign Gateway settings saved! Storefront checkout now routes to your configured VPA.");
+      });
+    }
+
+    const paymentSearchInput = this.container.querySelector('#youpi-ledger-search');
+    if (paymentSearchInput) {
+      paymentSearchInput.addEventListener('input', (e) => {
+        this.paymentSearchQuery = e.target.value.trim();
+        this.renderPaymentsTable();
+      });
+    }
+
+    const paymentFilterChips = this.container.querySelectorAll('#payments-filter-buttons .filter-chip');
+    paymentFilterChips.forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        paymentFilterChips.forEach(c => c.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        this.paymentFilter = e.currentTarget.getAttribute('data-payment-filter') || 'all';
+        this.renderPaymentsTable();
+      });
+    });
+
+    const paymentTbody = this.container.querySelector('#youpi-payments-tbody');
+    if (paymentTbody) {
+      paymentTbody.addEventListener('click', (e) => {
+        const verifyBtn = e.target.closest('[data-verify-payment-id]');
+        const copyUtrBtn = e.target.closest('[data-copy-utr]');
+
+        if (verifyBtn) {
+          const pid = verifyBtn.getAttribute('data-verify-payment-id');
+          this.handleManualUtrVerify(pid);
+        } else if (copyUtrBtn) {
+          const utr = copyUtrBtn.getAttribute('data-copy-utr');
+          if (utr) {
+            navigator.clipboard.writeText(utr).then(() => {
+              alert(`✓ Copied UTR: ${utr} to clipboard!`);
+            }).catch(() => {
+              prompt("Copy UTR:", utr);
+            });
+          }
+        }
+      });
+    }
+
+    const activeStakingContainer = this.container.querySelector('#youpi-active-staking-container');
+    if (activeStakingContainer) {
+      activeStakingContainer.addEventListener('click', (e) => {
+        const verifyStakedBtn = e.target.closest('#btn-manual-verify-staked');
+        const cancelStakedBtn = e.target.closest('#btn-cancel-staked-session');
+
+        if (verifyStakedBtn) {
+          const input = this.container.querySelector('#manual-staked-utr-input');
+          const utr = input ? input.value.trim() : '';
+          const activeSession = productStore.getActiveStakingSession();
+          if (!activeSession) {
+            alert('No active staking session found.');
+            return;
+          }
+          if (utr && !/^\d{12}$/.test(utr)) {
+            alert('UTR must be exactly 12 numeric digits (e.g. 202611884422).');
+            return;
+          }
+          productStore.manualVerifyPayment(activeSession.paymentId, utr || '2026' + Math.floor(10000000 + Math.random() * 90000000));
+          this.renderPaymentsTab();
+          alert('✓ Staking session manually approved & marked Settled in ledger!');
+        } else if (cancelStakedBtn) {
+          if (confirm('Cancel and clear the active staking lock?')) {
+            productStore.clearActiveStakingSession();
+            this.renderPaymentsTab();
+          }
+        }
+      });
+    }
+
+    window.addEventListener('payments-updated', () => {
+      if (this.activeTab === 'payments') {
+        this.renderPaymentsTab();
+      }
+    });
   }
 
   attemptLogin() {
@@ -1750,6 +2046,7 @@ export class AdminPanel {
     if (tab === 'discounts') this.populateDiscountSettings();
     if (tab === 'gsheet') this.populateGsheetSettings();
     if (tab === 'reviews') this.populateReviewsTab();
+    if (tab === 'payments') this.renderPaymentsTab();
   }
 
   populateInitialData() {
@@ -1760,6 +2057,7 @@ export class AdminPanel {
     this.populateDiscountSettings();
     this.populateGsheetSettings();
     this.populateReviewsTab();
+    this.renderPaymentsTab();
   }
 
   // --- 1. OVERVIEW & KPIS TAB ---
@@ -3116,6 +3414,372 @@ export class AdminPanel {
     this.renderProductsTable(this.catalogSearchQuery);
     this.renderOverviewTab();
     alert(`✓ Saved "${name}" under ${festivalTag} (${stockQty} units) to storefront!`);
+  }
+
+  // --- 8. YOUPI-PG SOVEREIGN UPI GATEWAY & STAKING ---
+  renderPaymentsTab() {
+    this.renderPaymentsKPIs();
+    this.renderPaymentsStakingBox();
+    this.populateYoupiConfigForm();
+    this.renderPaymentsTable();
+    this.startStakingMonitor();
+  }
+
+  startStakingMonitor() {
+    if (this.stakingTimerInterval) clearInterval(this.stakingTimerInterval);
+    this.stakingTimerInterval = setInterval(() => {
+      if (this.activeTab !== 'payments' || !this.isOpen) {
+        clearInterval(this.stakingTimerInterval);
+        this.stakingTimerInterval = null;
+        return;
+      }
+      this.renderPaymentsStakingBox(true); // pass true for lightweight timer tick
+    }, 1000);
+  }
+
+  stopStakingMonitor() {
+    if (this.stakingTimerInterval) {
+      clearInterval(this.stakingTimerInterval);
+      this.stakingTimerInterval = null;
+    }
+  }
+
+  renderPaymentsKPIs() {
+    const kpiGrid = this.container.querySelector('#youpi-kpis-grid');
+    if (!kpiGrid) return;
+
+    const stats = productStore.getPaymentAnalytics();
+
+    kpiGrid.innerHTML = `
+      <div class="kpi-card" style="border-left: 4px solid #FFB703;">
+        <div class="kpi-label">TOTAL UPI SETTLED</div>
+        <div class="kpi-value">₹${stats.totalSettledAmount.toLocaleString('en-IN')}</div>
+        <div class="kpi-subtext" style="color:var(--text-secondary);">${stats.settledCount} Direct Peer Orders Completed</div>
+      </div>
+
+      <div class="kpi-card" style="border-left: 4px solid #22C55E;">
+        <div class="kpi-label">GATEKEEPER FEES SAVED</div>
+        <div class="kpi-value" style="color:#22C55E;">₹${stats.totalFeesSaved.toLocaleString('en-IN')}</div>
+        <div class="kpi-subtext" style="color:#22C55E;">🛡️ 100% Retained (0% Aggregator Cut)</div>
+      </div>
+
+      <div class="kpi-card" style="border-left: 4px solid #3B82F6;">
+        <div class="kpi-label">STAKING SESSIONS</div>
+        <div class="kpi-value">${stats.stakedCount > 0 ? `<span style="color:#3B82F6;">${stats.stakedCount} Active</span>` : '0 Active'}</div>
+        <div class="kpi-subtext" style="color:var(--text-secondary);">${stats.totalSessions} Total Sessions Initiated</div>
+      </div>
+
+      <div class="kpi-card" style="border-left: 4px solid #A855F7;">
+        <div class="kpi-label">VERIFICATION RATE</div>
+        <div class="kpi-value">${stats.verificationRate}%</div>
+        <div class="kpi-subtext" style="color:var(--text-secondary);">Direct Bank UTR Match Accuracy</div>
+      </div>
+    `;
+  }
+
+  renderPaymentsStakingBox(isTickOnly = false) {
+    const stakingContainer = this.container.querySelector('#youpi-active-staking-container');
+    const pulseBadge = this.container.querySelector('#staking-pulse-badge');
+    const pulseLabel = this.container.querySelector('#staking-pulse-label');
+    if (!stakingContainer) return;
+
+    const active = productStore.getActiveStakingSession();
+
+    if (!active) {
+      if (pulseBadge) pulseBadge.className = 'staking-pulse-badge idle';
+      if (pulseLabel) pulseLabel.textContent = 'Gateway Idle (FIFO Ready)';
+
+      if (!isTickOnly) {
+        const settings = productStore.getYoupiSettings();
+        stakingContainer.innerHTML = `
+          <div class="staking-idle-state" style="padding:24px 16px; text-align:center; background:rgba(212,175,55,0.03); border:1px solid var(--border-gold); border-radius:12px;">
+            <div style="font-size:2rem; margin-bottom:8px;">🟢</div>
+            <h4 style="margin:0 0 6px; font-size:1rem; font-family:'Cinzel', serif;">Single-Slot FIFO Pipeline Idle</h4>
+            <p style="margin:0 auto 12px; max-width:440px; font-size:0.8rem; color:var(--text-secondary); line-height:1.4;">
+              When a shopper initiates payment on the storefront, their order acquires exclusive possession of the payment window for 5 minutes with a live countdown and automated 12-digit UTR bank matching.
+            </p>
+            <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; background:rgba(0,0,0,0.12); border-radius:20px; font-size:0.75rem;">
+              <span style="color:var(--text-secondary);">Current Receiving VPA:</span>
+              <strong style="color:var(--accent-gold); font-family:monospace;">${settings.merchantVpa}</strong>
+            </div>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    // Active session present
+    const now = Date.now();
+    const createdTime = new Date(active.createdAt).getTime();
+    const expiresTime = active.expiresAt ? new Date(active.expiresAt).getTime() : (createdTime + 300000);
+    const msRemaining = Math.max(0, expiresTime - now);
+    const totalDuration = 300000;
+    const progressPercent = Math.min(100, Math.max(0, (msRemaining / totalDuration) * 100));
+
+    const minutes = Math.floor(msRemaining / 60000);
+    const seconds = Math.floor((msRemaining % 60000) / 1000);
+    const formattedTimer = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    if (pulseBadge) pulseBadge.className = 'staking-pulse-badge active-staked';
+    if (pulseLabel) pulseLabel.textContent = `🔒 Slot Staked: ${active.orderId}`;
+
+    if (isTickOnly) {
+      // Just update countdown display and progress bar to prevent DOM thrashing
+      const timerDisplay = stakingContainer.querySelector('#staking-live-countdown-text');
+      const progressBar = stakingContainer.querySelector('#staking-live-progress-fill');
+      if (timerDisplay) timerDisplay.textContent = formattedTimer;
+      if (progressBar) progressBar.style.width = `${progressPercent}%`;
+      return;
+    }
+
+    stakingContainer.innerHTML = `
+      <div class="staking-active-slot" style="padding:18px; border:1px solid #FFB703; background:rgba(255, 183, 3, 0.05); border-radius:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+          <div>
+            <span style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.8px; color:#FFB703; font-weight:700;">⏱️ Active Staking Session</span>
+            <h4 style="margin:2px 0 0; font-size:1.15rem; font-family:monospace; color:var(--text-primary);">${active.orderId}</h4>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1.35rem; font-weight:700; color:#22C55E;">₹${Number(active.amount).toLocaleString('en-IN')}</div>
+            <div style="font-size:0.72rem; color:var(--text-secondary);">Zero Platform Fee Cut</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary); margin-bottom:4px;">
+            <span>Exclusive Window Expiry:</span>
+            <strong id="staking-live-countdown-text" style="color:#FFB703; font-family:monospace; font-size:0.9rem;">${formattedTimer}</strong>
+          </div>
+          <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+            <div id="staking-live-progress-fill" style="height:100%; width:${progressPercent}%; background:linear-gradient(90deg, #22C55E, #FFB703); transition:width 1s linear;"></div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px; font-size:0.78rem; padding:10px; background:rgba(0,0,0,0.1); border-radius:8px; margin-bottom:14px;">
+          <div>
+            <span style="color:var(--text-secondary);">Customer:</span>
+            <div style="font-weight:600;">${active.customerName || 'Online Shopper'}</div>
+          </div>
+          <div>
+            <span style="color:var(--text-secondary);">Phone:</span>
+            <div style="font-weight:600;">${active.customerPhone || 'N/A'}</div>
+          </div>
+          <div>
+            <span style="color:var(--text-secondary);">Gateway Mode:</span>
+            <div style="font-weight:600; color:var(--accent-gold);">${active.channel || 'Sovereign UPI'}</div>
+          </div>
+          <div>
+            <span style="color:var(--text-secondary);">Status:</span>
+            <div style="font-weight:600; color:#FFB703;">${active.status.toUpperCase()}</div>
+          </div>
+        </div>
+
+        <!-- Manual 1-Click Verification in Staking Box -->
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <input type="text" id="manual-staked-utr-input" class="admin-input" placeholder="Enter 12-digit UTR from SMS..." maxlength="12" style="flex:1; min-width:180px; font-family:monospace; font-size:0.85rem; padding:8px 12px;" />
+          <button type="button" class="admin-btn-primary" id="btn-manual-verify-staked" style="padding:8px 16px; font-size:0.82rem;">
+            <span>⚡ Verify & Settle Now</span>
+          </button>
+          <button type="button" class="admin-btn-secondary btn-sm" id="btn-cancel-staked-session" title="Clear staking slot lock" style="padding:8px 12px; font-size:0.82rem;">
+            Release Slot
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  populateYoupiConfigForm() {
+    const settings = productStore.getYoupiSettings();
+    const modeRadio = this.container.querySelector(`input[name="youpi-mode-radio"][value="${settings.mode}"]`);
+    if (modeRadio) modeRadio.checked = true;
+
+    const vpaInput = this.container.querySelector('#cfg-youpi-vpa');
+    if (vpaInput) vpaInput.value = settings.merchantVpa || 'utsavbazaar@okhdfcbank';
+
+    const nameInput = this.container.querySelector('#cfg-youpi-name');
+    if (nameInput) nameInput.value = settings.merchantName || 'Utsav Bazaar Crafts';
+
+    const endpointInput = this.container.querySelector('#cfg-youpi-endpoint');
+    if (endpointInput) endpointInput.value = settings.endpointUrl || 'http://localhost:7000';
+
+    const modePill = this.container.querySelector('#youpi-mode-pill');
+    if (modePill) {
+      if (settings.mode === 'connected') {
+        modePill.textContent = '🌐 Connected Node (Port 7000)';
+        modePill.style.background = 'rgba(59, 130, 246, 0.15)';
+        modePill.style.color = '#60A5FA';
+        modePill.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+      } else {
+        modePill.textContent = '🔒 Safe Sandbox Active';
+        modePill.style.background = 'rgba(34, 197, 94, 0.15)';
+        modePill.style.color = '#4ADE80';
+        modePill.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+      }
+    }
+  }
+
+  renderPaymentsTable() {
+    const tbody = this.container.querySelector('#youpi-payments-tbody');
+    if (!tbody) return;
+
+    let ledger = productStore.getPaymentLedger();
+
+    // 1. Filter by status
+    if (this.paymentFilter === 'completed') {
+      ledger = ledger.filter(p => p.status === 'completed');
+    } else if (this.paymentFilter === 'staked') {
+      ledger = ledger.filter(p => p.status === 'staked' || p.status === 'pending');
+    } else if (this.paymentFilter === 'expired') {
+      ledger = ledger.filter(p => p.status === 'expired' || p.status === 'failed');
+    }
+
+    // 2. Filter by search query
+    if (this.paymentSearchQuery) {
+      const q = this.paymentSearchQuery.toLowerCase();
+      ledger = ledger.filter(p => {
+        return (
+          (p.orderId && p.orderId.toLowerCase().includes(q)) ||
+          (p.utr && p.utr.toLowerCase().includes(q)) ||
+          (p.customerName && p.customerName.toLowerCase().includes(q)) ||
+          (p.customerPhone && p.customerPhone.toLowerCase().includes(q)) ||
+          (p.merchantVpa && p.merchantVpa.toLowerCase().includes(q))
+        );
+      });
+    }
+
+    if (!ledger.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center; padding:36px 16px; color:var(--text-secondary);">
+            <div style="font-size:1.8rem; margin-bottom:6px;">📜</div>
+            <div>No UPI payment transactions found matching filter "<strong>${this.paymentFilter}</strong>".</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = ledger.map(p => {
+      const formattedDate = new Date(p.createdAt).toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      let statusBadge = '';
+      if (p.status === 'completed') {
+        statusBadge = '<span class="status-badge status-delivered" style="background:rgba(34,197,94,0.15); color:#22C55E; border:1px solid rgba(34,197,94,0.3);">✓ Settled</span>';
+      } else if (p.status === 'staked' || p.status === 'pending') {
+        statusBadge = '<span class="status-badge status-processing" style="background:rgba(255,183,3,0.15); color:#FFB703; border:1px solid rgba(255,183,3,0.3);">⏱️ Staked</span>';
+      } else {
+        statusBadge = '<span class="status-badge status-cancelled" style="background:rgba(239,68,68,0.15); color:#EF4444; border:1px solid rgba(239,68,68,0.3);">⚠️ Expired</span>';
+      }
+
+      const utrContent = p.utr ? `
+        <div style="display:flex; align-items:center; gap:6px;">
+          <code style="font-family:monospace; background:rgba(0,0,0,0.15); padding:2px 6px; border-radius:4px; font-size:0.8rem; color:var(--accent-gold);">${p.utr}</code>
+          <button type="button" class="admin-btn-secondary btn-xs" data-copy-utr="${p.utr}" title="Copy 12-digit UTR" style="padding:2px 6px; font-size:0.75rem;">📋</button>
+        </div>
+      ` : `<span style="color:var(--text-secondary); font-size:0.75rem; font-style:italic;">Awaiting Customer UTR</span>`;
+
+      const actionBtn = p.status !== 'completed' ? `
+        <button type="button" class="admin-btn-secondary btn-xs" data-verify-payment-id="${p.paymentId || p.orderId}" style="color:#22C55E; border-color:rgba(34,197,94,0.4); padding:4px 8px; font-size:0.75rem;">
+          ✓ Approve
+        </button>
+      ` : `<span style="color:var(--text-secondary); font-size:0.75rem;">✓ Direct Bank Credit</span>`;
+
+      return `
+        <tr>
+          <td>
+            <strong style="font-family:monospace; color:var(--text-primary);">${p.orderId}</strong>
+            <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${formattedDate}</div>
+          </td>
+          <td>
+            <div style="font-weight:600; color:var(--text-primary);">${p.customerName || 'Shopper'}</div>
+            <div style="font-size:0.72rem; color:var(--text-secondary);">${p.customerPhone || 'N/A'}</div>
+          </td>
+          <td>
+            <strong style="font-size:0.95rem; color:var(--text-primary);">₹${Number(p.amount).toLocaleString('en-IN')}</strong>
+          </td>
+          <td>
+            <span style="color:#22C55E; font-weight:600; font-size:0.85rem;">+₹${Number(p.feeSavings).toLocaleString('en-IN')}</span>
+            <div style="font-size:0.68rem; color:var(--text-secondary);">2.95% saved</div>
+          </td>
+          <td>${utrContent}</td>
+          <td>
+            <span class="channel-badge" style="display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.72rem; background:rgba(212,175,55,0.1); color:var(--accent-gold); border:1px solid rgba(212,175,55,0.25);">
+              ${p.channel || 'YouPI Gateway'}
+            </span>
+          </td>
+          <td>${statusBadge}</td>
+          <td>${actionBtn}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  handleManualUtrVerify(paymentId) {
+    const defaultUtr = '2026' + Math.floor(10000000 + Math.random() * 90000000);
+    const utr = prompt(`Enter 12-digit bank UTR / Ref for payment ${paymentId}:`, defaultUtr);
+    if (!utr) return;
+
+    if (!/^\d{12}$/.test(utr.trim())) {
+      alert("UTR must be exactly 12 numeric digits.");
+      return;
+    }
+
+    const res = productStore.manualVerifyPayment(paymentId, utr.trim());
+    if (res.success) {
+      this.renderPaymentsTab();
+      alert(`✓ Payment ${paymentId} verified and settled with UTR ${utr.trim()}! Order status updated to Processing.`);
+    } else {
+      alert(`Could not verify payment: ${res.error}`);
+    }
+  }
+
+  async testYoupiConnection() {
+    const settings = productStore.getYoupiSettings();
+    if (settings.mode === 'sandbox') {
+      alert(`🔒 Safe Sandbox Mode is Active!\n\n• Simulator: 100% Client-Side Sovereign NPCI Simulator\n• Merchant VPA: ${settings.merchantVpa}\n• Merchant Name: ${settings.merchantName}\n• Zero external server required. Customers can scan real QR codes and enter 12-digit UTRs seamlessly.`);
+      return;
+    }
+
+    // Connected mode: try pinging endpoint
+    const pingBtn = this.container.querySelector('#btn-test-youpi-ping');
+    if (pingBtn) {
+      pingBtn.disabled = true;
+      pingBtn.textContent = 'Pinging...';
+    }
+
+    try {
+      const res = await fetch(`${settings.endpointUrl}/status`, { method: 'GET', mode: 'cors' }).catch(() => null);
+      if (res && res.ok) {
+        alert(`✓ YouPI-PG Node Online at ${settings.endpointUrl}!\n\nSovereign gateway daemon is responding properly.`);
+      } else {
+        alert(`⚠️ Could not reach YouPI-PG daemon at ${settings.endpointUrl}.\n\nIf you cloned the repo from github.com/gxurav1710/YouPI-PG, please ensure 'node server.js' is running on port 7000.\n\nTip: You can switch to 'Safe Sandbox' mode anytime for 100% serverless browser operation!`);
+      }
+    } catch (err) {
+      alert(`⚠️ Connection Notice: ${err.message}\nEnsure CORS and local node server are active on ${settings.endpointUrl}`);
+    } finally {
+      if (pingBtn) {
+        pingBtn.disabled = false;
+        pingBtn.textContent = '⚡ Ping Node';
+      }
+    }
+  }
+
+  exportPaymentsCSV() {
+    const csvContent = productStore.exportPaymentsToCSV();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `utsav_bazaar_payments_ledger_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 }
 

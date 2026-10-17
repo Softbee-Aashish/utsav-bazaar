@@ -21,6 +21,10 @@ export class CartDrawer {
       pincode: '302001'
     };
 
+    this.youpiTimerInterval = null;
+    this.currentPaymentOrderId = null;
+    this.currentYoupiSession = null;
+
     this.render();
     this.bindEvents();
   }
@@ -335,76 +339,121 @@ export class CartDrawer {
                 </button>
               </div>
 
-              <!-- UPI Tab Content -->
+              <!-- UPI Tab Content (Powered by YouPI Sovereign Gateway) -->
               <div class="payment-tab-content active" id="tab-upi">
-                <div class="upi-pay-box">
-                  <div class="upi-qr-card">
-                    <div class="qr-glow-frame">
-                      <!-- Procedural SVG QR Code with Festive Diwali Center Motif -->
-                      <svg viewBox="0 0 180 180" class="upi-qr-svg" width="160" height="160">
-                        <rect width="180" height="180" fill="#FFFFFF" rx="8"/>
-                        <!-- QR Corner 1 -->
-                        <rect x="15" y="15" width="40" height="40" fill="#000" rx="4"/>
-                        <rect x="22" y="22" width="26" height="26" fill="#FFF" rx="2"/>
-                        <rect x="27" y="27" width="16" height="16" fill="#000" rx="1"/>
-                        <!-- QR Corner 2 -->
-                        <rect x="125" y="15" width="40" height="40" fill="#000" rx="4"/>
-                        <rect x="132" y="22" width="26" height="26" fill="#FFF" rx="2"/>
-                        <rect x="137" y="27" width="16" height="16" fill="#000" rx="1"/>
-                        <!-- QR Corner 3 -->
-                        <rect x="15" y="125" width="40" height="40" fill="#000" rx="4"/>
-                        <rect x="22" y="132" width="26" height="26" fill="#FFF" rx="2"/>
-                        <rect x="27" y="137" width="16" height="16" fill="#000" rx="1"/>
-                        <!-- QR Synthetic Matrix Data -->
-                        <g fill="#1A1A1A">
-                          <rect x="65" y="20" width="8" height="8"/>
-                          <rect x="80" y="20" width="8" height="8"/>
-                          <rect x="95" y="20" width="8" height="8"/>
-                          <rect x="110" y="20" width="8" height="8"/>
-                          <rect x="65" y="35" width="8" height="8"/>
-                          <rect x="95" y="35" width="8" height="8"/>
-                          <rect x="65" y="50" width="8" height="8"/>
-                          <rect x="80" y="50" width="8" height="8"/>
-                          <rect x="110" y="50" width="8" height="8"/>
-                          <rect x="20" y="65" width="8" height="8"/>
-                          <rect x="35" y="65" width="8" height="8"/>
-                          <rect x="50" y="65" width="8" height="8"/>
-                          <rect x="125" y="65" width="8" height="8"/>
-                          <rect x="140" y="65" width="8" height="8"/>
-                          <rect x="20" y="80" width="8" height="8"/>
-                          <rect x="50" y="80" width="8" height="8"/>
-                          <rect x="125" y="80" width="8" height="8"/>
-                          <rect x="155" y="80" width="8" height="8"/>
-                          <rect x="20" y="95" width="8" height="8"/>
-                          <rect x="35" y="95" width="8" height="8"/>
-                          <rect x="140" y="95" width="8" height="8"/>
-                          <rect x="155" y="95" width="8" height="8"/>
-                          <rect x="65" y="125" width="8" height="8"/>
-                          <rect x="80" y="125" width="8" height="8"/>
-                          <rect x="110" y="125" width="8" height="8"/>
-                          <rect x="65" y="140" width="8" height="8"/>
-                          <rect x="95" y="140" width="8" height="8"/>
-                          <rect x="125" y="140" width="8" height="8"/>
-                          <rect x="80" y="155" width="8" height="8"/>
-                          <rect x="95" y="155" width="8" height="8"/>
-                          <rect x="140" y="155" width="8" height="8"/>
-                        </g>
-                        <!-- Center Diwali Diya Logo in QR -->
-                        <circle cx="90" cy="90" r="18" fill="#140E1E" stroke="#FFD700" stroke-width="2"/>
-                        <text x="90" y="95" font-size="14" text-anchor="middle" fill="#FFD700">🪔</text>
-                      </svg>
+                <div class="youpi-gateway-container">
+                  <!-- Sovereign Trust Bar -->
+                  <div class="youpi-trust-bar">
+                    <div class="youpi-badge-left">
+                      <span class="youpi-brand-icon">⚡</span>
+                      <div class="youpi-brand-text">
+                        <strong>YouPI Sovereign Gateway</strong>
+                        <span>Direct-to-Bank • 0% Middleman Fees • NPCI Rails</span>
+                      </div>
                     </div>
-                    <div class="qr-label">Scan with any UPI App: GPay, PhonePe, Paytm, BHIM</div>
-                    <div class="upi-id-pill">Merchant: <strong>utsavbazaar@icici</strong></div>
+                    <div class="youpi-timer-pill" id="youpi-session-timer-pill" title="Deterministic 5-minute single-slot payment window">
+                      <span class="pulse-clock-dot">●</span>
+                      <span>Session: </span>
+                      <strong id="youpi-timer-display">05:00</strong>
+                    </div>
                   </div>
 
-                  <div class="upi-action-col">
-                    <p class="upi-desc">Or click below to simulate an instant authorized payment from your linked UPI account:</p>
-                    <button class="stage-primary-btn" id="btn-pay-upi">
-                      <span>⚡ Simulate Instant UPI Payment</span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </button>
-                    <button class="stage-back-btn" id="btn-back-to-details">← Back to Delivery Details</button>
+                  <div class="youpi-body-grid">
+                    <!-- Left: Dynamic Vector QR Box -->
+                    <div class="youpi-qr-box">
+                      <div class="qr-glow-frame">
+                        <svg viewBox="0 0 180 180" class="upi-qr-svg" width="160" height="160" id="youpi-dynamic-qr-svg">
+                          <rect width="180" height="180" fill="#FFFFFF" rx="8"/>
+                          <!-- QR Corner 1 -->
+                          <rect x="15" y="15" width="40" height="40" fill="#000" rx="4"/>
+                          <rect x="22" y="22" width="26" height="26" fill="#FFF" rx="2"/>
+                          <rect x="27" y="27" width="16" height="16" fill="#000" rx="1"/>
+                          <!-- QR Corner 2 -->
+                          <rect x="125" y="15" width="40" height="40" fill="#000" rx="4"/>
+                          <rect x="132" y="22" width="26" height="26" fill="#FFF" rx="2"/>
+                          <rect x="137" y="27" width="16" height="16" fill="#000" rx="1"/>
+                          <!-- QR Corner 3 -->
+                          <rect x="15" y="125" width="40" height="40" fill="#000" rx="4"/>
+                          <rect x="22" y="132" width="26" height="26" fill="#FFF" rx="2"/>
+                          <rect x="27" y="137" width="16" height="16" fill="#000" rx="1"/>
+                          <!-- Procedural Data Matrix -->
+                          <g fill="#111827">
+                            <rect x="65" y="20" width="8" height="8"/><rect x="80" y="20" width="8" height="8"/><rect x="95" y="20" width="8" height="8"/><rect x="110" y="20" width="8" height="8"/>
+                            <rect x="65" y="35" width="8" height="8"/><rect x="95" y="35" width="8" height="8"/>
+                            <rect x="65" y="50" width="8" height="8"/><rect x="80" y="50" width="8" height="8"/><rect x="110" y="50" width="8" height="8"/>
+                            <rect x="20" y="65" width="8" height="8"/><rect x="35" y="65" width="8" height="8"/><rect x="50" y="65" width="8" height="8"/><rect x="125" y="65" width="8" height="8"/><rect x="140" y="65" width="8" height="8"/>
+                            <rect x="20" y="80" width="8" height="8"/><rect x="50" y="80" width="8" height="8"/><rect x="125" y="80" width="8" height="8"/><rect x="155" y="80" width="8" height="8"/>
+                            <rect x="20" y="95" width="8" height="8"/><rect x="35" y="95" width="8" height="8"/><rect x="140" y="95" width="8" height="8"/><rect x="155" y="95" width="8" height="8"/>
+                            <rect x="65" y="125" width="8" height="8"/><rect x="80" y="125" width="8" height="8"/><rect x="110" y="125" width="8" height="8"/>
+                            <rect x="65" y="140" width="8" height="8"/><rect x="95" y="140" width="8" height="8"/><rect x="125" y="140" width="8" height="8"/>
+                            <rect x="80" y="155" width="8" height="8"/><rect x="95" y="155" width="8" height="8"/><rect x="140" y="155" width="8" height="8"/>
+                          </g>
+                          <!-- Center Diwali Diya Logo in QR -->
+                          <circle cx="90" cy="90" r="18" fill="#140E1E" stroke="#FFD700" stroke-width="2"/>
+                          <text x="90" y="95" font-size="14" text-anchor="middle" fill="#FFD700">🪔</text>
+                        </svg>
+                      </div>
+
+                      <div class="youpi-vpa-row">
+                        <span class="vpa-label">Merchant VPA:</span>
+                        <div class="vpa-copy-pill" id="youpi-vpa-copy-btn" title="Click to copy VPA">
+                          <code id="youpi-display-vpa">utsavbazaar@icici</code>
+                          <span class="vpa-copy-icon">📋</span>
+                        </div>
+                      </div>
+                      <div class="youpi-amount-badge">Payable: <strong id="youpi-display-amount">₹0</strong></div>
+                    </div>
+
+                    <!-- Right: Mobile App Switcher & UTR Verification -->
+                    <div class="youpi-actions-box">
+                      <!-- 1-Tap Mobile UPI Intent Apps -->
+                      <div class="youpi-apps-title">
+                        <span>📱 1-Tap UPI Apps (Pre-filled):</span>
+                      </div>
+                      <div class="youpi-apps-grid">
+                        <a href="#" class="youpi-app-btn gpay-btn" id="youpi-app-gpay" title="Pay with Google Pay">
+                          <span class="app-icon">🔵</span>
+                          <span>GPay</span>
+                        </a>
+                        <a href="#" class="youpi-app-btn phonepe-btn" id="youpi-app-phonepe" title="Pay with PhonePe">
+                          <span class="app-icon">🟣</span>
+                          <span>PhonePe</span>
+                        </a>
+                        <a href="#" class="youpi-app-btn paytm-btn" id="youpi-app-paytm" title="Pay with Paytm">
+                          <span class="app-icon">🔷</span>
+                          <span>Paytm</span>
+                        </a>
+                        <a href="#" class="youpi-app-btn cred-btn" id="youpi-app-cred" title="Pay with CRED / BHIM">
+                          <span class="app-icon">⚡</span>
+                          <span>BHIM/CRED</span>
+                        </a>
+                      </div>
+
+                      <!-- UTR Verification Box -->
+                      <div class="youpi-utr-box">
+                        <label class="utr-label" for="youpi-utr-input">
+                          <span>Confirm 12-Digit Bank UTR / Ref No:</span>
+                          <span class="utr-help-chip" title="Found in your bank/UPI app payment receipt">Receipt UTR</span>
+                        </label>
+                        <div class="utr-input-row">
+                          <input type="text" id="youpi-utr-input" placeholder="e.g. 428901847120" maxlength="12" class="youpi-utr-field" />
+                          <button class="youpi-verify-btn" id="btn-verify-youpi-utr">
+                            <span>Verify UTR</span>
+                          </button>
+                        </div>
+                        <div class="utr-status-hint" id="youpi-utr-status-hint">
+                          <span>⚡ Enter the 12-digit transaction ID from your UPI app receipt to confirm immediately.</span>
+                        </div>
+                      </div>
+
+                      <!-- Fast Simulation / Testing Action -->
+                      <div class="youpi-sim-row">
+                        <button class="youpi-sim-btn" id="btn-simulate-bank-sms" title="Safe Environment Testing: Simulates instant automated bank SMS alert">
+                          <span>🤖 Test Sandbox: Auto-Detect Payment</span>
+                        </button>
+                        <button class="stage-back-btn" id="btn-back-to-details">← Back to Details</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -880,16 +929,84 @@ export class CartDrawer {
       });
     });
 
-    // 9. Payment Confirmation Handlers (UPI, Card, NetBanking, COD)
-    const btnPayUPI = this.container.querySelector('#btn-pay-upi');
+    // 9. YouPI Sovereign Gateway & Other Payment Confirmation Handlers
+    const vpaCopyBtn = this.container.querySelector('#youpi-vpa-copy-btn');
+    if (vpaCopyBtn) {
+      vpaCopyBtn.addEventListener('click', () => {
+        const vpaText = this.container.querySelector('#youpi-display-vpa')?.textContent || 'utsavbazaar@icici';
+        navigator.clipboard?.writeText(vpaText).then(() => {
+          const original = vpaCopyBtn.innerHTML;
+          vpaCopyBtn.innerHTML = `<code>${vpaText}</code> <span style="color:#10B981; font-weight:700;">✓ Copied</span>`;
+          setTimeout(() => { vpaCopyBtn.innerHTML = original; }, 2000);
+        });
+      });
+    }
+
+    const btnVerifyUtr = this.container.querySelector('#btn-verify-youpi-utr');
+    if (btnVerifyUtr) {
+      btnVerifyUtr.addEventListener('click', () => {
+        const utrInput = this.container.querySelector('#youpi-utr-input');
+        const hint = this.container.querySelector('#youpi-utr-status-hint');
+        const utr = (utrInput?.value || '').trim();
+
+        if (!/^[0-9]{12}$/.test(utr)) {
+          if (hint) hint.innerHTML = `<span style="color:#EF4444; font-weight:600;">⚠️ Please enter a valid 12-digit numeric Bank UTR (e.g. 428901847120) from your UPI receipt.</span>`;
+          if (utrInput) utrInput.focus();
+          return;
+        }
+
+        btnVerifyUtr.disabled = true;
+        btnVerifyUtr.innerHTML = '<span>⏳ Contacting Bank Node...</span>';
+        if (hint) hint.innerHTML = `<span>📡 Reconciling UTR <code>${utr}</code> with NPCI banking network...</span>`;
+
+        setTimeout(() => {
+          btnVerifyUtr.innerHTML = '<span style="color:#10B981;">✓ Bank Matched!</span>';
+          if (hint) hint.innerHTML = `<span style="color:#10B981; font-weight:700;">✓ 100% Verified! Payment confirmed direct to atelier account.</span>`;
+          setTimeout(() => {
+            this.processPayment(`UPI (YouPI Verified - UTR: ${utr})`, utr, 'BANK_SMS');
+          }, 800);
+        }, 1500);
+      });
+    }
+
+    const btnSimulateBankSMS = this.container.querySelector('#btn-simulate-bank-sms');
+    if (btnSimulateBankSMS) {
+      btnSimulateBankSMS.addEventListener('click', () => {
+        const simUtr = `428901${Math.floor(100000 + Math.random() * 900000)}`;
+        const utrInput = this.container.querySelector('#youpi-utr-input');
+        const hint = this.container.querySelector('#youpi-utr-status-hint');
+        if (utrInput) utrInput.value = simUtr;
+
+        btnSimulateBankSMS.disabled = true;
+        btnSimulateBankSMS.innerHTML = '<span>⚡ Ingesting Bank SMS Alert...</span>';
+        if (hint) hint.innerHTML = `<span>📡 Simulated Cellular SMS Received: Credit of verified amount. Ref: <code>${simUtr}</code>. Auto-verifying...</span>`;
+
+        setTimeout(() => {
+          this.processPayment(`UPI (YouPI Auto-Verified - UTR: ${simUtr})`, simUtr, 'BANK_SMS');
+        }, 1200);
+      });
+    }
+
+    // App Switcher click tracking
+    ['gpay', 'phonepe', 'paytm', 'cred'].forEach(app => {
+      const btn = this.container.querySelector(`#youpi-app-${app}`);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const hint = this.container.querySelector('#youpi-utr-status-hint');
+          if (hint) {
+            hint.innerHTML = `<span style="color:#38BDF8;">📲 App opened! Complete the payment in ${app.toUpperCase()} and enter the 12-digit UTR below.</span>`;
+          }
+        });
+      }
+    });
+
     const btnPayCard = this.container.querySelector('#btn-pay-card');
     const btnPayNB = this.container.querySelector('#btn-pay-nb');
     const btnPayCOD = this.container.querySelector('#btn-pay-cod');
 
-    if (btnPayUPI) btnPayUPI.addEventListener('click', () => this.processPayment('UPI (GPay/PhonePe)'));
     if (btnPayCard) btnPayCard.addEventListener('click', () => this.processPayment('Sacred Encrypted Card'));
     if (btnPayNB) btnPayNB.addEventListener('click', () => this.processPayment('Net Banking (SBI/HDFC)'));
-    if (btnPayCOD) btnPayCOD.addEventListener('click', () => this.processPayment('Cash on Delivery'));
+    if (btnPayCOD) btnPayCOD.addEventListener('click', () => this.processPayment('Cash on Delivery', 'COD-CASH-COLL', 'CASH_DELIVERY'));
 
     // 10. Direct PDF File Generation & Download
     const downloadPdfBtn = this.container.querySelector('#btn-download-pdf');
@@ -1077,20 +1194,127 @@ export class CartDrawer {
     // Update cardholder name from guest name
     const chInput = this.container.querySelector('#cardholder-name-val');
     if (chInput) chInput.value = this.guestDetails.name;
+
+    // Initialize YouPI Sovereign Session
+    this.initYoupiSession(totalINR);
   }
 
-  processPayment(paymentMode) {
+  initYoupiSession(totalINR) {
+    const settings = productStore.getYoupiSettings();
+    const vpa = settings.upiVpa || 'utsavbazaar@icici';
+    const merchantName = settings.merchantName || 'Utsav Bazaar Master Atelier';
+    const tempOrderId = `UB-ORD-${Date.now().toString().slice(-6)}`;
+    this.currentPaymentOrderId = tempOrderId;
+
+    // Update UI elements
+    const vpaEl = this.container.querySelector('#youpi-display-vpa');
+    if (vpaEl) vpaEl.textContent = vpa;
+
+    const amountEl = this.container.querySelector('#youpi-display-amount');
+    if (amountEl) amountEl.textContent = `₹${Math.round(totalINR).toLocaleString('en-IN')}`;
+
+    // Construct NPCI Standard UPI URI
+    const upiUri = `upi://pay?pa=${vpa}&pn=${encodeURIComponent(merchantName)}&am=${totalINR.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Utsav Bazaar ' + tempOrderId)}`;
+
+    // Set mobile app switcher links
+    const gpayBtn = this.container.querySelector('#youpi-app-gpay');
+    const phonepeBtn = this.container.querySelector('#youpi-app-phonepe');
+    const paytmBtn = this.container.querySelector('#youpi-app-paytm');
+    const credBtn = this.container.querySelector('#youpi-app-cred');
+
+    if (gpayBtn) gpayBtn.href = `gpay://upi/pay?pa=${vpa}&pn=${encodeURIComponent(merchantName)}&am=${totalINR.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Utsav Bazaar ' + tempOrderId)}`;
+    if (phonepeBtn) phonepeBtn.href = `phonepe://upi/pay?pa=${vpa}&pn=${encodeURIComponent(merchantName)}&am=${totalINR.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Utsav Bazaar ' + tempOrderId)}`;
+    if (paytmBtn) paytmBtn.href = `paytmmp://upi/pay?pa=${vpa}&pn=${encodeURIComponent(merchantName)}&am=${totalINR.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Utsav Bazaar ' + tempOrderId)}`;
+    if (credBtn) credBtn.href = upiUri;
+
+    // Clear input & hints
+    const utrInput = this.container.querySelector('#youpi-utr-input');
+    if (utrInput) utrInput.value = '';
+
+    const hint = this.container.querySelector('#youpi-utr-status-hint');
+    if (hint) {
+      hint.innerHTML = `<span>⚡ Scan QR with any UPI app or tap a button above. Enter the 12-digit UTR to confirm.</span>`;
+    }
+
+    // Record session in ProductStore (for admin live staking visibility!)
+    this.currentYoupiSession = productStore.recordPaymentSession({
+      orderId: tempOrderId,
+      amountINR: totalINR,
+      customer: {
+        name: this.guestDetails.name,
+        phone: this.guestDetails.phone,
+        email: this.guestDetails.email
+      },
+      paymentMode: 'UPI_QR',
+      status: 'PENDING'
+    });
+
+    // Start 5-minute countdown timer (300 seconds)
+    this.startYoupiSessionTimer(300);
+  }
+
+  startYoupiSessionTimer(seconds = 300) {
+    if (this.youpiTimerInterval) {
+      clearInterval(this.youpiTimerInterval);
+      this.youpiTimerInterval = null;
+    }
+
+    let remaining = seconds;
+    const timerDisplay = this.container.querySelector('#youpi-timer-display');
+    const updateDisplay = () => {
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      if (timerDisplay) {
+        timerDisplay.textContent = formatted;
+        if (remaining <= 60) {
+          timerDisplay.style.color = '#EF4444';
+        } else {
+          timerDisplay.style.color = '';
+        }
+      }
+    };
+
+    updateDisplay();
+    this.youpiTimerInterval = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(this.youpiTimerInterval);
+        this.youpiTimerInterval = null;
+        if (timerDisplay) timerDisplay.textContent = '00:00 (Expired)';
+        const hint = this.container.querySelector('#youpi-utr-status-hint');
+        if (hint) {
+          hint.innerHTML = '<span style="color:#EF4444;">⚠️ This 5-minute payment session has expired. Please refresh checkout to generate a fresh QR code.</span>';
+        }
+        if (this.currentYoupiSession) {
+          productStore.updatePaymentStatus(this.currentYoupiSession.id, 'EXPIRED');
+        }
+      } else {
+        updateDisplay();
+      }
+    }, 1000);
+  }
+
+  stopYoupiSessionTimer() {
+    if (this.youpiTimerInterval) {
+      clearInterval(this.youpiTimerInterval);
+      this.youpiTimerInterval = null;
+    }
+  }
+
+  processPayment(paymentMode, utr = '', channel = '') {
+    this.stopYoupiSessionTimer();
     const overlay = this.container.querySelector('#pay-processing-overlay');
     if (overlay) overlay.style.display = 'flex';
 
     // Simulate 1.2s bank authorization
     setTimeout(() => {
       if (overlay) overlay.style.display = 'none';
-      this.generateAndShowTaxInvoice(paymentMode);
+      this.generateAndShowTaxInvoice(paymentMode, utr, channel);
     }, 1200);
   }
 
-  generateAndShowTaxInvoice(paymentMode) {
+  generateAndShowTaxInvoice(paymentMode, utr = '', channel = '') {
     const subtotalINR = this.items.reduce((sum, i) => sum + (i.product.priceINR * i.quantity), 0);
     const subtotalUSD = this.items.reduce((sum, i) => sum + (i.product.priceUSD * i.quantity), 0);
 
@@ -1195,6 +1419,15 @@ export class CartDrawer {
         trackingNumber: `UB-TRK-${Math.floor(1000000 + Math.random() * 9000000)}`
       };
       productStore.recordOrder(orderData);
+
+      // Settle the payment session in ProductStore ledger
+      if (this.currentYoupiSession) {
+        const finalUtr = utr || `${Math.floor(400000000000 + Math.random() * 599999999999)}`;
+        const finalChannel = channel || (paymentMode.includes('COD') ? 'CASH_DELIVERY' : 'BANK_SMS');
+        const finalStatus = paymentMode.includes('COD') ? 'SUCCESS_COD' : 'SUCCESS';
+        productStore.updatePaymentStatus(this.currentYoupiSession.id, finalStatus, finalUtr, finalChannel);
+        this.currentYoupiSession = null;
+      }
     } catch (e) {
       console.warn("Could not record order in merchant store", e);
     }

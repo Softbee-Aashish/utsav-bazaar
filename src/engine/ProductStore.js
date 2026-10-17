@@ -7,13 +7,28 @@ const STORAGE_KEYS = {
   GOOGLE_SHEET_URL: 'utsav_gsheet_url_v6',
   APPS_SCRIPT_URL: 'utsav_apps_script_url_v1',
   REVIEWS: 'utsav_product_reviews_v6',
-  ORDERS: 'utsav_orders_v6'
+  ORDERS: 'utsav_orders_v6',
+  PAYMENTS: 'utsav_payment_ledger_v2',
+  YOUPI_SETTINGS: 'utsav_youpi_settings_v2',
+  ACTIVE_STAKING: 'utsav_active_staking_v2'
 };
 
 export class ProductStore {
   constructor() {
     this.products = [];
     this.orders = [];
+    this.payments = [];
+    this.youpiSettings = {
+      mode: 'sandbox', // 'sandbox' (Safe Simulator) | 'connected' (Live YouPI Host)
+      upiVpa: 'utsavbazaar@icici',
+      merchantName: 'Utsav Bazaar Master Atelier',
+      gatewayUrl: 'http://localhost:7000',
+      merchantId: '00000000-0000-0000-0000-000000000001',
+      webhookSecret: 'sec_utsav_youpi_2026',
+      whatsappAuthEnabled: true,
+      autoVerifySecs: 12
+    };
+    this.activeStakingSession = null;
     this.discountSettings = {
       enabled: true,
       text: "DIWALI MAHOTSAV SALE: FLAT 15% OFF ALL HANDCRAFTED OFFERINGS • USE CODE: DIWALI2026",
@@ -162,6 +177,42 @@ export class ProductStore {
       }
     } catch (e) {
       this.seedInitialOrders();
+    }
+
+    // 6. Load YouPI Gateway Settings
+    try {
+      const savedYoupi = localStorage.getItem(STORAGE_KEYS.YOUPI_SETTINGS);
+      if (savedYoupi) {
+        this.youpiSettings = { ...this.youpiSettings, ...JSON.parse(savedYoupi) };
+      }
+    } catch (e) {}
+
+    // 7. Load Master Payment History Ledger
+    try {
+      const savedPayments = localStorage.getItem(STORAGE_KEYS.PAYMENTS);
+      if (savedPayments) {
+        this.payments = JSON.parse(savedPayments);
+      } else {
+        this.seedInitialPayments();
+      }
+    } catch (e) {
+      this.seedInitialPayments();
+    }
+
+    // 8. Load Active Staking Session
+    try {
+      const savedStaking = localStorage.getItem(STORAGE_KEYS.ACTIVE_STAKING);
+      if (savedStaking) {
+        const parsed = JSON.parse(savedStaking);
+        if (parsed && parsed.expiresAt > Date.now()) {
+          this.activeStakingSession = parsed;
+        } else {
+          localStorage.removeItem(STORAGE_KEYS.ACTIVE_STAKING);
+          this.activeStakingSession = null;
+        }
+      }
+    } catch (e) {
+      this.activeStakingSession = null;
     }
   }
 
@@ -1029,11 +1080,312 @@ export class ProductStore {
     }
   }
 
+  // --- YOUPI-PG SOVEREIGN PAYMENT GATEWAY & STAKING LEDGER METHODS ---
+  saveYoupiSettingsToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEYS.YOUPI_SETTINGS, JSON.stringify(this.youpiSettings));
+    } catch (e) {}
+  }
+
+  savePaymentsToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(this.payments));
+    } catch (e) {}
+  }
+
+  saveActiveStakingToStorage() {
+    try {
+      if (this.activeStakingSession) {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_STAKING, JSON.stringify(this.activeStakingSession));
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.ACTIVE_STAKING);
+      }
+    } catch (e) {}
+  }
+
+  seedInitialPayments() {
+    this.payments = [
+      {
+        id: "YOUPI-PAY-849102",
+        orderId: "UB-ORD-849102",
+        invoiceNumber: "UB-INV-2026-881204",
+        customer: {
+          name: "Aarav Sharma",
+          phone: "+91 98765 43210",
+          email: "aarav.sharma@utsavbazaar.in"
+        },
+        amountINR: 4998,
+        feeSavedINR: 147.44, // 2.5% + 18% GST (2.95%) saved
+        paymentMode: "UPI_QR",
+        upiVpa: "utsavbazaar@icici",
+        utr: "428901847120",
+        channel: "BANK_SMS",
+        status: "SUCCESS",
+        timestamp: Date.now() - 3600000 * 3,
+        durationSecs: 14,
+        slotNumber: 1
+      },
+      {
+        id: "YOUPI-PAY-771249",
+        orderId: "UB-ORD-771249",
+        invoiceNumber: "UB-INV-2026-641920",
+        customer: {
+          name: "Meera Rajput",
+          phone: "+91 98201 12345",
+          email: "meera.rajput@festiveluxury.in"
+        },
+        amountINR: 7378,
+        feeSavedINR: 217.65,
+        paymentMode: "GPAY_INTENT",
+        upiVpa: "utsavbazaar@icici",
+        utr: "428901992140",
+        channel: "ANDROID_APK",
+        status: "SUCCESS",
+        timestamp: Date.now() - 3600000 * 26,
+        durationSecs: 11,
+        slotNumber: 1
+      },
+      {
+        id: "YOUPI-PAY-652391",
+        orderId: "UB-ORD-652391",
+        invoiceNumber: "UB-INV-2026-442819",
+        customer: {
+          name: "Vikramaditya Singhania",
+          phone: "+91 97112 34567",
+          email: "vikram.singh@heritageart.org"
+        },
+        amountINR: 9602,
+        feeSavedINR: 283.26,
+        paymentMode: "PHONEPE_INTENT",
+        upiVpa: "utsavbazaar@icici",
+        utr: "428901883912",
+        channel: "GMAIL_CDP",
+        status: "SUCCESS",
+        timestamp: Date.now() - 3600000 * 52,
+        durationSecs: 18,
+        slotNumber: 1
+      },
+      {
+        id: "YOUPI-PAY-519280",
+        orderId: "UB-ORD-519280",
+        invoiceNumber: "UB-INV-2026-311029",
+        customer: {
+          name: "Ananya Roy",
+          phone: "+91 94330 98765",
+          email: "ananya.roy@royalbengal.co.in"
+        },
+        amountINR: 3198,
+        feeSavedINR: 0,
+        paymentMode: "COD_COUNTER",
+        upiVpa: "—",
+        utr: "COD-CASH-COLL",
+        channel: "CASH_DELIVERY",
+        status: "SUCCESS_COD",
+        timestamp: Date.now() - 3600000 * 98,
+        durationSecs: 0,
+        slotNumber: 1
+      },
+      {
+        id: "YOUPI-PAY-410928",
+        orderId: "UB-ORD-410928",
+        invoiceNumber: "UB-INV-2026-219803",
+        customer: {
+          name: "Devendra Patel",
+          phone: "+91 98250 87654",
+          email: "devendra.patel@gujaratcrafts.in"
+        },
+        amountINR: 3418,
+        feeSavedINR: 100.83,
+        paymentMode: "PAYTM_INTENT",
+        upiVpa: "utsavbazaar@icici",
+        utr: "428901441209",
+        channel: "BANK_SMS",
+        status: "SUCCESS",
+        timestamp: Date.now() - 3600000 * 140,
+        durationSecs: 9,
+        slotNumber: 1
+      }
+    ];
+    this.savePaymentsToStorage();
+  }
+
+  getYoupiSettings() {
+    return { ...this.youpiSettings };
+  }
+
+  saveYoupiSettings(newSettings) {
+    this.youpiSettings = { ...this.youpiSettings, ...newSettings };
+    this.saveYoupiSettingsToStorage();
+    return this.youpiSettings;
+  }
+
+  getPaymentLedger() {
+    return [...this.payments];
+  }
+
+  recordPaymentSession(data) {
+    const paymentId = `YOUPI-PAY-${Math.floor(100000 + Math.random() * 900000)}`;
+    const feeSavedINR = Math.round((Number(data.amountINR || 0) * 0.0295) * 100) / 100;
+    const session = {
+      id: paymentId,
+      orderId: data.orderId,
+      invoiceNumber: data.invoiceNumber || `UB-INV-2026-${paymentId.slice(-6)}`,
+      customer: data.customer || {},
+      amountINR: Number(data.amountINR || 0),
+      feeSavedINR,
+      paymentMode: data.paymentMode || 'UPI_QR',
+      upiVpa: this.youpiSettings.upiVpa || 'utsavbazaar@icici',
+      utr: data.utr || '',
+      channel: data.channel || (this.youpiSettings.mode === 'connected' ? 'CONNECTED_GATEWAY' : 'BANK_SMS'),
+      status: data.status || 'PENDING',
+      timestamp: Date.now(),
+      durationSecs: 0,
+      slotNumber: 1
+    };
+
+    // Prepend to ledger
+    this.payments.unshift(session);
+    this.savePaymentsToStorage();
+
+    // Set active staking session with 5-minute countdown
+    this.activeStakingSession = {
+      paymentId: session.id,
+      orderId: session.orderId,
+      amountINR: session.amountINR,
+      customerName: session.customer?.name || 'Customer',
+      customerPhone: session.customer?.phone || '',
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 300000, // 5:00 minutes
+      status: 'WAITING_PAYMENT',
+      slot: 1,
+      vpa: session.upiVpa
+    };
+    this.saveActiveStakingToStorage();
+
+    return session;
+  }
+
+  updatePaymentStatus(paymentId, status, utr = '', channel = '') {
+    const payment = this.payments.find(p => p.id === paymentId || p.orderId === paymentId);
+    if (payment) {
+      payment.status = status;
+      if (utr) payment.utr = utr;
+      if (channel) payment.channel = channel;
+      if (status === 'SUCCESS' && payment.timestamp) {
+        payment.durationSecs = Math.max(1, Math.round((Date.now() - payment.timestamp) / 1000));
+      }
+      this.savePaymentsToStorage();
+
+      if (status === 'SUCCESS' || status === 'FAILED' || status === 'EXPIRED') {
+        if (this.activeStakingSession && (this.activeStakingSession.paymentId === payment.id || this.activeStakingSession.orderId === payment.orderId)) {
+          this.activeStakingSession = null;
+          this.saveActiveStakingToStorage();
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  manualVerifyPayment(paymentId, customUtr = '') {
+    const payment = this.payments.find(p => p.id === paymentId);
+    if (payment) {
+      const finalUtr = customUtr || payment.utr || `${Math.floor(400000000000 + Math.random() * 599999999999)}`;
+      payment.status = 'SUCCESS';
+      payment.utr = finalUtr;
+      payment.channel = 'MANUAL_OVERRIDE';
+      payment.durationSecs = Math.max(1, Math.round((Date.now() - payment.timestamp) / 1000));
+      this.savePaymentsToStorage();
+
+      // Also update matching order in orders list
+      const ord = this.orders.find(o => o.id === payment.orderId);
+      if (ord) {
+        ord.paymentStatus = 'Paid (Verified - Manual Override)';
+        this.saveOrdersToStorage();
+      }
+
+      if (this.activeStakingSession && this.activeStakingSession.paymentId === payment.id) {
+        this.activeStakingSession = null;
+        this.saveActiveStakingToStorage();
+      }
+      return true;
+    }
+    return false;
+  }
+
+  getActiveStakingSession() {
+    if (!this.activeStakingSession) return null;
+    if (Date.now() > this.activeStakingSession.expiresAt) {
+      this.updatePaymentStatus(this.activeStakingSession.paymentId, 'EXPIRED');
+      this.activeStakingSession = null;
+      this.saveActiveStakingToStorage();
+      return null;
+    }
+    return this.activeStakingSession;
+  }
+
+  clearActiveStakingSession() {
+    this.activeStakingSession = null;
+    this.saveActiveStakingToStorage();
+  }
+
+  getPaymentAnalytics() {
+    const successPayments = this.payments.filter(p => p.status === 'SUCCESS');
+    const totalSettled = successPayments.reduce((sum, p) => sum + (Number(p.amountINR) || 0), 0);
+    const totalFeesSaved = successPayments.reduce((sum, p) => sum + (Number(p.feeSavedINR) || 0), 0);
+    const totalAttempts = this.payments.length;
+    const successRate = totalAttempts > 0 ? Math.round((successPayments.length / totalAttempts) * 100) : 100;
+    
+    let totalSecs = 0;
+    successPayments.forEach(p => { totalSecs += (p.durationSecs || 14); });
+    const avgDuration = successPayments.length > 0 ? Math.round(totalSecs / successPayments.length) : 12;
+
+    const channels = {
+      bankSms: this.payments.filter(p => p.channel === 'BANK_SMS').length,
+      androidApk: this.payments.filter(p => p.channel === 'ANDROID_APK').length,
+      gmailCdp: this.payments.filter(p => p.channel === 'GMAIL_CDP').length,
+      manual: this.payments.filter(p => p.channel === 'MANUAL_OVERRIDE').length,
+      cod: this.payments.filter(p => p.channel === 'CASH_DELIVERY').length
+    };
+
+    return {
+      totalSettled,
+      totalFeesSaved,
+      successCount: successPayments.length,
+      totalAttempts,
+      successRate,
+      avgDuration,
+      channels
+    };
+  }
+
+  exportPaymentsToCSV() {
+    const headers = ["Payment ID", "Order ID", "Date", "Customer Name", "Phone", "Amount (INR)", "Fee Saved (INR)", "Mode", "VPA", "Bank UTR", "Observation Channel", "Status"];
+    const rows = this.payments.map(p => [
+      p.id,
+      p.orderId,
+      new Date(p.timestamp).toLocaleString('en-IN'),
+      `"${p.customer?.name || 'Guest'}"`,
+      p.customer?.phone || '',
+      p.amountINR || 0,
+      p.feeSavedINR || 0,
+      p.paymentMode || 'UPI',
+      p.upiVpa || '',
+      `"${p.utr || ''}"`,
+      p.channel || 'BANK_SMS',
+      p.status || 'PENDING'
+    ]);
+    return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  }
+
   resetToDefault() {
     localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
     localStorage.removeItem(STORAGE_KEYS.DISCOUNT_BAR);
     localStorage.removeItem(STORAGE_KEYS.REVIEWS);
     localStorage.removeItem(STORAGE_KEYS.ORDERS);
+    localStorage.removeItem(STORAGE_KEYS.PAYMENTS);
+    localStorage.removeItem(STORAGE_KEYS.YOUPI_SETTINGS);
+    localStorage.removeItem(STORAGE_KEYS.ACTIVE_STAKING);
     this.init();
   }
 }
