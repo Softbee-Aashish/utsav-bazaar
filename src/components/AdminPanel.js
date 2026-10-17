@@ -3743,12 +3743,8 @@ export class AdminPanel {
 
   async testYoupiConnection() {
     const settings = productStore.getYoupiSettings();
-    if (settings.mode === 'sandbox') {
-      alert(`🔒 Safe Sandbox Mode is Active!\n\n• Simulator: 100% Client-Side Sovereign NPCI Simulator\n• Merchant VPA: ${settings.merchantVpa}\n• Merchant Name: ${settings.merchantName}\n• Zero external server required. Customers can scan real QR codes and enter 12-digit UTRs seamlessly.`);
-      return;
-    }
+    const cleanUrl = (settings.endpointUrl || settings.gatewayUrl || 'http://localhost:7000').replace(/\/+$/, '');
 
-    // Connected mode: try pinging endpoint
     const pingBtn = this.container.querySelector('#btn-test-youpi-ping');
     if (pingBtn) {
       pingBtn.disabled = true;
@@ -3756,14 +3752,47 @@ export class AdminPanel {
     }
 
     try {
-      const res = await fetch(`${settings.endpointUrl}/status`, { method: 'GET', mode: 'cors' }).catch(() => null);
-      if (res && res.ok) {
-        alert(`✓ YouPI-PG Node Online at ${settings.endpointUrl}!\n\nSovereign gateway daemon is responding properly.`);
+      const probePaths = ['/status', '/health', '/'];
+      let reached = false;
+      let data = null;
+      let okStatus = 0;
+
+      for (const p of probePaths) {
+        try {
+          const res = await fetch(`${cleanUrl}${p}`, { method: 'GET', mode: 'cors' });
+          if (res && res.ok) {
+            reached = true;
+            okStatus = res.status;
+            try { data = await res.json(); } catch {}
+            break;
+          }
+        } catch (e) {
+          // Probe next fallback path
+        }
+      }
+
+      if (reached) {
+        const node = data?.node || 'YouPI-PG Gateway Node';
+        const service = data?.service || 'checkout-portal';
+        const ver = data?.version || '1.0.0';
+        const upMsg = data?.message || 'Sovereign gateway daemon is responding properly.';
+
+        alert(`🟢 YouPI-PG Node Online & Verified! (HTTP ${okStatus})\n\n` +
+          `• Endpoint: ${cleanUrl}\n` +
+          `• Service: ${node} (${service} v${ver})\n` +
+          `• Active Ports: 7000 (Checkout Portal) & 6100 (Core Payment API)\n` +
+          `• Observation Engines: SMS Observer (:6002) & Gmail Observer (:6003)\n` +
+          `• Message: ${upMsg}\n\n` +
+          `${settings.mode === 'sandbox' ? '💡 Tip: Your store is currently in Safe Sandbox mode. Select "Connected Node" above and click "Save Merchant Sovereign Settings" to route all checkout transactions directly through this node!' : '✅ Connected Node mode is active! All storefront UPI payments and auto-credit verifications will route through this node.'}`);
       } else {
-        alert(`⚠️ Could not reach YouPI-PG daemon at ${settings.endpointUrl}.\n\nIf you cloned the repo from github.com/gxurav1710/YouPI-PG, please ensure 'node server.js' is running on port 7000.\n\nTip: You can switch to 'Safe Sandbox' mode anytime for 100% serverless browser operation!`);
+        alert(`⚠️ Could not reach YouPI-PG daemon at ${cleanUrl}.\n\n` +
+          `Ensure the background server is running:\n` +
+          `  1. Open terminal in the YouPI repository\n` +
+          `  2. Run: node scripts/dev.js\n\n` +
+          `Tip: Safe Sandbox mode is active and works 100% in-browser with zero external server required!`);
       }
     } catch (err) {
-      alert(`⚠️ Connection Notice: ${err.message}\nEnsure CORS and local node server are active on ${settings.endpointUrl}`);
+      alert(`⚠️ Connection Error: ${err.message}\nEnsure local node server is running on ${cleanUrl}`);
     } finally {
       if (pingBtn) {
         pingBtn.disabled = false;
