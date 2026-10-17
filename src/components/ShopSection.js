@@ -112,9 +112,37 @@ export class ShopSection {
 
   renderProductCards() {
     const allProducts = productStore.getProducts();
+    if (allProducts.length === 0) {
+      return `
+        <div class="storefront-empty-catalog" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(20, 14, 28, 0.7); border: 1.5px dashed rgba(212, 175, 55, 0.35); border-radius: 16px; margin: 20px 0;">
+          <span style="font-size: 42px; display: block; margin-bottom: 12px;">🪔</span>
+          <h3 style="font-family: var(--font-serif-royal); font-size: 22px; color: var(--color-gold-light); margin-bottom: 8px;">Royal Festive Catalog Ready</h3>
+          <p style="color: #CBD5E1; max-width: 520px; margin: 0 auto 20px; font-size: 14px; line-height: 1.5;">
+            Static demo catalog has been purged. Connect your Supabase / Google Sheets backend or publish handcrafted offerings directly from the Admin Panel.
+          </p>
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="#/admin/products" class="cta-gold-btn" style="text-decoration: none; padding: 10px 22px; font-size: 13px;">
+              <span>Open Merchant Admin</span>
+            </a>
+            <button class="cta-gold-btn" id="btn-storefront-load-samples" style="background: rgba(212, 175, 55, 0.15); border: 1px solid #D4AF37; color: #FFD700; padding: 10px 22px; font-size: 13px; cursor: pointer;">
+              <span>Load Sample Offerings</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
     const filtered = this.activeCategory === 'all'
       ? allProducts
       : allProducts.filter(p => p.category === this.activeCategory);
+
+    if (filtered.length === 0) {
+      return `
+        <div class="storefront-empty-catalog" style="grid-column: 1 / -1; text-align: center; padding: 36px 20px; color: #94A3B8;">
+          <p>No offerings found in this category.</p>
+        </div>
+      `;
+    }
 
     return filtered.map(product => {
       const priceText = this.formatPrice(product.priceINR, product.priceUSD);
@@ -475,6 +503,12 @@ export class ShopSection {
               addBtn.classList.remove('added');
             }, 1200);
           }
+          return;
+        }
+
+        const loadSampleBtn = e.target.closest('#btn-storefront-load-samples');
+        if (loadSampleBtn) {
+          productStore.seedSampleFestiveCatalog();
           return;
         }
 

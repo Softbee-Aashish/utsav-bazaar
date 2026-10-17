@@ -729,6 +729,8 @@ export class CartDrawer {
   }
 
   bindEvents() {
+    window.addEventListener('open-cart-drawer', () => this.open());
+
     // 1. Drawer open/close
     const closeBtn = this.container.querySelector('#drawer-close-btn');
     const backdrop = this.container.querySelector('#cart-backdrop');

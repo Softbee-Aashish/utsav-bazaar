@@ -554,7 +554,8 @@ export class AdminPanel {
                 <input type="text" id="admin-product-search" placeholder="Search by name, category, origin, festival..." class="admin-input-sm" />
               </div>
               <div class="pane-btn-group">
-                <button class="admin-btn-secondary" id="btn-reset-default-catalog">↺ Reset to Default Offerings</button>
+                <button class="admin-btn-secondary" id="btn-clear-all-catalog" style="border-color: rgba(239, 68, 68, 0.4); color: #EF4444;" title="Purge all items from catalog">🗑️ Clear Entire Catalog</button>
+                <button class="admin-btn-secondary" id="btn-reset-default-catalog" title="Load sample festive items for testing">↺ Load Sample Offerings</button>
                 <button class="admin-btn-primary" id="btn-open-add-product">
                   <span>➕ Add New Festive Offering</span>
                 </button>
@@ -1283,15 +1284,28 @@ export class AdminPanel {
       });
     });
 
-    // Reset Catalog
+    // Clear All Products from Catalog
+    const clearCatalogBtn = this.container.querySelector('#btn-clear-all-catalog');
+    if (clearCatalogBtn) {
+      clearCatalogBtn.addEventListener('click', () => {
+        if (confirm("Are you sure you want to completely empty the catalog? All offerings will be removed.")) {
+          productStore.clearAllProducts();
+          this.renderProductsTable();
+          this.renderOverviewTab();
+          alert("✓ Entire catalog cleared! Storefront is now clean and empty.");
+        }
+      });
+    }
+
+    // Load Sample Festive Catalog
     const resetCatalogBtn = this.container.querySelector('#btn-reset-default-catalog');
     if (resetCatalogBtn) {
       resetCatalogBtn.addEventListener('click', () => {
-        if (confirm("Reset catalog back to initial offerings and pricing?")) {
-          productStore.resetToDefault();
+        if (confirm("Load sample festive offerings into the catalog for testing?")) {
+          productStore.seedSampleFestiveCatalog();
           this.renderProductsTable();
           this.renderOverviewTab();
-          alert("Catalog restored to blessed defaults!");
+          alert("✓ Sample festive offerings loaded into catalog!");
         }
       });
     }
@@ -2710,7 +2724,36 @@ export class AdminPanel {
     }
 
     if (prods.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:36px; color:#94A3B8;">No festive offerings match your selected filter or search query.</td></tr>`;
+      const allTotal = productStore.getProducts().length;
+      if (allTotal === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align:center; padding: 48px 20px;">
+              <div style="max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <span style="font-size: 36px;">🪔</span>
+                <h3 style="margin: 0; color: var(--color-gold-light); font-size: 17px; font-weight: 700;">Catalog is Clean & Empty</h3>
+                <p style="margin: 0; color: #94A3B8; font-size: 13px; line-height: 1.5;">
+                  All static demo products have been removed. You can add offerings manually, import CSV, sync with Google Sheets / Supabase, or load sample festival items for testing.
+                </p>
+                <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center;">
+                  <button class="admin-btn-primary" id="btn-empty-add-offering">➕ Add First Offering</button>
+                  <button class="admin-btn-secondary" id="btn-empty-load-sample">↺ Load Sample Festive Items</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+        const addBtn = tbody.querySelector('#btn-empty-add-offering');
+        if (addBtn) addBtn.addEventListener('click', () => this.openProductEditor(null));
+        const sampleBtn = tbody.querySelector('#btn-empty-load-sample');
+        if (sampleBtn) sampleBtn.addEventListener('click', () => {
+          productStore.seedSampleFestiveCatalog();
+          this.renderProductsTable();
+          this.renderOverviewTab();
+        });
+      } else {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:36px; color:#94A3B8;">No festive offerings match your selected filter or search query.</td></tr>`;
+      }
       return;
     }
 

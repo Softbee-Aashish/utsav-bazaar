@@ -8,16 +8,33 @@ export class ProductPage {
     this.onBuyNow = onBuyNow;
     this.currentCurrency = 'INR';
     this.selectedCategory = 'all';
-    this.priceFilter = 'all'; // 'all', 'under500', 'under1000', 'under2500', 'under5000', 'above5000'
-    this.ratingFilter = 0; // 0, 4, 3
+    this.priceFilter = 'all';
+    this.ratingFilter = 0;
+    this.discountFilter50 = false;
     this.stockOnly = false;
     this.searchQuery = '';
-    this.sortOption = 'featured'; // 'featured', 'price-low', 'price-high', 'rating'
-    this.activeProductId = null; // null => catalog grid, 'ub-xxx' => detail page
+    this.sortOption = 'featured';
+    this.activeProductId = null;
     this.selectedImageIdx = 0;
     this.selectedQuantity = 1;
+    this.wishlist = new Set(JSON.parse(localStorage.getItem('utsav_wishlist') || '[]'));
 
     this.init();
+  }
+
+  isWishlisted(id) {
+    return this.wishlist.has(id);
+  }
+
+  toggleWishlist(id) {
+    if (this.wishlist.has(id)) {
+      this.wishlist.delete(id);
+    } else {
+      this.wishlist.add(id);
+    }
+    try {
+      localStorage.setItem('utsav_wishlist', JSON.stringify(Array.from(this.wishlist)));
+    } catch (e) {}
   }
 
   init() {
@@ -78,7 +95,78 @@ export class ProductPage {
     if (!mainContent) return;
 
     mainContent.innerHTML = `
-      <!-- Top Amazon / Flipkart Style Breadcrumb & Results Bar -->
+      <!-- 1. Top Flipkart / Amazon Mobile Header (Screenshot 1) -->
+      <header class="ecom-mobile-top-header">
+        <button class="m-back-btn" id="btn-mobile-header-back" aria-label="Go Back">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="m-logo-brand" id="mobile-brand-home-trigger" title="Utsav Bazaar Home">
+          <span class="m-diya-crest">🪔</span>
+        </div>
+        <div class="m-search-box">
+          <span class="m-search-glass-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </span>
+          <input type="text" id="mobile-ecom-search-input" placeholder="Search for products" value="${this.searchQuery}" />
+          ${this.searchQuery ? `<button class="m-search-clear-btn" id="btn-m-search-clear">✕</button>` : ''}
+        </div>
+        <button class="m-header-cart-icon" id="btn-mobile-header-cart" aria-label="Cart">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </button>
+      </header>
+
+      <!-- 2. Mobile Split Sort / Filter Bar (Screenshot 1) -->
+      <div class="ecom-mobile-subbar">
+        <button class="m-subbar-btn" id="btn-open-m-sort">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+          <span>Sort</span>
+        </button>
+        <div class="m-subbar-sep"></div>
+        <button class="m-subbar-btn" id="btn-open-m-filter">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+          <span>Filter</span>
+        </button>
+      </div>
+
+      <!-- 3. Mobile Horizontal Filter Chips Rail (Screenshot 1) -->
+      <div class="ecom-mobile-chips-bar">
+        <div class="m-chips-rail" id="mobile-chips-track">
+          <button class="m-chip ${this.selectedCategory === 'all' && this.priceFilter === 'all' && !this.discountFilter50 && !this.stockOnly ? 'active' : ''}" data-chip="all">
+            <span class="m-chip-icon">🏷️</span>
+            <span>All</span>
+          </button>
+          <button class="m-chip ${this.discountFilter50 ? 'active' : ''}" data-chip="discount50">
+            <span class="m-chip-icon">🈹</span>
+            <span>50% or more</span>
+          </button>
+          <button class="m-chip ${this.selectedCategory === 'diyas' ? 'active' : ''}" data-chip="diyas">
+            <span class="m-chip-icon">🪔</span>
+            <span>Royal Brass</span>
+          </button>
+          <button class="m-chip ${this.selectedCategory === 'decor' ? 'active' : ''}" data-chip="decor">
+            <span class="m-chip-icon">🏺</span>
+            <span>Urlis & Decor</span>
+          </button>
+          <button class="m-chip ${this.selectedCategory === 'apparel' ? 'active' : ''}" data-chip="apparel">
+            <span class="m-chip-icon">👑</span>
+            <span>Royal Silk</span>
+          </button>
+          <button class="m-chip ${this.priceFilter === 'under2000' ? 'active' : ''}" data-chip="under2000">
+            <span class="m-chip-icon">⚡</span>
+            <span>Under ₹2000</span>
+          </button>
+          <button class="m-chip ${this.ratingFilter >= 4.5 ? 'active' : ''}" data-chip="rating45">
+            <span class="m-chip-icon">★</span>
+            <span>4.5 & up</span>
+          </button>
+          <button class="m-chip ${this.stockOnly ? 'active' : ''}" data-chip="stock">
+            <span class="m-chip-icon">📦</span>
+            <span>In Stock</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Desktop Breadcrumb & Sort Bar (Hidden on Mobile) -->
       <div class="ecom-results-header">
         <div class="ecom-breadcrumb">
           <a href="#" class="breadcrumb-home-link" id="ecom-crumb-home">Home</a>
@@ -102,7 +190,7 @@ export class ProductPage {
 
       <!-- Main Layout: Sidebar Filters + Products Grid -->
       <div class="ecom-layout-grid">
-        <!-- Left Sidebar Filter (Amazon / Flipkart layout) -->
+        <!-- Left Sidebar Filter (Desktop layout) -->
         <aside class="ecom-filter-sidebar">
           <div class="filter-group">
             <h4 class="filter-title">Category</h4>
@@ -163,10 +251,88 @@ export class ProductPage {
           </div>
         </aside>
 
-        <!-- Right Product Cards Grid (Flipkart / Amazon card format) -->
+        <!-- Right Product Cards Grid (Flipkart / Amazon card format - Strictly 2 columns on mobile) -->
         <main class="ecom-cards-stream" id="ecom-cards-stream">
           <!-- Filled by renderCatalogList() -->
         </main>
+      </div>
+
+      <!-- Mobile Sort Bottom Sheet Modal -->
+      <div class="mobile-bottomsheet-backdrop" id="m-sort-backdrop"></div>
+      <div class="mobile-bottomsheet" id="m-sort-sheet">
+        <div class="bottomsheet-header">
+          <h3>Sort By</h3>
+          <button class="bottomsheet-close-btn" id="btn-close-sort-sheet">✕</button>
+        </div>
+        <div class="bottomsheet-body">
+          <label class="sheet-radio-row">
+            <input type="radio" name="m-sort-radio" value="featured" ${this.sortOption === 'featured' ? 'checked' : ''} />
+            <span>Featured / Popularity</span>
+          </label>
+          <label class="sheet-radio-row">
+            <input type="radio" name="m-sort-radio" value="price-low" ${this.sortOption === 'price-low' ? 'checked' : ''} />
+            <span>Price -- Low to High</span>
+          </label>
+          <label class="sheet-radio-row">
+            <input type="radio" name="m-sort-radio" value="price-high" ${this.sortOption === 'price-high' ? 'checked' : ''} />
+            <span>Price -- High to Low</span>
+          </label>
+          <label class="sheet-radio-row">
+            <input type="radio" name="m-sort-radio" value="rating" ${this.sortOption === 'rating' ? 'checked' : ''} />
+            <span>Customer Rating</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Mobile Filter Bottom Sheet Modal -->
+      <div class="mobile-bottomsheet-backdrop" id="m-filter-backdrop"></div>
+      <div class="mobile-bottomsheet" id="m-filter-sheet">
+        <div class="bottomsheet-header">
+          <h3>Filters</h3>
+          <button class="bottomsheet-clear-link" id="btn-sheet-clear-filters">Clear All</button>
+          <button class="bottomsheet-close-btn" id="btn-close-filter-sheet">✕</button>
+        </div>
+        <div class="bottomsheet-body filter-scrollable">
+          <div class="sheet-filter-section">
+            <h4>Category</h4>
+            <div class="sheet-options-grid">
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="all" ${this.selectedCategory === 'all' ? 'checked' : ''} /> <span>All</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="diyas" ${this.selectedCategory === 'diyas' ? 'checked' : ''} /> <span>Royal Brass Diyas</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="decor" ${this.selectedCategory === 'decor' ? 'checked' : ''} /> <span>Urlis & Decor</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="apparel" ${this.selectedCategory === 'apparel' ? 'checked' : ''} /> <span>Royal Silk</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="torans" ${this.selectedCategory === 'torans' ? 'checked' : ''} /> <span>Torans</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="lanterns" ${this.selectedCategory === 'lanterns' ? 'checked' : ''} /> <span>Jali Lanterns</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="hampers" ${this.selectedCategory === 'hampers' ? 'checked' : ''} /> <span>Festive Hampers</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="heirlooms" ${this.selectedCategory === 'heirlooms' ? 'checked' : ''} /> <span>Heirlooms</span></label>
+            </div>
+          </div>
+          <div class="sheet-filter-section">
+            <h4>Price Range</h4>
+            <div class="sheet-options-grid">
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-price" value="all" ${this.priceFilter === 'all' ? 'checked' : ''} /> <span>All Prices</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-price" value="under2000" ${this.priceFilter === 'under2000' ? 'checked' : ''} /> <span>Under ₹2,000</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-price" value="2000-4000" ${this.priceFilter === '2000-4000' ? 'checked' : ''} /> <span>₹2,000 - ₹4,000</span></label>
+              <label class="sheet-pill-label"><input type="radio" name="m-sheet-price" value="above4000" ${this.priceFilter === 'above4000' ? 'checked' : ''} /> <span>Over ₹4,000</span></label>
+            </div>
+          </div>
+          <div class="sheet-filter-section">
+            <h4>Special Discount</h4>
+            <label class="sheet-checkbox-row">
+              <input type="checkbox" id="m-sheet-disc50" ${this.discountFilter50 ? 'checked' : ''} />
+              <span>50% or More Festive Discount</span>
+            </label>
+          </div>
+          <div class="sheet-filter-section">
+            <h4>Availability</h4>
+            <label class="sheet-checkbox-row">
+              <input type="checkbox" id="m-sheet-stock" ${this.stockOnly ? 'checked' : ''} />
+              <span>In Stock Only</span>
+            </label>
+          </div>
+        </div>
+        <div class="bottomsheet-footer">
+          <button class="sheet-apply-btn" id="btn-sheet-apply-filters">Apply Filters</button>
+        </div>
       </div>
     `;
 
@@ -212,6 +378,11 @@ export class ProductPage {
       list = list.filter(p => p.inStock !== false);
     }
 
+    // 5b. 50% or more discount filter
+    if (this.discountFilter50) {
+      list = list.filter(p => (p.discountPercent || 0) >= 50);
+    }
+
     // 6. Sorting
     if (this.sortOption === 'price-low') {
       list.sort((a, b) => a.priceINR - b.priceINR);
@@ -225,12 +396,35 @@ export class ProductPage {
       countEl.textContent = `Showing 1–${list.length} of ${list.length} results`;
     }
 
-    if (list.length === 0) {
+    const allTotal = productStore.getProducts().length;
+    if (allTotal === 0) {
       stream.innerHTML = `
         <div class="ecom-no-results">
           <div class="no-res-diya">🪔</div>
+          <h3>Festive Catalog is Clean & Empty</h3>
+          <p>No offerings are currently published in the catalog. You can add your handcrafted offerings via Merchant Admin, connect Supabase / Google Sheets, or load sample festival items for testing.</p>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:16px;">
+            <a href="#/admin/products" class="cta-gold-btn" style="text-decoration:none; padding:10px 22px; font-size:13px;"><span>Open Merchant Admin</span></a>
+            <button class="cta-gold-btn" id="btn-catalog-load-sample" style="background:rgba(212,175,55,0.15); border:1px solid #D4AF37; color:#FFD700; padding:10px 22px; font-size:13px; cursor:pointer;"><span>Load Sample Offerings</span></button>
+          </div>
+        </div>
+      `;
+      const sBtn = stream.querySelector('#btn-catalog-load-sample');
+      if (sBtn) {
+        sBtn.addEventListener('click', () => {
+          productStore.seedSampleFestiveCatalog();
+          this.renderCatalogList();
+        });
+      }
+      return;
+    }
+
+    if (list.length === 0) {
+      stream.innerHTML = `
+        <div class="ecom-no-results">
+          <div class="no-res-diya">🔍</div>
           <h3>No Offerings Found</h3>
-          <p>Try clearing some filters or searching for brass diyas, urlis, or silk attire.</p>
+          <p>No products match your selected filters or search terms.</p>
           <button class="ecom-reset-filter-btn" id="btn-reset-filters">Reset All Filters</button>
         </div>
       `;
@@ -240,6 +434,7 @@ export class ProductPage {
           this.selectedCategory = 'all';
           this.priceFilter = 'all';
           this.ratingFilter = 0;
+          this.discountFilter50 = false;
           this.stockOnly = false;
           this.searchQuery = '';
           this.showListing('all');
@@ -288,7 +483,7 @@ export class ProductPage {
         </div>
       </div>
 
-      <!-- Flipkart / Amazon Products Grid -->
+      <!-- Flipkart / Amazon Products Grid (Strictly 2-Column on Mobile - Screenshot 1) -->
       <div class="ecom-grid-container">
         ${list.map(p => this.renderFlipkartCard(p)).join('')}
       </div>
@@ -306,54 +501,61 @@ export class ProductPage {
     const reviewCount = pReviews.length;
     const avgScore = reviewCount > 0 
       ? (pReviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviewCount).toFixed(1)
-      : null;
+      : (p.rating ? Number(p.rating).toFixed(1) : '4.2');
+
+    const isFav = this.isWishlisted(p.id);
+    const brandName = p.origin ? p.origin.split(',')[0].toUpperCase().slice(0, 16) : 'UTSAV CRAFT';
 
     return `
       <div class="ecom-product-card" data-card-id="${p.id}">
-        <!-- Image Container -->
+        <!-- Image Container with Wishlist Button (Screenshot 1) -->
         <div class="ecom-card-media" data-click-action="view-detail" data-id="${p.id}">
           <img src="${imgUrl}" alt="${p.name}" class="ecom-card-img" loading="lazy" onerror="this.src='/assets/products/diya_peacock.jpg';" />
-          <span class="ecom-badge-tag">${p.badge || 'Festive Offering'}</span>
+          <button class="card-wishlist-btn ${isFav ? 'active' : ''}" data-wishlist-id="${p.id}" aria-label="Wishlist">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? '#EF4444' : 'none'}" stroke="${isFav ? '#EF4444' : '#64748B'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          </button>
         </div>
 
-        <!-- Product Content -->
+        <!-- Product Content (Screenshot 1) -->
         <div class="ecom-card-details">
+          <div class="card-sub-brand-line">
+            <span class="card-sponsored-label">Sponsored</span>
+            <span class="card-brand-name">${brandName}</span>
+          </div>
+
           <div class="ecom-card-title-row">
             <h3 class="ecom-card-title" data-click-action="view-detail" data-id="${p.id}" title="${p.name}">
               ${p.name}
             </h3>
           </div>
 
-          <!-- Dynamic Rating Row -->
-          <div class="ecom-card-rating">
-            ${reviewCount > 0 ? `
-              <span class="rating-stars">${'★'.repeat(Math.min(5, Math.round(avgScore)))}</span>
-              <span class="rating-score">${avgScore}</span>
-              <span class="rating-reviews">(${reviewCount})</span>
-            ` : `
-              <span class="rating-score" style="color:var(--text-secondary); font-size:12px;">★ Verified Craft</span>
-            `}
-          </div>
-
-          <!-- Limited Time Deal Tag -->
-          <div class="ecom-deal-badge">Limited time deal</div>
-
-          <!-- Price & Discount in Red -->
+          <!-- Price & Green Discount Line (Flipkart Style: ↓76% ₹2,999 ₹699) -->
           <div class="ecom-price-section">
+            ${hasDiscount ? `<span class="ecom-discount-green">↓${discountPercent}%</span>` : ''}
+            ${hasDiscount ? `<span class="ecom-mrp-strike">${origPriceFormatted}</span>` : ''}
             <span class="ecom-sale-price">${salePriceFormatted}</span>
-            ${hasDiscount ? `
-              <span class="ecom-mrp-label">M.R.P.:</span>
-              <span class="ecom-mrp-strike">${origPriceFormatted}</span>
-              <span class="ecom-discount-red">(${discountPercent}% off)</span>
-            ` : ''}
           </div>
 
-          <div class="ecom-delivery-line">
-            <span class="bazaar-tag">bazaar</span> <span class="crazy-price-tag">Crazy Prices</span>
-          </div>
-          <div class="ecom-free-delivery">FREE delivery <strong>Tomorrow</strong></div>
+          <!-- Purple Top Discount Badge (Screenshot 1) -->
+          <div class="card-sale-purple-badge">Top Discount of the Sale</div>
 
-          <!-- Card Actions: Yellow Add to Cart Button -->
+          <!-- Rating Row with Assured Badge (Screenshot 1) -->
+          <div class="ecom-card-rating">
+            <div class="card-rating-stars-group">
+              <span class="card-star">★</span>
+              <span class="card-star">★</span>
+              <span class="card-star">★</span>
+              <span class="card-star">★</span>
+              <span class="card-star empty">★</span>
+              <span class="card-rating-score-num">${avgScore}</span>
+            </div>
+            <div class="assured-badge-pill">
+              <span class="assured-tick">🛡️</span>
+              <span class="assured-text">Assured</span>
+            </div>
+          </div>
+
+          <!-- Quick Add Button -->
           <div class="ecom-card-actions">
             <button class="ecom-add-to-cart-yellow-btn" data-action="quick-add" data-id="${p.id}" ${!p.inStock ? 'disabled' : ''}>
               ${p.inStock ? 'Add to cart' : 'Sold Out'}
@@ -413,7 +615,23 @@ export class ProductPage {
     });
 
     mainContent.innerHTML = `
-      <!-- Amazon / Flipkart Style Breadcrumb -->
+      <!-- Mobile Flipkart/Amazon Style Header (Screenshot 2 & 3) -->
+      <header class="ecom-mobile-top-header">
+        <button class="m-back-btn" id="crumb-back-catalog-mobile" aria-label="Go Back">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="m-search-box">
+          <span class="m-search-glass-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </span>
+          <input type="text" id="detail-m-search-input" placeholder="Search for products" />
+        </div>
+        <button class="m-header-cart-icon" id="btn-detail-mobile-cart" aria-label="Cart">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </button>
+      </header>
+
+      <!-- Desktop Breadcrumb (Hidden on Mobile) -->
       <div class="ecom-detail-breadcrumb">
         <a href="#" id="crumb-back-catalog">‹ Back to All Products</a>
         <span class="crumb-sep">|</span>
@@ -472,8 +690,25 @@ export class ProductPage {
                   <video id="main-product-display-video" class="primary-detail-img primary-detail-video" autoplay loop muted playsinline controls style="display:none;"></video>
                 `;
               })()}
+              <!-- Floating Rating Pill Over Image (Screenshot 2) -->
+              <div class="mobile-detail-floating-rating">
+                <span>${avgScore || '4.2'}</span> <span class="rating-star-icon">★</span> <span class="rating-sep">|</span> <span>${totalReviews > 0 ? `${totalReviews}+` : '1K+'}</span>
+              </div>
               <div class="zoom-lens" id="zoom-lens"></div>
             </div>
+
+            <!-- Mobile Dot Pagination Below Image (Screenshot 2) -->
+            <div class="detail-gallery-dots-row" id="detail-gallery-dots">
+              ${(() => {
+                const count = (Array.isArray(product.media) && product.media.length > 0) ? product.media.length : 3;
+                let dots = '';
+                for (let i = 0; i < count; i++) {
+                  dots += `<span class="detail-gallery-dot ${i === 0 ? 'active' : ''}" data-dot-idx="${i}"></span>`;
+                }
+                return dots;
+              })()}
+            </div>
+
             <!-- Amazon / Flipkart Style Side Zoom Window -->
             <div class="zoom-result-window" id="zoom-result-window">
               <img src="${imgUrl}" id="zoom-result-img" alt="Zoomed view" onerror="this.src='/assets/products/diya_peacock.jpg';" />
@@ -496,6 +731,22 @@ export class ProductPage {
             ` : `
               <span class="detail-rating-num" style="color:var(--text-secondary); font-size:13px;">★ 100% Authentic Artisan Craft • <a href="#reviews-section" class="detail-review-count">Be the first to review</a></span>
             `}
+          </div>
+
+          <!-- Color / Variant Thumbnails Row (Screenshot 2) -->
+          <div class="detail-variant-selector-section">
+            <div class="variant-label-title">Selected Variant: <strong>${product.name.slice(0, 32)}</strong></div>
+            <div class="variant-thumbnails-rail">
+              <div class="variant-thumb-card active">
+                <img src="${imgUrl}" alt="${product.name}" />
+              </div>
+              ${productStore.getProducts().filter(p => p.id !== product.id).slice(0, 4).map(simP => `
+                <div class="variant-thumb-card ${!simP.inStock ? 'out-of-stock-card' : ''}" data-click-action="view-detail" data-id="${simP.id}">
+                  <img src="${simP.imageUrl || '/assets/products/diya_peacock.jpg'}" alt="${simP.name}" />
+                  ${!simP.inStock ? `<span class="variant-oos-badge">Out of stock</span>` : ''}
+                </div>
+              `).join('')}
+            </div>
           </div>
 
           <div class="detail-hr"></div>
@@ -826,13 +1077,80 @@ export class ProductPage {
                 `}
               </div>
             </div>
-        <!-- Sticky Buy Now Action Fixture on Mobile -->
+          </div>
+        </div>
+
+        <!-- Discounts on Similar Products Carousel (Screenshot 3) -->
+        ${(() => {
+          const similarProducts = productStore.getProducts().filter(p => p.id !== product.id);
+          if (!similarProducts.length) return '';
+          return `
+            <div class="detail-similar-carousel-section">
+              <h3 class="similar-section-title">Discounts on Similar Products</h3>
+              <div class="similar-cards-rail">
+                ${similarProducts.slice(0, 6).map(sp => {
+                  const spHasDisc = sp.originalPriceINR && sp.originalPriceINR > sp.priceINR;
+                  const spDiscPct = sp.discountPercent || (spHasDisc ? Math.round(((sp.originalPriceINR - sp.priceINR) / sp.originalPriceINR) * 100) : 74);
+                  const spPrice = this.formatCurrency(sp.priceINR, sp.priceUSD);
+                  const spOrig = spHasDisc ? this.formatCurrency(sp.originalPriceINR, Math.round(sp.originalPriceINR * 0.012)) : '';
+                  return `
+                    <div class="similar-item-card" data-click-action="view-detail" data-id="${sp.id}">
+                      <div class="similar-card-media">
+                        <img src="${sp.imageUrl || '/assets/products/diya_peacock.jpg'}" alt="${sp.name}" loading="lazy" />
+                        <span class="similar-ad-pill">AD</span>
+                        <div class="similar-rating-pill">${(sp.rating || 4.2).toFixed(1)} ★</div>
+                      </div>
+                      <div class="similar-card-name" title="${sp.name}">${sp.name}</div>
+                      <div class="similar-card-discount">${spDiscPct}% OFF</div>
+                      <div class="similar-card-price-row">
+                        ${spOrig ? `<span class="similar-orig-strike">${spOrig}</span>` : ''}
+                        <span class="similar-sale-price">${spPrice}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <!-- You may also like (Screenshot 3) -->
+            <div class="detail-similar-carousel-section" style="margin-top: 18px;">
+              <div class="similar-section-header-row">
+                <h3 class="similar-section-title">You may also like</h3>
+                <span class="similar-ad-pill-sub">AD</span>
+              </div>
+              <div class="similar-cards-rail">
+                ${similarProducts.slice(1, 7).map(sp => {
+                  const spHasDisc = sp.originalPriceINR && sp.originalPriceINR > sp.priceINR;
+                  const spDiscPct = sp.discountPercent || (spHasDisc ? Math.round(((sp.originalPriceINR - sp.priceINR) / sp.originalPriceINR) * 100) : 70);
+                  const spPrice = this.formatCurrency(sp.priceINR, sp.priceUSD);
+                  const spOrig = spHasDisc ? this.formatCurrency(sp.originalPriceINR, Math.round(sp.originalPriceINR * 0.012)) : '';
+                  return `
+                    <div class="similar-item-card" data-click-action="view-detail" data-id="${sp.id}">
+                      <div class="similar-card-media">
+                        <img src="${sp.imageUrl || '/assets/products/diya_peacock.jpg'}" alt="${sp.name}" loading="lazy" />
+                        <div class="similar-rating-pill">${(sp.rating || 4.1).toFixed(1)} ★</div>
+                      </div>
+                      <div class="similar-card-name" title="${sp.name}">${sp.name}</div>
+                      <div class="similar-card-discount">${spDiscPct}% OFF</div>
+                      <div class="similar-card-price-row">
+                        ${spOrig ? `<span class="similar-orig-strike">${spOrig}</span>` : ''}
+                        <span class="similar-sale-price">${spPrice}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        })()}
+
+        <!-- Sticky Buy Now Action Fixture on Mobile (Screenshots 2 & 3) -->
         <div class="product-page-mobile-sticky-bar">
           <button class="mobile-sticky-add-btn" id="btn-mobile-sticky-add" ${!product.inStock ? 'disabled' : ''}>
-            <span>Add to Cart</span>
+            <span>Add to cart</span>
           </button>
           <button class="mobile-sticky-buy-btn" id="btn-mobile-sticky-buy" ${!product.inStock ? 'disabled' : ''}>
-            <span>⚡ Buy Now</span>
+            <span>Buy now at ${salePriceFormatted}</span>
           </button>
         </div>
       </div>
@@ -845,7 +1163,164 @@ export class ProductPage {
     const mainContent = this.container.querySelector('#ecom-main-content');
     if (!mainContent) return;
 
-    // Category radios
+    // Mobile Header Back button & brand icon
+    const mBackBtn = mainContent.querySelector('#btn-mobile-header-back');
+    if (mBackBtn) {
+      mBackBtn.addEventListener('click', () => {
+        this.hide();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    const mBrandTrigger = mainContent.querySelector('#mobile-brand-home-trigger');
+    if (mBrandTrigger) {
+      mBrandTrigger.addEventListener('click', () => {
+        this.hide();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // Mobile Header Cart button
+    const mCartBtn = mainContent.querySelector('#btn-mobile-header-cart');
+    if (mCartBtn) {
+      mCartBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-cart-drawer'));
+      });
+    }
+
+    // Mobile Search Input & Clear
+    const mSearchInput = mainContent.querySelector('#mobile-ecom-search-input');
+    const mClearBtn = mainContent.querySelector('#btn-m-search-clear');
+    if (mSearchInput) {
+      mSearchInput.addEventListener('input', (e) => {
+        this.searchQuery = e.target.value.trim();
+        if (mClearBtn) mClearBtn.style.display = this.searchQuery ? 'block' : 'none';
+        this.renderCatalogList();
+      });
+    }
+    if (mClearBtn) {
+      mClearBtn.addEventListener('click', () => {
+        this.searchQuery = '';
+        if (mSearchInput) mSearchInput.value = '';
+        mClearBtn.style.display = 'none';
+        this.renderCatalogList();
+      });
+    }
+
+    // Mobile Sort Bottom Sheet
+    const openSortBtn = mainContent.querySelector('#btn-open-m-sort');
+    const sortSheet = mainContent.querySelector('#m-sort-sheet');
+    const sortBackdrop = mainContent.querySelector('#m-sort-backdrop');
+    const closeSortBtn = mainContent.querySelector('#btn-close-sort-sheet');
+
+    const toggleSortSheet = (open) => {
+      if (sortSheet) sortSheet.classList.toggle('open', open);
+      if (sortBackdrop) sortBackdrop.classList.toggle('visible', open);
+    };
+
+    if (openSortBtn) openSortBtn.addEventListener('click', () => toggleSortSheet(true));
+    if (closeSortBtn) closeSortBtn.addEventListener('click', () => toggleSortSheet(false));
+    if (sortBackdrop) sortBackdrop.addEventListener('click', () => toggleSortSheet(false));
+
+    mainContent.querySelectorAll('input[name="m-sort-radio"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        this.sortOption = e.target.value;
+        const deskSort = mainContent.querySelector('#ecom-sort-select');
+        if (deskSort) deskSort.value = this.sortOption;
+        toggleSortSheet(false);
+        this.renderCatalogList();
+      });
+    });
+
+    // Mobile Filter Bottom Sheet
+    const openFilterBtn = mainContent.querySelector('#btn-open-m-filter');
+    const filterSheet = mainContent.querySelector('#m-filter-sheet');
+    const filterBackdrop = mainContent.querySelector('#m-filter-backdrop');
+    const closeFilterBtn = mainContent.querySelector('#btn-close-filter-sheet');
+    const clearFiltersBtn = mainContent.querySelector('#btn-sheet-clear-filters');
+    const applyFiltersBtn = mainContent.querySelector('#btn-sheet-apply-filters');
+
+    const toggleFilterSheet = (open) => {
+      if (filterSheet) filterSheet.classList.toggle('open', open);
+      if (filterBackdrop) filterBackdrop.classList.toggle('visible', open);
+    };
+
+    if (openFilterBtn) openFilterBtn.addEventListener('click', () => toggleFilterSheet(true));
+    if (closeFilterBtn) closeFilterBtn.addEventListener('click', () => toggleFilterSheet(false));
+    if (filterBackdrop) filterBackdrop.addEventListener('click', () => toggleFilterSheet(false));
+
+    if (clearFiltersBtn) {
+      clearFiltersBtn.addEventListener('click', () => {
+        this.selectedCategory = 'all';
+        this.priceFilter = 'all';
+        this.ratingFilter = 0;
+        this.discountFilter50 = false;
+        this.stockOnly = false;
+        toggleFilterSheet(false);
+        this.showListing('all');
+      });
+    }
+
+    if (applyFiltersBtn) {
+      applyFiltersBtn.addEventListener('click', () => {
+        const catRadio = mainContent.querySelector('input[name="m-sheet-cat"]:checked');
+        const priceRadio = mainContent.querySelector('input[name="m-sheet-price"]:checked');
+        const disc50Check = mainContent.querySelector('#m-sheet-disc50');
+        const stockCheck = mainContent.querySelector('#m-sheet-stock');
+
+        if (catRadio) this.selectedCategory = catRadio.value;
+        if (priceRadio) this.priceFilter = priceRadio.value;
+        if (disc50Check) this.discountFilter50 = disc50Check.checked;
+        if (stockCheck) this.stockOnly = stockCheck.checked;
+
+        toggleFilterSheet(false);
+        this.renderCatalogList();
+      });
+    }
+
+    // Mobile Filter Chips Delegation
+    const chipsTrack = mainContent.querySelector('#mobile-chips-track');
+    if (chipsTrack) {
+      chipsTrack.addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-chip]');
+        if (!chip) return;
+        const type = chip.getAttribute('data-chip');
+
+        chipsTrack.querySelectorAll('.m-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+
+        switch (type) {
+          case 'all':
+            this.selectedCategory = 'all';
+            this.priceFilter = 'all';
+            this.ratingFilter = 0;
+            this.discountFilter50 = false;
+            this.stockOnly = false;
+            break;
+          case 'discount50':
+            this.discountFilter50 = !this.discountFilter50;
+            break;
+          case 'diyas':
+          case 'decor':
+          case 'apparel':
+            this.selectedCategory = type;
+            break;
+          case 'under2000':
+            this.priceFilter = this.priceFilter === 'under2000' ? 'all' : 'under2000';
+            break;
+          case 'rating45':
+            this.ratingFilter = this.ratingFilter === 4.5 ? 0 : 4.5;
+            break;
+          case 'stock':
+            this.stockOnly = !this.stockOnly;
+            break;
+        }
+
+        this.renderCatalogList();
+      });
+    }
+
+    // Category radios (Desktop Sidebar)
     mainContent.querySelectorAll('input[name="ecom-cat"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         this.selectedCategory = e.target.value;
@@ -853,7 +1328,7 @@ export class ProductPage {
       });
     });
 
-    // Price radios
+    // Price radios (Desktop Sidebar)
     mainContent.querySelectorAll('input[name="ecom-price"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         this.priceFilter = e.target.value;
@@ -861,7 +1336,7 @@ export class ProductPage {
       });
     });
 
-    // Rating radios
+    // Rating radios (Desktop Sidebar)
     mainContent.querySelectorAll('input[name="ecom-rating"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         this.ratingFilter = parseFloat(e.target.value);
@@ -869,16 +1344,16 @@ export class ProductPage {
       });
     });
 
-    // Stock checkbox
-    const stockCheck = mainContent.querySelector('#ecom-stock-check');
-    if (stockCheck) {
-      stockCheck.addEventListener('change', (e) => {
+    // Stock checkbox (Desktop Sidebar)
+    const deskStockCheck = mainContent.querySelector('#ecom-stock-check');
+    if (deskStockCheck) {
+      deskStockCheck.addEventListener('change', (e) => {
         this.stockOnly = e.target.checked;
         this.renderCatalogList();
       });
     }
 
-    // Sort select
+    // Sort select (Desktop)
     const sortSelect = mainContent.querySelector('#ecom-sort-select');
     if (sortSelect) {
       sortSelect.addEventListener('change', (e) => {
@@ -887,12 +1362,27 @@ export class ProductPage {
       });
     }
 
-    // Card click delegation (view detail or add to cart)
+    // Card click delegation (view detail, quick add, or wishlist heart toggle)
     const stream = mainContent.querySelector('#ecom-cards-stream');
     if (stream) {
       stream.addEventListener('click', (e) => {
+        const wishlistBtn = e.target.closest('[data-wishlist-id]');
         const detailTrigger = e.target.closest('[data-click-action="view-detail"]');
         const addBtn = e.target.closest('[data-action="quick-add"]');
+
+        if (wishlistBtn) {
+          e.stopPropagation();
+          const pid = wishlistBtn.getAttribute('data-wishlist-id');
+          this.toggleWishlist(pid);
+          const active = this.isWishlisted(pid);
+          wishlistBtn.classList.toggle('active', active);
+          const svg = wishlistBtn.querySelector('svg');
+          if (svg) {
+            svg.setAttribute('fill', active ? '#EF4444' : 'none');
+            svg.setAttribute('stroke', active ? '#EF4444' : '#64748B');
+          }
+          return;
+        }
 
         if (addBtn) {
           e.stopPropagation();
@@ -935,7 +1425,7 @@ export class ProductPage {
     const mainContent = this.container.querySelector('#ecom-main-content');
     if (!mainContent) return;
 
-    // Back to catalog crumb
+    // Back to catalog crumb (Desktop & Mobile)
     const backBtn = mainContent.querySelector('#crumb-back-catalog');
     if (backBtn) {
       backBtn.addEventListener('click', (e) => {
@@ -943,6 +1433,53 @@ export class ProductPage {
         this.showListing(this.selectedCategory);
       });
     }
+
+    const mBackBtn = mainContent.querySelector('#crumb-back-catalog-mobile');
+    if (mBackBtn) {
+      mBackBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.showListing(this.selectedCategory);
+      });
+    }
+
+    // Mobile Header Cart button in detail view
+    const mCartBtn = mainContent.querySelector('#btn-detail-mobile-cart');
+    if (mCartBtn) {
+      mCartBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-cart-drawer'));
+      });
+    }
+
+    // Mobile Header Search input in detail view
+    const mDetailSearch = mainContent.querySelector('#detail-m-search-input');
+    if (mDetailSearch) {
+      mDetailSearch.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const q = e.target.value.trim();
+          this.showListing('all', q);
+        }
+      });
+    }
+
+    // Detail view click delegation for variant thumbnails and similar product cards
+    mainContent.querySelectorAll('[data-click-action="view-detail"]').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const pid = card.getAttribute('data-id');
+        if (pid && pid !== product.id) {
+          this.showProductDetail(pid);
+        }
+      });
+    });
+
+    // Gallery Dots click indicators
+    const galleryDots = mainContent.querySelectorAll('.detail-gallery-dot');
+    galleryDots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        const idx = parseInt(dot.getAttribute('data-dot-idx'), 10);
+        const thumbs = mainContent.querySelectorAll('.thumb-box');
+        if (thumbs[idx]) thumbs[idx].click();
+      });
+    });
 
     // Add to cart from buybox
     const addBtn = mainContent.querySelector('#btn-buybox-add');
@@ -1000,6 +1537,12 @@ export class ProductPage {
       const switchMedia = () => {
         mainContent.querySelectorAll('.thumb-box').forEach(t => t.classList.remove('active'));
         thumb.classList.add('active');
+        const mediaIdx = thumb.getAttribute('data-media-idx');
+        if (mediaIdx !== null) {
+          mainContent.querySelectorAll('.detail-gallery-dot').forEach((d, i) => {
+            d.classList.toggle('active', i === parseInt(mediaIdx, 10));
+          });
+        }
         const mediaType = thumb.getAttribute('data-media-type');
         const mediaUrl = thumb.getAttribute('data-media-url');
         const mainImg = mainContent.querySelector('#main-product-display-img');

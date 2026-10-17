@@ -2,7 +2,7 @@
 import { FESTIVE_PRODUCTS } from '../components/ProductData.js';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'utsav_products_v6',
+  PRODUCTS: 'utsav_products_v7',
   DISCOUNT_BAR: 'utsav_discount_bar_v6',
   GOOGLE_SHEET_URL: 'utsav_gsheet_url_v6',
   APPS_SCRIPT_URL: 'utsav_apps_script_url_v1',
@@ -48,84 +48,24 @@ export class ProductStore {
   }
 
   loadFromStorage() {
-    // 1. Load Products
+    // Purge legacy static catalog cache if present
+    try {
+      if (localStorage.getItem('utsav_products_v6')) {
+        localStorage.removeItem('utsav_products_v6');
+      }
+    } catch (e) {}
+
+    // 1. Load Products (100% Dynamic - starts with empty catalog unless products added via Admin / API)
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (saved) {
         this.products = JSON.parse(saved);
-        // Ensure all products have real imageUrl, stock count, SKU, and cost price backfilled
-        let updated = false;
-        FESTIVE_PRODUCTS.forEach(fp => {
-          const existing = this.products.find(p => p.id === fp.id);
-          if (!existing) {
-            const markupRatio = 1.25 + (Math.round((fp.priceINR % 100)) / 400);
-            const originalPriceINR = Math.round((fp.priceINR * markupRatio) / 100) * 100 - 1;
-            const discountPercent = Math.round(((originalPriceINR - fp.priceINR) / originalPriceINR) * 100);
-            const costPriceINR = Math.round(fp.priceINR * 0.55); // Estimated artisan manufacturing cost
-            this.products.push({
-              ...fp,
-              originalPriceINR,
-              costPriceINR,
-              sku: `UB-${fp.category.toUpperCase().slice(0, 4)}-${fp.id.replace('ub-', '')}`,
-              hsnCode: '7419', // Brass / Metal Handicrafts HSN
-              stockQty: 25,
-              lowStockThreshold: 5,
-              discountPercent,
-              imageUrl: fp.imageUrl || '',
-              inStock: fp.inStock !== false
-            });
-            updated = true;
-          } else {
-            if (!existing.imageUrl || existing.imageUrl.trim() === '') {
-              existing.imageUrl = fp.imageUrl;
-              updated = true;
-            }
-            if (existing.stockQty === undefined) {
-              existing.stockQty = 25;
-              existing.lowStockThreshold = 5;
-              existing.costPriceINR = Math.round(existing.priceINR * 0.55);
-              existing.sku = `UB-${existing.category.toUpperCase().slice(0, 4)}-${existing.id.replace('ub-', '')}`;
-              existing.hsnCode = '7419';
-              updated = true;
-            }
-            if (!existing.festival) {
-              const festData = this.getDefaultFestival(existing.id, existing.category);
-              existing.festival = festData.festival;
-              existing.festivalTag = festData.festivalTag;
-              updated = true;
-            }
-          }
-        });
-        if (updated) this.saveProductsToStorage();
       } else {
-        // Seed initial products with original marked prices, costs, SKU, & discounts
-        this.products = FESTIVE_PRODUCTS.map(p => {
-          const markupRatio = 1.25 + (Math.round((p.priceINR % 100)) / 400);
-          const originalPriceINR = Math.round((p.priceINR * markupRatio) / 100) * 100 - 1;
-          const discountPercent = Math.round(((originalPriceINR - p.priceINR) / originalPriceINR) * 100);
-          const costPriceINR = Math.round(p.priceINR * 0.55);
-          const festData = this.getDefaultFestival(p.id, p.category);
-
-          return {
-            ...p,
-            originalPriceINR,
-            costPriceINR,
-            sku: `UB-${p.category.toUpperCase().slice(0, 4)}-${p.id.replace('ub-', '')}`,
-            hsnCode: '7419',
-            festival: festData.festival,
-            festivalTag: festData.festivalTag,
-            stockQty: 25,
-            lowStockThreshold: 5,
-            discountPercent,
-            imageUrl: p.imageUrl || '',
-            inStock: p.inStock !== false
-          };
-        });
-        this.saveProductsToStorage();
+        this.products = [];
       }
     } catch (e) {
       console.warn("Could not load products from storage", e);
-      this.products = [...FESTIVE_PRODUCTS];
+      this.products = [];
     }
 
     // 2. Load Discount Bar settings
@@ -1094,6 +1034,41 @@ export class ProductStore {
     return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   }
 
+  // Seed sample festival offerings for preview/testing on demand
+  seedSampleFestiveCatalog() {
+    this.products = FESTIVE_PRODUCTS.map(p => {
+      const markupRatio = 1.25 + (Math.round((p.priceINR % 100)) / 400);
+      const originalPriceINR = Math.round((p.priceINR * markupRatio) / 100) * 100 - 1;
+      const discountPercent = Math.round(((originalPriceINR - p.priceINR) / originalPriceINR) * 100);
+      const costPriceINR = Math.round(p.priceINR * 0.55);
+      const festData = this.getDefaultFestival(p.id, p.category);
+
+      return {
+        ...p,
+        originalPriceINR,
+        costPriceINR,
+        sku: `UB-${p.category.toUpperCase().slice(0, 4)}-${p.id.replace('ub-', '')}`,
+        hsnCode: '7419',
+        festival: festData.festival,
+        festivalTag: festData.festivalTag,
+        stockQty: 25,
+        lowStockThreshold: 5,
+        discountPercent,
+        imageUrl: p.imageUrl || '',
+        inStock: p.inStock !== false
+      };
+    });
+    this.saveProductsToStorage();
+    return [...this.products];
+  }
+
+  // Clear all products to make catalog 100% clean/empty
+  clearAllProducts() {
+    this.products = [];
+    this.saveProductsToStorage();
+    return [];
+  }
+
   resetToDefault() {
     localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
     localStorage.removeItem(STORAGE_KEYS.DISCOUNT_BAR);
@@ -1102,7 +1077,11 @@ export class ProductStore {
     localStorage.removeItem(STORAGE_KEYS.PAYMENTS);
     localStorage.removeItem(STORAGE_KEYS.YOUPI_SETTINGS);
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_STAKING);
-    this.init();
+    this.products = [];
+    this.orders = [];
+    this.payments = [];
+    this.reviews = {};
+    this.saveProductsToStorage();
   }
 }
 
