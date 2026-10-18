@@ -799,11 +799,11 @@ export class CartDrawer {
           <div class="checkout-stage" id="stage-invoice-confirmation" style="display: none;">
             <!-- Order Success Top Banner -->
             <div class="invoice-success-banner">
-              <div class="banner-sparkle">🎆</div>
-              <h2 class="banner-title">Shubh Deepavali! Order Confirmed</h2>
+              <div class="banner-sparkle">✨</div>
+              <h2 class="banner-title">Order Confirmed Successfully!</h2>
               <div class="banner-email-tag">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                <span>Order Confirmation & Royal Tax Invoice dispatched to: <strong id="inv-email-recipient">customer@email.com</strong></span>
+                <span>Tax Invoice & Order Receipt sent to: <strong id="inv-email-recipient">customer@email.com</strong></span>
               </div>
             </div>
 
@@ -812,22 +812,28 @@ export class CartDrawer {
               <!-- Invoice Header -->
               <div class="invoice-top-row">
                 <div class="invoice-brand-col">
-                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                    <span style="font-size:22px; line-height:1;">🪔</span>
-                    <div class="invoice-company-name" style="margin:0;">UTSAV BAZAAR (उत्सव बाज़ार)</div>
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+                    <span style="font-size:26px; line-height:1;">🪔</span>
+                    <div>
+                      <div class="invoice-company-name" style="margin:0;">UTSAV BAZAAR</div>
+                      <div style="font-size:11px; font-weight:700; color:#B45309; letter-spacing:0.06em; text-transform:uppercase;">Artisanal Home Decor & Festive Lifestyle</div>
+                    </div>
                   </div>
-                  <div class="invoice-reg-address">
-                    Authentic Indian Artisanal Crafts & Festive Guilds<br/>
-                    Heritage Craft District, Johari Bazaar, Jaipur, Rajasthan 302003<br/>
-                    Email: blessings@utsavbazaar.in | Web: www.utsavbazaar.in
+                  <div class="invoice-reg-address" style="margin-top:6px; font-size:11px; color:#475569; line-height:1.55;">
+                    <div><strong>Registered Store:</strong> Utsav Bazaar Crafts</div>
+                    <div>Heritage Craft District, Johari Bazaar, Jaipur, Rajasthan — 302003, India</div>
+                    <div><strong>GSTIN:</strong> 08AAACU1234F1Z5 • <strong>CIN:</strong> U52100RJ2026PTC084210</div>
+                    <div><strong>Email:</strong> support@utsavbazaar.in | <strong>Tel:</strong> +91 800 266 7822</div>
                   </div>
                 </div>
                 <div class="invoice-meta-col">
-                  <div class="tax-invoice-badge">ORDER INVOICE & BLESSING BILL</div>
+                  <div class="tax-invoice-badge" style="background:#0F172A; color:#FFFFFF; font-size:11px; font-weight:800; letter-spacing:0.1em; padding:4px 12px; border-radius:4px; display:inline-block; margin-bottom:4px;">RETAIL TAX INVOICE</div>
+                  <div style="font-size:10px; color:#64748B; font-weight:600; text-transform:uppercase; margin-bottom:6px;">Original For Recipient</div>
                   <div class="inv-meta-row"><strong>Invoice No:</strong> <span id="inv-number-val">UB-INV-2026-98421</span></div>
                   <div class="inv-meta-row"><strong>Order ID:</strong> <span id="inv-order-id-val">#UB-ORD-884102</span></div>
-                  <div class="inv-meta-row"><strong>Date:</strong> <span id="inv-date-val">15 October 2026</span></div>
-                  <div class="inv-meta-row"><strong>Payment Mode:</strong> <span id="inv-paymode-val">UPI / Verified Online</span></div>
+                  <div class="inv-meta-row"><strong>Invoice Date:</strong> <span id="inv-date-val">18 October 2026</span></div>
+                  <div class="inv-meta-row"><strong>Place of Supply:</strong> <span id="inv-pos-val">Rajasthan (08)</span></div>
+                  <div class="inv-meta-row"><strong>Payment Mode:</strong> <span id="inv-paymode-val" style="color:#047857; font-weight:700;">UPI / Verified Online</span></div>
                 </div>
               </div>
 
@@ -838,17 +844,19 @@ export class CartDrawer {
                   <div class="cust-val-name" id="inv-cust-name">—</div>
                   <div class="cust-val-addr" id="inv-cust-addr">—</div>
                   <div class="cust-val-city" id="inv-cust-city">—</div>
-                  <div class="cust-val-contact">
-                    Phone: <span id="inv-cust-phone">—</span> | 
-                    Email: <span id="inv-cust-email">—</span>
+                  <div class="cust-val-contact" style="font-size:11px; color:#475569; margin-top:4px;">
+                    Phone: <span id="inv-cust-phone" style="font-weight:600; color:#0F172A;">—</span> | 
+                    Email: <span id="inv-cust-email" style="font-weight:600; color:#0F172A;">—</span>
                   </div>
                 </div>
                 <div class="compliance-col">
-                  <div class="gov-seal">
-                    <span class="seal-icon">✨</span>
-                    <div>
-                      <strong>DIRECT ARTISAN ALL-INCLUSIVE PRICE</strong>
-                      <div>No Hidden Taxes • 100% Final Pure Value to Artisans</div>
+                  <div class="gov-seal" style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px 14px; border-radius:8px; font-size:11px; color:#334155;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span style="font-size:18px;">🛡️</span>
+                      <div>
+                        <strong style="color:#0F172A; display:block;">Verified Order & Dispatch</strong>
+                        <span style="font-size:10px; color:#64748B;">All-Inclusive GST • Insured Safe Delivery</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -859,11 +867,11 @@ export class CartDrawer {
                 <thead>
                   <tr>
                     <th style="width: 5%;">#</th>
-                    <th style="width: 50%;">Description of Festive Goods</th>
-                    <th style="width: 15%;">Artisan Guild</th>
+                    <th style="width: 48%;">Description of Goods</th>
+                    <th style="width: 17%;">Category / HSN</th>
                     <th style="width: 10%; text-align: center;">Qty</th>
-                    <th style="width: 10%; text-align: right;">Unit Rate</th>
-                    <th style="width: 10%; text-align: right;">Final Total</th>
+                    <th style="width: 10%; text-align: right;">Unit Price</th>
+                    <th style="width: 10%; text-align: right;">Amount</th>
                   </tr>
                 </thead>
                 <tbody id="invoice-items-tbody">
@@ -871,47 +879,49 @@ export class CartDrawer {
                 </tbody>
               </table>
 
-              <!-- Invoice Bottom Totals & Transparent Zero Charges Breakdown -->
+              <!-- Invoice Bottom Totals & Breakdown -->
               <div class="invoice-bottom-grid">
                 <div class="invoice-blessing-note">
-                  <h4>✨ Artisan Direct Guarantee</h4>
-                  <p>
-                    Every offering in this package is handcrafted with care by generational craft masters. The price you pay is the complete, final rate—with zero hidden GST, zero handling fees, and zero shipping charges. Thank you for empowering our generational artisan families across Bharat!
-                  </p>
-                  <div class="signatory-box">
-                    <div class="sign-line">Shubh Deepavali 2026</div>
-                    <div class="sign-sub">UTSAV BAZAAR ARTISAN CARE SIGNATORY</div>
+                  <h4 style="font-size:12px; font-weight:700; color:#0F172A; margin:0 0 6px 0;">Terms & Declarations:</h4>
+                  <ul style="margin:0 0 16px 0; padding-left:18px; font-size:11px; line-height:1.6; color:#64748B;">
+                    <li>Prices are all-inclusive of applicable GST and handling fees.</li>
+                    <li>Handcrafted by authentic generational artisan collectives.</li>
+                    <li>Insured transit warranty against damage during courier transit.</li>
+                    <li>For customer care, tracking or questions: support@utsavbazaar.in.</li>
+                  </ul>
+                  <div class="signatory-box" style="border-top:1px solid #CBD5E1; padding-top:6px; display:inline-block;">
+                    <div class="sign-line" style="font-family:'Plus Jakarta Sans', sans-serif; font-size:12px; font-weight:700; color:#0F172A;">For Utsav Bazaar Crafts</div>
+                    <div class="sign-sub" style="font-size:10px; color:#94A3B8;">Authorized Signatory [Computer-Generated Tax Invoice]</div>
                   </div>
                 </div>
 
                 <div class="invoice-summary-calc">
                   <div class="calc-row">
-                    <span>Item Total Value:</span>
-                    <span id="inv-calc-subtotal">₹0</span>
+                    <span>Taxable Subtotal:</span>
+                    <span id="inv-calc-subtotal" style="font-weight:600; color:#0F172A;">₹0</span>
                   </div>
                   <div class="calc-row" id="inv-calc-discount-row" style="display: none;">
-                    <span>Festive Discount:</span>
+                    <span>Festive Discount Applied:</span>
                     <span id="inv-calc-discount" style="color:#B91C1C; font-weight:700;">-₹0</span>
                   </div>
                   <div class="calc-row">
-                    <span>Central GST (CGST 0%):</span>
-                    <span style="color:#10B981; font-weight:700;">₹0.00 (Zero GST Extra)</span>
+                    <span>GST (Included in Product Prices):</span>
+                    <span style="color:#047857; font-weight:600;">All-Inclusive (₹0 Extra)</span>
                   </div>
                   <div class="calc-row">
-                    <span>State GST (SGST 0%):</span>
-                    <span style="color:#10B981; font-weight:700;">₹0.00 (Zero GST Extra)</span>
+                    <span>Festive Gift Box & Packaging:</span>
+                    <span class="free-shipping-tag" style="color:#047857; font-weight:600;">Complimentary</span>
                   </div>
                   <div class="calc-row">
-                    <span>Premium Gift Box & Packaging:</span>
-                    <span class="free-shipping-tag" style="color:#10B981; font-weight:700;">₹0.00 (COMPLIMENTARY)</span>
-                  </div>
-                  <div class="calc-row">
-                    <span>Express Insured Courtyard Delivery:</span>
-                    <span class="free-shipping-tag" style="color:#10B981; font-weight:700;">₹0.00 (FREE SHIPPING)</span>
+                    <span>Insured Doorstep Courier Delivery:</span>
+                    <span class="free-shipping-tag" style="color:#047857; font-weight:600;">FREE Delivery</span>
                   </div>
                   <div class="calc-row total-highlight">
-                    <span>FINAL NET PAYABLE (ALL INCLUSIVE):</span>
+                    <span>TOTAL AMOUNT PAYABLE:</span>
                     <span class="grand-val" id="inv-calc-grand-total">₹0</span>
+                  </div>
+                  <div style="font-size:11px; color:#475569; margin-top:6px; text-align:right;" id="inv-words-container">
+                    <strong>Amount in Words:</strong> <span id="inv-words-val" style="color:#0F172A; font-weight:600;">—</span>
                   </div>
                 </div>
               </div>
@@ -1787,12 +1797,12 @@ export class CartDrawer {
             flex: 1;
           }
           .invoice-company-name {
-            font-family: 'Cinzel', Georgia, serif;
-            font-size: 20px;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 22px;
             font-weight: 800;
             color: #0F172A;
-            letter-spacing: 0.08em;
-            margin-bottom: 4px;
+            letter-spacing: 0.03em;
+            margin-bottom: 3px;
           }
           .invoice-reg-address {
             font-size: 11px;
@@ -2153,6 +2163,39 @@ export class CartDrawer {
     }
   }
 
+  numberToIndianWords(num) {
+    if (!num || isNaN(num) || num <= 0) return 'Zero Rupees Only';
+    num = Math.round(num);
+    const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+    const inWords = (n) => {
+      if (n < 20) return a[n];
+      const digit = n % 10;
+      return b[Math.floor(n / 10)] + (digit ? ' ' + a[digit] : '');
+    };
+
+    let words = '';
+    const crore = Math.floor(num / 10000000);
+    num %= 10000000;
+    const lakh = Math.floor(num / 100000);
+    num %= 100000;
+    const thousand = Math.floor(num / 1000);
+    num %= 1000;
+    const hundred = Math.floor(num / 100);
+    const rem = num % 100;
+
+    if (crore) words += inWords(crore) + ' Crore ';
+    if (lakh) words += inWords(lakh) + ' Lakh ';
+    if (thousand) words += inWords(thousand) + ' Thousand ';
+    if (hundred) words += inWords(hundred) + ' Hundred ';
+    if (rem) {
+      if (words !== '') words += 'and ';
+      words += inWords(rem) + ' ';
+    }
+    return 'INR ' + words.trim() + ' Only';
+  }
+
   processPayment(paymentMode, utr = '', channel = '') {
     this.stopYoupiSessionTimer();
     const overlay = this.container.querySelector('#pay-processing-overlay');
@@ -2192,6 +2235,11 @@ export class CartDrawer {
     this.container.querySelector('#inv-date-val').textContent = today;
     this.container.querySelector('#inv-paymode-val').textContent = paymentMode;
 
+    const posEl = this.container.querySelector('#inv-pos-val');
+    if (posEl) {
+      posEl.textContent = `${this.guestDetails.city || 'State'} (${this.guestDetails.pincode ? this.guestDetails.pincode.slice(0, 2) : '08'})`;
+    }
+
     // Customer fields
     this.container.querySelector('#inv-cust-name').textContent = this.guestDetails.name;
     this.container.querySelector('#inv-cust-addr').textContent = this.guestDetails.address;
@@ -2206,19 +2254,19 @@ export class CartDrawer {
         const p = item.product;
         const rateStr = this.getFormattedAmount(p.priceINR, p.priceUSD);
         const lineTotalStr = this.getFormattedAmount(p.priceINR * item.quantity, p.priceUSD * item.quantity);
-        const guild = p.origin ? `${p.origin.split(',')[0]} Guild` : 'Artisan Craft';
+        const categoryHsn = `${p.category || 'Handicrafts'} (HSN 9703)`;
 
         return `
           <tr>
-            <td>${idx + 1}</td>
+            <td style="font-weight:600; color:#64748B;">${idx + 1}</td>
             <td>
-              <strong>${p.name}</strong>
-              <div style="font-size:10px; color:#64748B;">Handcrafted in ${p.origin || 'India'} • 100% Final Price</div>
+              <strong style="color:#0F172A; font-size:12px;">${p.name}</strong>
+              <div style="font-size:10px; color:#64748B; margin-top:2px;">Origin: ${p.origin || 'India'} • Certified Artisan Handcraft</div>
             </td>
-            <td><span style="font-size:11px; font-weight:600; color:#B45309;">${guild}</span></td>
-            <td style="text-align: center;">${item.quantity}</td>
-            <td style="text-align: right;">${rateStr}</td>
-            <td style="text-align: right; font-weight:700; color:var(--color-gold-light);">${lineTotalStr}</td>
+            <td><span style="font-size:11px; font-weight:600; color:#475569;">${categoryHsn}</span></td>
+            <td style="text-align: center; font-weight:600; color:#0F172A;">${item.quantity}</td>
+            <td style="text-align: right; color:#334155;">${rateStr}</td>
+            <td style="text-align: right; font-weight:700; color:#0F172A;">${lineTotalStr}</td>
           </tr>
         `;
       }).join('');
@@ -2236,6 +2284,11 @@ export class CartDrawer {
     }
 
     this.container.querySelector('#inv-calc-grand-total').textContent = this.getFormattedAmount(totalINR, totalUSD);
+
+    const wordsVal = this.container.querySelector('#inv-words-val');
+    if (wordsVal) {
+      wordsVal.textContent = this.numberToIndianWords(totalINR);
+    }
 
     // Save order directly into Merchant Suite pipeline
     try {
