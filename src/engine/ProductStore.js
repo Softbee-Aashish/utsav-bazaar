@@ -808,6 +808,23 @@ export class ProductStore {
     return result;
   }
 
+  getActiveCategories() {
+    const map = new Map();
+    this.products.forEach(p => {
+      const catKey = (p.category || 'decor').trim().toLowerCase();
+      if (!map.has(catKey)) {
+        const displayName = p.categoryName || this.getCategoryDisplayName(catKey) || (catKey.charAt(0).toUpperCase() + catKey.slice(1));
+        map.set(catKey, {
+          key: catKey,
+          name: displayName,
+          count: 0
+        });
+      }
+      map.get(catKey).count += 1;
+    });
+    return Array.from(map.values());
+  }
+
   getCategoryDisplayName(cat) {
     switch (cat) {
       case 'diyas': return 'Royal Diyas & Brass';

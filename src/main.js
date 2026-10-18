@@ -184,16 +184,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize Policy Modal Dialog
   const policyModal = new PolicyModal();
 
-  // Footer Category Links Delegation
-  document.querySelectorAll('.footer-category-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const cat = link.getAttribute('data-cat') || 'all';
-      if (scrollTrack) scrollTrack.style.display = 'none';
-      if (shopContainer) shopContainer.style.display = 'none';
-      productPage.showListing(cat, '', true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Dynamic Footer Category Links Rendering (Only active categories with available items)
+  const renderFooterCategories = () => {
+    const list = document.querySelector('#footer-category-list');
+    if (!list) return;
+    const cats = productStore.getActiveCategories();
+    if (cats.length === 0) {
+      list.innerHTML = `
+        <li><a href="#/products" class="footer-category-link" data-cat="all">Explore Complete Catalog</a></li>
+        <li style="font-size: 11px; color: #888; padding: 4px 0;">No active categories yet</li>
+      `;
+    } else {
+      list.innerHTML = `
+        <li><a href="#/products" class="footer-category-link" data-cat="all">Grand All-Store Catalog</a></li>
+        ${cats.map(c => `
+          <li><a href="#/products/${c.key}" class="footer-category-link" data-cat="${c.key}">${c.name} (${c.count})</a></li>
+        `).join('')}
+      `;
+    }
+
+    list.querySelectorAll('.footer-category-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const cat = link.getAttribute('data-cat') || 'all';
+        if (scrollTrack) scrollTrack.style.display = 'none';
+        if (shopContainer) shopContainer.style.display = 'none';
+        productPage.showListing(cat, '', true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     });
+  };
+
+  renderFooterCategories();
+  window.addEventListener('products-updated', () => {
+    renderFooterCategories();
   });
 
   // Footer Customer Care Links Delegation

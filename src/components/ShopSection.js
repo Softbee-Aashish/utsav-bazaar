@@ -60,16 +60,12 @@ export class ShopSection {
             `).join('')}
           </div>
 
-          <!-- Category Filter Bar -->
+          <!-- Category Filter Bar (100% Dynamic from active categories) -->
           <div class="category-filter-bar">
-            <button class="cat-filter-btn active" data-category="all">All Offerings</button>
-            <button class="cat-filter-btn" data-category="decor">Urlis & Home Decor</button>
-            <button class="cat-filter-btn" data-category="apparel">Royal Silk & Attire</button>
-            <button class="cat-filter-btn" data-category="diyas">Royal Brass Diyas</button>
-            <button class="cat-filter-btn" data-category="torans">Torans & Hangings</button>
-            <button class="cat-filter-btn" data-category="lanterns">Jali Lanterns</button>
-            <button class="cat-filter-btn" data-category="hampers">Festive Hampers</button>
-            <button class="cat-filter-btn" data-category="heirlooms">Artisanal Heirlooms</button>
+            <button class="cat-filter-btn ${this.activeCategory === 'all' ? 'active' : ''}" data-category="all">All Offerings</button>
+            ${productStore.getActiveCategories().map(cat => `
+              <button class="cat-filter-btn ${this.activeCategory === cat.key ? 'active' : ''}" data-category="${cat.key}">${cat.name}</button>
+            `).join('')}
           </div>
         </div>
 
@@ -538,6 +534,7 @@ export class ShopSection {
 
     // Products updated listener (from Admin Panel or Google Sheets)
     window.addEventListener('products-updated', () => {
+      this.updateCategoryBar();
       this.updateProductGrid();
     });
 
@@ -545,6 +542,26 @@ export class ShopSection {
     window.addEventListener('currency-changed', (e) => {
       this.currentCurrency = e.detail.currency;
       this.updateProductGrid();
+    });
+  }
+
+  updateCategoryBar() {
+    const bar = this.container.querySelector('.category-filter-bar');
+    if (!bar) return;
+    const cats = productStore.getActiveCategories();
+    bar.innerHTML = `
+      <button class="cat-filter-btn ${this.activeCategory === 'all' ? 'active' : ''}" data-category="all">All Offerings</button>
+      ${cats.map(cat => `
+        <button class="cat-filter-btn ${this.activeCategory === cat.key ? 'active' : ''}" data-category="${cat.key}">${cat.name}</button>
+      `).join('')}
+    `;
+    bar.querySelectorAll('.cat-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        bar.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.activeCategory = btn.getAttribute('data-category');
+        this.updateProductGrid();
+      });
     });
   }
 

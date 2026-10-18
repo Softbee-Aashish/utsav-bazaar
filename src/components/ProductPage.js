@@ -94,6 +94,8 @@ export class ProductPage {
     const mainContent = this.container.querySelector('#ecom-main-content');
     if (!mainContent) return;
 
+    const activeCategories = productStore.getActiveCategories();
+
     mainContent.innerHTML = `
       <!-- 1. Top Flipkart / Amazon Mobile Header (Screenshot 1) -->
       <header class="ecom-mobile-top-header">
@@ -139,18 +141,12 @@ export class ProductPage {
             <span class="m-chip-icon">🈹</span>
             <span>50% or more</span>
           </button>
-          <button class="m-chip ${this.selectedCategory === 'diyas' ? 'active' : ''}" data-chip="diyas">
-            <span class="m-chip-icon">🪔</span>
-            <span>Royal Brass</span>
-          </button>
-          <button class="m-chip ${this.selectedCategory === 'decor' ? 'active' : ''}" data-chip="decor">
-            <span class="m-chip-icon">🏺</span>
-            <span>Urlis & Decor</span>
-          </button>
-          <button class="m-chip ${this.selectedCategory === 'apparel' ? 'active' : ''}" data-chip="apparel">
-            <span class="m-chip-icon">👑</span>
-            <span>Royal Silk</span>
-          </button>
+          ${activeCategories.map(cat => `
+            <button class="m-chip ${this.selectedCategory === cat.key ? 'active' : ''}" data-chip="${cat.key}">
+              <span class="m-chip-icon">✨</span>
+              <span>${cat.name}</span>
+            </button>
+          `).join('')}
           <button class="m-chip ${this.priceFilter === 'under2000' ? 'active' : ''}" data-chip="under2000">
             <span class="m-chip-icon">⚡</span>
             <span>Under ₹2000</span>
@@ -196,13 +192,11 @@ export class ProductPage {
             <h4 class="filter-title">Category</h4>
             <ul class="filter-list">
               <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="all" ${this.selectedCategory === 'all' ? 'checked' : ''} /> <span>All Categories</span></label></li>
-              <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="diyas" ${this.selectedCategory === 'diyas' ? 'checked' : ''} /> <span>Royal Brass Diyas</span></label></li>
-              <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="decor" ${this.selectedCategory === 'decor' ? 'checked' : ''} /> <span>Urlis & Home Decor</span></label></li>
-              <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="apparel" ${this.selectedCategory === 'apparel' ? 'checked' : ''} /> <span>Royal Silk & Attire</span></label></li>
-              <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="torans" ${this.selectedCategory === 'torans' ? 'checked' : ''} /> <span>Torans & Wall Hangings</span></label></li>
-              <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="lanterns" ${this.selectedCategory === 'lanterns' ? 'checked' : ''} /> <span>Jali Lanterns</span></label></li>
-              <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="hampers" ${this.selectedCategory === 'hampers' ? 'checked' : ''} /> <span>Festive Hampers</span></label></li>
-              <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="heirlooms" ${this.selectedCategory === 'heirlooms' ? 'checked' : ''} /> <span>Artisanal Heirlooms</span></label></li>
+              ${activeCategories.length === 0 ? `
+                <li style="padding: 6px 0; font-size: 12px; color: #888;">No active categories yet</li>
+              ` : activeCategories.map(cat => `
+                <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="${cat.key}" ${this.selectedCategory === cat.key ? 'checked' : ''} /> <span>${cat.name} (${cat.count})</span></label></li>
+              `).join('')}
             </ul>
           </div>
 
@@ -297,13 +291,9 @@ export class ProductPage {
             <h4>Category</h4>
             <div class="sheet-options-grid">
               <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="all" ${this.selectedCategory === 'all' ? 'checked' : ''} /> <span>All</span></label>
-              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="diyas" ${this.selectedCategory === 'diyas' ? 'checked' : ''} /> <span>Royal Brass Diyas</span></label>
-              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="decor" ${this.selectedCategory === 'decor' ? 'checked' : ''} /> <span>Urlis & Decor</span></label>
-              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="apparel" ${this.selectedCategory === 'apparel' ? 'checked' : ''} /> <span>Royal Silk</span></label>
-              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="torans" ${this.selectedCategory === 'torans' ? 'checked' : ''} /> <span>Torans</span></label>
-              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="lanterns" ${this.selectedCategory === 'lanterns' ? 'checked' : ''} /> <span>Jali Lanterns</span></label>
-              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="hampers" ${this.selectedCategory === 'hampers' ? 'checked' : ''} /> <span>Festive Hampers</span></label>
-              <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="heirlooms" ${this.selectedCategory === 'heirlooms' ? 'checked' : ''} /> <span>Heirlooms</span></label>
+              ${activeCategories.map(cat => `
+                <label class="sheet-pill-label"><input type="radio" name="m-sheet-cat" value="${cat.key}" ${this.selectedCategory === cat.key ? 'checked' : ''} /> <span>${cat.name}</span></label>
+              `).join('')}
             </div>
           </div>
           <div class="sheet-filter-section">
@@ -1300,11 +1290,6 @@ export class ProductPage {
           case 'discount50':
             this.discountFilter50 = !this.discountFilter50;
             break;
-          case 'diyas':
-          case 'decor':
-          case 'apparel':
-            this.selectedCategory = type;
-            break;
           case 'under2000':
             this.priceFilter = this.priceFilter === 'under2000' ? 'all' : 'under2000';
             break;
@@ -1313,6 +1298,11 @@ export class ProductPage {
             break;
           case 'stock':
             this.stockOnly = !this.stockOnly;
+            break;
+          default:
+            if (productStore.getActiveCategories().some(c => c.key === type)) {
+              this.selectedCategory = (this.selectedCategory === type) ? 'all' : type;
+            }
             break;
         }
 
