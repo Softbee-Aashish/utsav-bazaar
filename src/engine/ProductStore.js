@@ -982,12 +982,13 @@ export class ProductStore {
     return session;
   }
 
-  updatePaymentStatus(paymentId, status, utr = '', channel = '') {
+  updatePaymentStatus(paymentId, status, utr = '', channel = '', paymentMode = '') {
     const payment = this.payments.find(p => p.id === paymentId || p.orderId === paymentId);
     if (payment) {
       payment.status = status;
       if (utr) payment.utr = utr;
       if (channel) payment.channel = channel;
+      if (paymentMode) payment.paymentMode = paymentMode;
       if (status === 'SUCCESS' && payment.timestamp) {
         payment.durationSecs = Math.max(1, Math.round((Date.now() - payment.timestamp) / 1000));
       }

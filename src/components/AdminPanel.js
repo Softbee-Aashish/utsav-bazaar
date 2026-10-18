@@ -953,6 +953,53 @@ export class AdminPanel {
               <!-- Populated by renderPaymentsKPIs() -->
             </div>
 
+            <!-- Omnichannel Payment Gateways & Channels Status -->
+            <div class="admin-payment-channels-bar" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:14px; margin-bottom:22px;">
+              <div class="admin-card" style="margin:0; padding:14px 16px; border:1px solid rgba(255,183,3,0.3); background:linear-gradient(135deg, rgba(255,183,3,0.06), rgba(0,0,0,0.2)); display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.6rem;">⚡</span>
+                <div style="flex:1;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="font-size:0.88rem; color:var(--text-primary);">Instant UPI (NPCI)</strong>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:10px; background:rgba(34,197,94,0.15); color:#22C55E; border:1px solid rgba(34,197,94,0.3);">● Active</span>
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">GPay, PhonePe, Paytm, BHIM • 0% Cut</div>
+                </div>
+              </div>
+
+              <div class="admin-card" style="margin:0; padding:14px 16px; border:1px solid rgba(59,130,246,0.3); background:linear-gradient(135deg, rgba(59,130,246,0.06), rgba(0,0,0,0.2)); display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.6rem;">💳</span>
+                <div style="flex:1;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="font-size:0.88rem; color:var(--text-primary);">Credit & Debit Cards</strong>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:10px; background:rgba(34,197,94,0.15); color:#22C55E; border:1px solid rgba(34,197,94,0.3);">● 3D-Secure 2.0</span>
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">Visa, MasterCard, RuPay, Amex • 256-Bit SSL</div>
+                </div>
+              </div>
+
+              <div class="admin-card" style="margin:0; padding:14px 16px; border:1px solid rgba(168,85,247,0.3); background:linear-gradient(135deg, rgba(168,85,247,0.06), rgba(0,0,0,0.2)); display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.6rem;">🏦</span>
+                <div style="flex:1;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="font-size:0.88rem; color:var(--text-primary);">Internet Banking</strong>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:10px; background:rgba(34,197,94,0.15); color:#22C55E; border:1px solid rgba(34,197,94,0.3);">● 35+ Banks</span>
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">SBI, HDFC, ICICI, Axis, Kotak, PNB & more</div>
+                </div>
+              </div>
+
+              <div class="admin-card" style="margin:0; padding:14px 16px; border:1px solid rgba(212,175,55,0.3); background:linear-gradient(135deg, rgba(212,175,55,0.06), rgba(0,0,0,0.2)); display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.6rem;">📦</span>
+                <div style="flex:1;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="font-size:0.88rem; color:var(--text-primary);">Cash on Delivery</strong>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:10px; background:rgba(34,197,94,0.15); color:#22C55E; border:1px solid rgba(34,197,94,0.3);">● Active</span>
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">Doorstep Verification • All India Pin Codes</div>
+                </div>
+              </div>
+            </div>
+
             <!-- Middle Split: Live Staking Slot (Left) & Sovereign Gateway Settings (Right) -->
             <div class="youpi-staking-dashboard-layout" style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:20px; margin-bottom:24px;">
               
@@ -3790,7 +3837,7 @@ export class AdminPanel {
           <td>${utrContent}</td>
           <td>
             <span class="channel-badge" style="display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.72rem; background:rgba(212,175,55,0.1); color:var(--accent-gold); border:1px solid rgba(212,175,55,0.25);">
-              ${p.channel || 'YouPI Gateway'}
+              ${p.paymentMode || p.channel || 'Instant UPI'}
             </span>
           </td>
           <td>${statusBadge}</td>

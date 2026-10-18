@@ -2618,57 +2618,340 @@ body {
   background: rgba(255, 183, 3, 0.2);
 }
 
-/* Card Payment Box */
+/* Card Payment Box & Luxury Visual Preview */
 .card-pay-box {
   max-width: 100%;
   margin: 0 auto;
-  background: rgba(18, 12, 24, 0.8);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(18, 12, 24, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: 16px;
-  padding: 20px 16px;
+  padding: 18px 16px;
 }
 
 @media (min-width: 560px) {
   .card-pay-box {
-    max-width: 440px;
+    max-width: 480px;
     border-radius: 20px;
-    padding: 28px;
+    padding: 24px;
   }
 }
 
-/* Net Banking Grid */
-.netbanking-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+/* Luxury Visual Card Preview */
+.luxury-card-preview {
+  background: linear-gradient(135deg, #2A1B38 0%, #171022 50%, #0C0814 100%);
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(212, 175, 55, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="light"] .luxury-card-preview {
+  background: linear-gradient(135deg, #FFFDF0 0%, #FFF3D6 50%, #F5E6BE 100%);
+  border-color: #D4AF37;
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.25);
+}
+
+.luxury-card-preview::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.card-preview-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card-preview-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-chip-icon {
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
-@media (min-width: 420px) {
-  .netbanking-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+.card-contactless {
+  color: #D4AF37;
+  opacity: 0.85;
 }
 
-.bank-pill {
-  background: #140E1C;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 14px;
-  border-radius: 10px;
-  color: #CBD5E1;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-  min-height: 44px;
+.card-brand-badge {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  color: #FFD700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.card-preview-number {
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  letter-spacing: 0.15em;
+  color: #FFFDF0;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  min-height: 24px;
+}
+
+[data-theme="light"] .card-preview-number {
+  color: #231B0E;
+  text-shadow: none;
+}
+
+.card-preview-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.card-preview-holder,
+.card-preview-expiry {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-preview-label {
+  font-size: 9px;
+  color: #94A3B8;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.card-preview-name,
+.card-preview-exp {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #F8FAFC;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .card-preview-name,
+[data-theme="light"] .card-preview-exp {
+  color: #334155;
+}
+
+/* Card Input Form */
+.card-input-with-icon {
+  position: relative;
   display: flex;
   align-items: center;
 }
 
-.bank-pill.active, .bank-pill:hover {
-  border-color: var(--color-gold);
-  color: var(--color-gold-light);
-  background: rgba(212, 175, 55, 0.12);
+.card-input-with-icon input {
+  padding-right: 48px;
+}
+
+.card-type-icon {
+  position: absolute;
+  right: 12px;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.cvv-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cvv-input-wrap input {
+  padding-right: 36px;
+}
+
+.cvv-info-hint {
+  position: absolute;
+  right: 10px;
+  font-size: 14px;
+  cursor: help;
+  opacity: 0.7;
+}
+
+.card-security-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+  font-size: 11px;
+  color: #94A3B8;
+}
+
+.sec-badge-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.field-validation-err {
+  font-size: 11px;
+  color: #EF4444;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Net Banking Box */
+.netbanking-box {
+  max-width: 100%;
+  margin: 0 auto;
+  background: rgba(18, 12, 24, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 16px;
+  padding: 18px 16px;
+}
+
+@media (min-width: 560px) {
+  .netbanking-box {
+    max-width: 480px;
+    border-radius: 20px;
+    padding: 24px;
+  }
+}
+
+/* Popular Banks Grid */
+.popular-banks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 480px) {
+  .popular-banks-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.bank-pill {
+  background: rgba(20, 14, 28, 0.75);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 10px;
+  border-radius: 12px;
+  color: #CBD5E1;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.bank-pill.active {
+  background: rgba(212, 175, 55, 0.18) !important;
+  border-color: #D4AF37 !important;
+  color: #FFD700 !important;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+}
+
+.bank-pill-check {
+  font-size: 12px;
+  color: #10B981;
+  opacity: 0;
+  font-weight: 900;
+}
+
+.bank-pill.active .bank-pill-check {
+  opacity: 1;
+}
+
+.festive-select-dropdown {
+  width: 100%;
+  background: rgba(18, 12, 24, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #F8FAFC;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: inherit;
+  margin-top: 6px;
+  outline: none;
+}
+
+[data-theme="light"] .festive-select-dropdown {
+  background: #FFFDF7;
+  color: #1E293B;
+  border-color: #D4AF37;
+}
+
+.selected-bank-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34D399;
+  font-size: 12px;
+  margin: 12px 0 10px;
+}
+
+/* 3D-Secure OTP Modal & NetBanking Modal */
+.card-otp-modal,
+.netbanking-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.card-otp-backdrop,
+.nb-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.card-otp-card,
+.nb-dialog {
+  position: relative;
+  background: #110B18;
+  border: 1.5px solid var(--color-gold);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(212, 175, 55, 0.2);
+  color: #F8FAFC;
+  animation: modalFadeIn 0.25s ease;
+}
+
+[data-theme="light"] .card-otp-card,
+[data-theme="light"] .nb-dialog {
+  background: #FFFDF7;
+  color: #1E293B;
+  border-color: #D4AF37;
 }
 
 /* Cash on Delivery Box */

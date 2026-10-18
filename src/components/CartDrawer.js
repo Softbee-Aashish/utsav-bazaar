@@ -24,6 +24,8 @@ export class CartDrawer {
     this.youpiTimerInterval = null;
     this.currentPaymentOrderId = null;
     this.currentYoupiSession = null;
+    this.selectedNetBank = 'State Bank of India (SBI)';
+    this.detectedCardBrand = 'VISA';
 
     this.render();
     this.bindEvents();
@@ -528,44 +530,186 @@ export class CartDrawer {
                 </div>
               </div>
 
-              <!-- Card Tab Content -->
+              <!-- Card Tab Content (Interactive Credit & Debit Card System) -->
               <div class="payment-tab-content" id="tab-card">
                 <div class="card-pay-box">
-                  <div class="form-group">
-                    <label>Card Number</label>
-                    <input type="text" class="festive-input" value="4532 •••• •••• 8821" readonly />
-                  </div>
-                  <div class="form-row-2">
-                    <div class="form-group">
-                      <label>Valid Thru</label>
-                      <input type="text" class="festive-input" value="10/29" readonly />
+                  
+                  <!-- Luxury Golden Visual Card Preview -->
+                  <div class="luxury-card-preview" id="luxury-card-preview">
+                    <div class="card-preview-inner">
+                      <div class="card-preview-top">
+                        <div class="card-chip-icon">
+                          <svg width="34" height="26" viewBox="0 0 36 28" fill="none">
+                            <rect width="36" height="28" rx="4" fill="#D4AF37"/>
+                            <path d="M0 14h12M24 14h12M12 0v28M24 0v28M12 8h12M12 20h12" stroke="#996515" stroke-width="1.2"/>
+                          </svg>
+                          <span class="card-contactless">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 16.5a5 5 0 0 1 0-7M12 19a8.5 8.5 0 0 0 0-14M15.5 21.5a12 12 0 0 0 0-19"/></svg>
+                          </span>
+                        </div>
+                        <div class="card-brand-badge" id="card-preview-brand-badge">
+                          <span class="brand-text-visa">VISA</span>
+                        </div>
+                      </div>
+                      
+                      <div class="card-preview-number" id="card-preview-number-display">•••• •••• •••• ••••</div>
+                      
+                      <div class="card-preview-bottom">
+                        <div class="card-preview-holder">
+                          <span class="card-preview-label">CARDHOLDER</span>
+                          <span class="card-preview-name" id="card-preview-name-display">YOUR NAME</span>
+                        </div>
+                        <div class="card-preview-expiry">
+                          <span class="card-preview-label">VALID THRU</span>
+                          <span class="card-preview-exp" id="card-preview-exp-display">MM/YY</span>
+                        </div>
+                      </div>
                     </div>
+                  </div>
+
+                  <!-- Card Inputs Form -->
+                  <div class="card-inputs-form">
                     <div class="form-group">
-                      <label>CVV</label>
-                      <input type="password" class="festive-input" value="888" readonly />
+                      <label for="card-num-input">Card Number <span class="req-star" style="color:#EF4444;">*</span></label>
+                      <div class="card-input-with-icon">
+                        <input type="text" id="card-num-input" class="festive-input" placeholder="4532 8901 2345 6789" maxlength="19" autocomplete="cc-number" inputmode="numeric" />
+                        <span class="card-type-icon" id="card-detected-icon">💳</span>
+                      </div>
+                      <div class="field-validation-err" id="card-num-err" style="display:none;"></div>
                     </div>
+
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label for="card-exp-input">Valid Thru (MM/YY) <span class="req-star" style="color:#EF4444;">*</span></label>
+                        <input type="text" id="card-exp-input" class="festive-input" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" inputmode="numeric" />
+                        <div class="field-validation-err" id="card-exp-err" style="display:none;"></div>
+                      </div>
+                      <div class="form-group">
+                        <label for="card-cvv-input">CVV / CVC <span class="req-star" style="color:#EF4444;">*</span></label>
+                        <div class="cvv-input-wrap">
+                          <input type="password" id="card-cvv-input" class="festive-input" placeholder="•••" maxlength="4" autocomplete="cc-csc" inputmode="numeric" />
+                          <span class="cvv-info-hint" title="3 digits on back of Visa/Mastercard/RuPay, 4 digits on front for Amex">ℹ️</span>
+                        </div>
+                        <div class="field-validation-err" id="card-cvv-err" style="display:none;"></div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="cardholder-name-val">Cardholder Name <span class="req-star" style="color:#EF4444;">*</span></label>
+                      <input type="text" id="cardholder-name-val" class="festive-input" placeholder="Full name as printed on card" autocomplete="cc-name" />
+                      <div class="field-validation-err" id="card-name-err" style="display:none;"></div>
+                    </div>
+
+                    <div class="card-security-badges-row">
+                      <div class="sec-badge-item">🔒 256-Bit SSL Encrypted</div>
+                      <div class="sec-badge-item">🛡️ RBI Tokenized Safe</div>
+                      <div class="sec-badge-item">✓ Zero Surcharge</div>
+                    </div>
+
+                    <button class="stage-primary-btn" id="btn-pay-card" type="button">
+                      <span id="btn-pay-card-label">🔒 Pay with Credit / Debit Card</span>
+                    </button>
                   </div>
-                  <div class="form-group">
-                    <label>Cardholder Name</label>
-                    <input type="text" class="festive-input" id="cardholder-name-val" value="" placeholder="Cardholder Name as on Card" />
-                  </div>
-                  <button class="stage-primary-btn" id="btn-pay-card">
-                    <span>🔒 Pay via Sacred Encrypted Card</span>
-                  </button>
                 </div>
               </div>
 
-              <!-- Net Banking Tab Content -->
+              <!-- Net Banking Tab Content (All Indian Banks Supported) -->
               <div class="payment-tab-content" id="tab-netbanking">
-                <div class="netbanking-grid">
-                  <div class="bank-pill active">🏛️ State Bank of India</div>
-                  <div class="bank-pill">🏛️ HDFC Bank</div>
-                  <div class="bank-pill">🏛️ ICICI Bank</div>
-                  <div class="bank-pill">🏛️ Axis Bank</div>
+                <div class="netbanking-box">
+                  <div class="netbanking-header-tag" style="margin-bottom: 12px;">
+                    <div style="font-weight: 700; color: var(--color-gold-light); font-size: 13px; letter-spacing: 0.05em;">🏛️ POPULAR INDIAN BANKS</div>
+                    <div style="font-size: 11px; color: #94A3B8; margin-top: 2px;">Select your bank for instant direct netbanking</div>
+                  </div>
+
+                  <!-- Popular Bank Quick-Select Grid -->
+                  <div class="popular-banks-grid" id="popular-banks-grid">
+                    <button type="button" class="bank-pill active" data-bank="State Bank of India (SBI)">
+                      <span class="bank-pill-icon">🏛️</span>
+                      <span class="bank-pill-name">State Bank of India</span>
+                      <span class="bank-pill-check">✓</span>
+                    </button>
+                    <button type="button" class="bank-pill" data-bank="HDFC Bank">
+                      <span class="bank-pill-icon">🏛️</span>
+                      <span class="bank-pill-name">HDFC Bank</span>
+                      <span class="bank-pill-check">✓</span>
+                    </button>
+                    <button type="button" class="bank-pill" data-bank="ICICI Bank">
+                      <span class="bank-pill-icon">🏛️</span>
+                      <span class="bank-pill-name">ICICI Bank</span>
+                      <span class="bank-pill-check">✓</span>
+                    </button>
+                    <button type="button" class="bank-pill" data-bank="Axis Bank">
+                      <span class="bank-pill-icon">🏛️</span>
+                      <span class="bank-pill-name">Axis Bank</span>
+                      <span class="bank-pill-check">✓</span>
+                    </button>
+                    <button type="button" class="bank-pill" data-bank="Kotak Mahindra Bank">
+                      <span class="bank-pill-icon">🏛️</span>
+                      <span class="bank-pill-name">Kotak Mahindra</span>
+                      <span class="bank-pill-check">✓</span>
+                    </button>
+                    <button type="button" class="bank-pill" data-bank="Punjab National Bank (PNB)">
+                      <span class="bank-pill-icon">🏛️</span>
+                      <span class="bank-pill-name">Punjab National Bank</span>
+                      <span class="bank-pill-check">✓</span>
+                    </button>
+                  </div>
+
+                  <!-- All Other Banks Dropdown -->
+                  <div class="all-banks-selector-group" style="margin: 14px 0;">
+                    <label for="all-banks-select" style="font-size: 12px; font-weight: 600; color: #CBD5E1; display: block; margin-bottom: 4px;">Or choose from all other Indian banks:</label>
+                    <select id="all-banks-select" class="festive-select-dropdown">
+                      <option value="">-- Select Another Indian Bank --</option>
+                      <optgroup label="Public Sector Banks">
+                        <option value="Bank of Baroda">Bank of Baroda</option>
+                        <option value="Canara Bank">Canara Bank</option>
+                        <option value="Union Bank of India">Union Bank of India</option>
+                        <option value="Bank of India">Bank of India</option>
+                        <option value="Central Bank of India">Central Bank of India</option>
+                        <option value="Indian Bank">Indian Bank</option>
+                        <option value="Indian Overseas Bank">Indian Overseas Bank</option>
+                        <option value="UCO Bank">UCO Bank</option>
+                        <option value="Punjab & Sind Bank">Punjab & Sind Bank</option>
+                        <option value="Bank of Maharashtra">Bank of Maharashtra</option>
+                      </optgroup>
+                      <optgroup label="Private Banks">
+                        <option value="IndusInd Bank">IndusInd Bank</option>
+                        <option value="Yes Bank">Yes Bank</option>
+                        <option value="Federal Bank">Federal Bank</option>
+                        <option value="IDFC FIRST Bank">IDFC FIRST Bank</option>
+                        <option value="IDBI Bank">IDBI Bank</option>
+                        <option value="RBL Bank">RBL Bank</option>
+                        <option value="South Indian Bank">South Indian Bank</option>
+                        <option value="Karur Vysya Bank">Karur Vysya Bank</option>
+                        <option value="Bandhan Bank">Bandhan Bank</option>
+                        <option value="City Union Bank">City Union Bank</option>
+                        <option value="Tamilnad Mercantile Bank">Tamilnad Mercantile Bank</option>
+                        <option value="Jammu & Kashmir Bank">Jammu & Kashmir Bank</option>
+                      </optgroup>
+                      <optgroup label="Small Finance & Payment Banks">
+                        <option value="AU Small Finance Bank">AU Small Finance Bank</option>
+                        <option value="Equitas Small Finance Bank">Equitas Small Finance Bank</option>
+                        <option value="Ujjivan Small Finance Bank">Ujjivan Small Finance Bank</option>
+                        <option value="Paytm Payments Bank">Paytm Payments Bank</option>
+                        <option value="Airtel Payments Bank">Airtel Payments Bank</option>
+                        <option value="India Post Payments Bank">India Post Payments Bank</option>
+                      </optgroup>
+                    </select>
+                  </div>
+
+                  <div class="selected-bank-status" id="selected-bank-status-display">
+                    <span class="sel-indicator">✓</span>
+                    <span>Selected Bank: <strong id="current-selected-bank-name">State Bank of India (SBI)</strong></span>
+                  </div>
+
+                  <div class="netbanking-security-note" style="font-size: 11px; color: #94A3B8; margin: 10px 0 16px;">
+                    <span>🛡️ You will be securely authorized via 128-bit encrypted banking gateway. Zero convenience fee applied.</span>
+                  </div>
+
+                  <button class="stage-primary-btn" id="btn-pay-nb" type="button">
+                    <span id="btn-pay-nb-label">Pay via State Bank of India NetBanking</span>
+                  </button>
                 </div>
-                <button class="stage-primary-btn" id="btn-pay-nb" style="margin-top: 20px;">
-                  <span>Pay via Selected Bank</span>
-                </button>
               </div>
 
               <!-- COD Tab Content -->
@@ -577,6 +721,68 @@ export class CartDrawer {
                   <button class="stage-primary-btn" id="btn-pay-cod">
                     <span>Confirm Cash on Delivery</span>
                   </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3D-Secure 2.0 Bank Verification Modal -->
+            <div class="card-otp-modal" id="card-otp-modal" style="display: none;">
+              <div class="card-otp-backdrop" id="card-otp-backdrop"></div>
+              <div class="card-otp-card">
+                <div class="otp-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(212,175,55,0.3); padding-bottom:12px; margin-bottom:14px;">
+                  <div style="font-weight:700; color:#FFD700; font-size:14px; display:flex; align-items:center; gap:6px;">
+                    <span>🛡️</span> <span>Bank 3D-Secure 2.0 Gateway</span>
+                  </div>
+                  <button class="otp-close-btn" id="btn-close-card-otp" style="background:none; border:none; color:#CBD5E1; font-size:16px; cursor:pointer;">✕</button>
+                </div>
+                <div class="otp-modal-body">
+                  <div style="font-size:12px; color:#CBD5E1; margin-bottom:4px;">Merchant: <strong style="color:#FFF;">UTSAV BAZAAR ATELIER</strong></div>
+                  <div style="font-size:12px; color:#CBD5E1; margin-bottom:4px;">Amount Payable: <strong style="color:#FFD700;" id="otp-amount-display">₹0</strong></div>
+                  <div style="font-size:12px; color:#CBD5E1; margin-bottom:12px;">Card: <strong style="color:#FFF;" id="otp-card-masked">•••• •••• •••• 8821</strong></div>
+                  <p style="font-size:11px; color:#94A3B8; margin-bottom:12px; line-height:1.4;">An OTP has been dispatched to your mobile number registered with your issuing bank.</p>
+                  
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:700; color:#CBD5E1; display:block; margin-bottom:4px;">ENTER 6-DIGIT OTP</label>
+                    <div style="display:flex; gap:8px;">
+                      <input type="text" id="card-otp-code-input" maxlength="6" placeholder="847291" class="festive-input" value="847291" style="font-size:18px; letter-spacing:0.25em; text-align:center; font-weight:700;" />
+                      <button type="button" class="admin-btn-secondary" id="btn-otp-quick-fill" style="padding:0 12px; font-size:11px; white-space:nowrap; cursor:pointer;">Auto-Fill</button>
+                    </div>
+                  </div>
+                  
+                  <div style="font-size:11px; color:#64748B; margin-bottom:16px; text-align:center;">
+                    Resend code in <strong style="color:#FFDF73;" id="otp-countdown">00:45</strong>
+                  </div>
+                  
+                  <button class="stage-primary-btn" id="btn-submit-card-otp" type="button" style="width:100%;">
+                    <span>✓ Authorize & Confirm Payment</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- NetBanking Bank Gateway Simulation Dialog -->
+            <div class="netbanking-modal" id="netbanking-modal" style="display: none;">
+              <div class="nb-backdrop" id="nb-backdrop"></div>
+              <div class="nb-dialog">
+                <div class="nb-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(212,175,55,0.3); padding-bottom:12px; margin-bottom:16px;">
+                  <div style="font-weight:700; color:#FFD700; font-size:14px; display:flex; align-items:center; gap:6px;">
+                    <span id="nb-modal-bank-logo">🏛️ State Bank of India</span>
+                  </div>
+                  <span style="font-size:11px; background:rgba(16,185,129,0.15); color:#34D399; padding:3px 8px; border-radius:12px; border:1px solid rgba(16,185,129,0.3);">🔒 256-Bit SSL</span>
+                </div>
+                <div class="nb-body" style="text-align:center;">
+                  <div style="font-size:13px; color:#CBD5E1; margin-bottom:8px;">
+                    Authorizing Direct NetBanking transfer of <strong style="color:#FFD700;" id="nb-modal-amount">₹0</strong>
+                  </div>
+                  <p style="font-size:11px; color:#94A3B8; margin-bottom:16px; line-height:1.4;">
+                    Secure bank session established. Click approve to simulate instant retail banking authorization.
+                  </p>
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button class="stage-primary-btn" id="btn-confirm-nb-auth" type="button">
+                      <span>✓ Approve & Complete Transfer</span>
+                    </button>
+                    <button class="stage-back-btn" id="btn-cancel-nb-auth" type="button" style="padding:10px;">Cancel</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1072,12 +1278,285 @@ export class CartDrawer {
       }
     });
 
-    const btnPayCard = this.container.querySelector('#btn-pay-card');
-    const btnPayNB = this.container.querySelector('#btn-pay-nb');
-    const btnPayCOD = this.container.querySelector('#btn-pay-cod');
+    // --- INTERACTIVE CARD PAYMENT HANDLERS ---
+    const cardNumInput = this.container.querySelector('#card-num-input');
+    const cardExpInput = this.container.querySelector('#card-exp-input');
+    const cardCvvInput = this.container.querySelector('#card-cvv-input');
+    const cardHolderInput = this.container.querySelector('#cardholder-name-val');
+    const cardPreviewNumber = this.container.querySelector('#card-preview-number-display');
+    const cardPreviewExp = this.container.querySelector('#card-preview-exp-display');
+    const cardPreviewName = this.container.querySelector('#card-preview-name-display');
+    const cardDetectedIcon = this.container.querySelector('#card-detected-icon');
+    const cardBrandBadge = this.container.querySelector('#card-preview-brand-badge');
 
-    if (btnPayCard) btnPayCard.addEventListener('click', () => this.processPayment('Sacred Encrypted Card'));
-    if (btnPayNB) btnPayNB.addEventListener('click', () => this.processPayment('Net Banking (SBI/HDFC)'));
+    // Card Number Input: Formatting (XXXX XXXX XXXX XXXX), Brand Detection & Live Preview
+    if (cardNumInput) {
+      cardNumInput.addEventListener('input', (e) => {
+        let clean = e.target.value.replace(/\D/g, '').slice(0, 16);
+        let formatted = clean.replace(/(.{4})/g, '$1 ').trim();
+        e.target.value = formatted;
+
+        // Detect Card Network
+        let brand = 'VISA';
+        let icon = '💳';
+        if (clean.startsWith('4')) {
+          brand = 'VISA';
+          icon = '💳 Visa';
+        } else if (/^(5[1-5]|2[2-7])/.test(clean)) {
+          brand = 'MASTERCARD';
+          icon = '💳 Mastercard';
+        } else if (/^(60|65|81|82)/.test(clean)) {
+          brand = 'RUPAY';
+          icon = '💳 RuPay';
+        } else if (/^(34|37)/.test(clean)) {
+          brand = 'AMEX';
+          icon = '💳 Amex';
+        }
+
+        this.detectedCardBrand = brand;
+        if (cardDetectedIcon) cardDetectedIcon.textContent = icon;
+        if (cardBrandBadge) cardBrandBadge.innerHTML = `<span class="brand-text-${brand.toLowerCase()}">${brand}</span>`;
+
+        // Update visual card preview
+        if (cardPreviewNumber) {
+          cardPreviewNumber.textContent = formatted || '•••• •••• •••• ••••';
+        }
+
+        const errEl = this.container.querySelector('#card-num-err');
+        if (errEl) errEl.style.display = 'none';
+      });
+    }
+
+    // Expiry Date Input: Formatting (MM/YY) & Live Preview
+    if (cardExpInput) {
+      cardExpInput.addEventListener('input', (e) => {
+        let clean = e.target.value.replace(/\D/g, '').slice(0, 4);
+        if (clean.length >= 3) {
+          e.target.value = clean.slice(0, 2) + '/' + clean.slice(2);
+        } else {
+          e.target.value = clean;
+        }
+
+        if (cardPreviewExp) {
+          cardPreviewExp.textContent = e.target.value || 'MM/YY';
+        }
+
+        const errEl = this.container.querySelector('#card-exp-err');
+        if (errEl) errEl.style.display = 'none';
+      });
+    }
+
+    // CVV Input
+    if (cardCvvInput) {
+      cardCvvInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        const errEl = this.container.querySelector('#card-cvv-err');
+        if (errEl) errEl.style.display = 'none';
+      });
+    }
+
+    // Cardholder Name Input: Live Preview
+    if (cardHolderInput) {
+      cardHolderInput.addEventListener('input', (e) => {
+        if (cardPreviewName) {
+          cardPreviewName.textContent = (e.target.value.trim() || 'YOUR NAME').toUpperCase();
+        }
+        const errEl = this.container.querySelector('#card-name-err');
+        if (errEl) errEl.style.display = 'none';
+      });
+    }
+
+    // Pay via Card Button Click: Validation & 3D-Secure 2.0 OTP Modal Trigger
+    const btnPayCard = this.container.querySelector('#btn-pay-card');
+    if (btnPayCard) {
+      btnPayCard.addEventListener('click', () => {
+        let hasError = false;
+        const numClean = (cardNumInput?.value || '').replace(/\D/g, '');
+        const expVal = (cardExpInput?.value || '').trim();
+        const cvvVal = (cardCvvInput?.value || '').trim();
+        const nameVal = (cardHolderInput?.value || '').trim();
+
+        if (numClean.length < 15) {
+          const errEl = this.container.querySelector('#card-num-err');
+          if (errEl) {
+            errEl.textContent = 'Please enter a valid 15 or 16-digit card number.';
+            errEl.style.display = 'block';
+          }
+          if (cardNumInput) cardNumInput.focus();
+          hasError = true;
+        }
+
+        const [mm, yy] = expVal.split('/');
+        const monthNum = parseInt(mm, 10);
+        if (!mm || !yy || monthNum < 1 || monthNum > 12 || yy.length < 2) {
+          const errEl = this.container.querySelector('#card-exp-err');
+          if (errEl) {
+            errEl.textContent = 'Enter valid expiry (MM/YY).';
+            errEl.style.display = 'block';
+          }
+          if (!hasError && cardExpInput) cardExpInput.focus();
+          hasError = true;
+        }
+
+        if (cvvVal.length < 3) {
+          const errEl = this.container.querySelector('#card-cvv-err');
+          if (errEl) {
+            errEl.textContent = 'Enter 3 or 4-digit CVV.';
+            errEl.style.display = 'block';
+          }
+          if (!hasError && cardCvvInput) cardCvvInput.focus();
+          hasError = true;
+        }
+
+        if (nameVal.length < 2) {
+          const errEl = this.container.querySelector('#card-name-err');
+          if (errEl) {
+            errEl.textContent = 'Please enter the cardholder name.';
+            errEl.style.display = 'block';
+          }
+          if (!hasError && cardHolderInput) cardHolderInput.focus();
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        // Open 3D-Secure OTP Simulation Modal
+        const otpModal = this.container.querySelector('#card-otp-modal');
+        const amountDisplay = this.container.querySelector('#pay-stage-amount')?.textContent || '₹0';
+        const otpAmount = this.container.querySelector('#otp-amount-display');
+        const otpMasked = this.container.querySelector('#otp-card-masked');
+
+        if (otpAmount) otpAmount.textContent = amountDisplay;
+        if (otpMasked) otpMasked.textContent = `•••• •••• •••• ${numClean.slice(-4)}`;
+        if (otpModal) otpModal.style.display = 'flex';
+      });
+    }
+
+    // Card 3D-Secure OTP Modal Handlers
+    const closeOtpBtn = this.container.querySelector('#btn-close-card-otp');
+    const otpBackdrop = this.container.querySelector('#card-otp-backdrop');
+    const quickFillOtpBtn = this.container.querySelector('#btn-otp-quick-fill');
+    const submitOtpBtn = this.container.querySelector('#btn-submit-card-otp');
+
+    const hideOtpModal = () => {
+      const otpModal = this.container.querySelector('#card-otp-modal');
+      if (otpModal) otpModal.style.display = 'none';
+    };
+
+    if (closeOtpBtn) closeOtpBtn.addEventListener('click', hideOtpModal);
+    if (otpBackdrop) otpBackdrop.addEventListener('click', hideOtpModal);
+
+    if (quickFillOtpBtn) {
+      quickFillOtpBtn.addEventListener('click', () => {
+        const otpInput = this.container.querySelector('#card-otp-code-input');
+        if (otpInput) otpInput.value = '847291';
+      });
+    }
+
+    if (submitOtpBtn) {
+      submitOtpBtn.addEventListener('click', () => {
+        const otpInput = this.container.querySelector('#card-otp-code-input');
+        const code = (otpInput?.value || '').trim();
+        if (code.length < 4) {
+          alert('Please enter the 6-digit OTP sent to your registered mobile.');
+          return;
+        }
+
+        submitOtpBtn.disabled = true;
+        submitOtpBtn.innerHTML = '<span>⏳ Authorizing Card with Issuing Bank...</span>';
+
+        setTimeout(() => {
+          hideOtpModal();
+          submitOtpBtn.disabled = false;
+          submitOtpBtn.innerHTML = '<span>✓ Authorize & Confirm Payment</span>';
+          
+          const numClean = (cardNumInput?.value || '').replace(/\D/g, '');
+          const last4 = numClean.slice(-4) || '8821';
+          const cardDesc = `Credit/Debit Card (${this.detectedCardBrand || 'Card'} - ending in ${last4})`;
+          const txnId = `CARD-${Date.now().toString().slice(-8)}`;
+          
+          this.processPayment(cardDesc, txnId, 'CARD_GATEWAY');
+        }, 1200);
+      });
+    }
+
+    // --- INTERACTIVE NET BANKING HANDLERS ---
+    const bankPills = this.container.querySelectorAll('#popular-banks-grid .bank-pill');
+    const allBanksSelect = this.container.querySelector('#all-banks-select');
+    const selectedBankDisplay = this.container.querySelector('#current-selected-bank-name');
+    const btnPayNB = this.container.querySelector('#btn-pay-nb');
+    const btnPayNBLabel = this.container.querySelector('#btn-pay-nb-label');
+
+    const updateSelectedBank = (bankName) => {
+      this.selectedNetBank = bankName;
+      if (selectedBankDisplay) selectedBankDisplay.textContent = bankName;
+      const amountStr = this.container.querySelector('#pay-stage-amount')?.textContent || '';
+      if (btnPayNBLabel) {
+        btnPayNBLabel.textContent = `Pay ${amountStr} via ${bankName} NetBanking`;
+      }
+    };
+
+    bankPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        bankPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        if (allBanksSelect) allBanksSelect.value = '';
+        const bName = pill.getAttribute('data-bank');
+        updateSelectedBank(bName);
+      });
+    });
+
+    if (allBanksSelect) {
+      allBanksSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val) {
+          bankPills.forEach(p => p.classList.remove('active'));
+          updateSelectedBank(val);
+        }
+      });
+    }
+
+    // Net Banking Modal Handlers
+    const nbModal = this.container.querySelector('#netbanking-modal');
+    const nbModalBankLogo = this.container.querySelector('#nb-modal-bank-logo');
+    const nbModalAmount = this.container.querySelector('#nb-modal-amount');
+    const btnConfirmNBAuth = this.container.querySelector('#btn-confirm-nb-auth');
+    const btnCancelNBAuth = this.container.querySelector('#btn-cancel-nb-auth');
+    const nbBackdrop = this.container.querySelector('#nb-backdrop');
+
+    const hideNBModal = () => {
+      if (nbModal) nbModal.style.display = 'none';
+    };
+
+    if (btnPayNB) {
+      btnPayNB.addEventListener('click', () => {
+        const amountDisplay = this.container.querySelector('#pay-stage-amount')?.textContent || '₹0';
+        if (nbModalBankLogo) nbModalBankLogo.textContent = `🏛️ ${this.selectedNetBank}`;
+        if (nbModalAmount) nbModalAmount.textContent = amountDisplay;
+        if (nbModal) nbModal.style.display = 'flex';
+      });
+    }
+
+    if (btnCancelNBAuth) btnCancelNBAuth.addEventListener('click', hideNBModal);
+    if (nbBackdrop) nbBackdrop.addEventListener('click', hideNBModal);
+
+    if (btnConfirmNBAuth) {
+      btnConfirmNBAuth.addEventListener('click', () => {
+        btnConfirmNBAuth.disabled = true;
+        btnConfirmNBAuth.innerHTML = '<span>⏳ Authorizing Bank Transfer...</span>';
+
+        setTimeout(() => {
+          hideNBModal();
+          btnConfirmNBAuth.disabled = false;
+          btnConfirmNBAuth.innerHTML = '<span>✓ Approve & Complete Transfer</span>';
+          
+          const txnId = `NETB-${Date.now().toString().slice(-8)}`;
+          this.processPayment(`Net Banking (${this.selectedNetBank})`, txnId, 'NET_BANKING');
+        }, 1200);
+      });
+    }
+
+    const btnPayCOD = this.container.querySelector('#btn-pay-cod');
     if (btnPayCOD) btnPayCOD.addEventListener('click', () => this.processPayment('Cash on Delivery', 'COD-CASH-COLL', 'CASH_DELIVERY'));
 
     // 10. Direct PDF File Generation & Download
@@ -1266,6 +1745,15 @@ export class CartDrawer {
     // Update cardholder name from guest name
     const chInput = this.container.querySelector('#cardholder-name-val');
     if (chInput) chInput.value = this.guestDetails.name;
+    const cardPreviewName = this.container.querySelector('#card-preview-name-display');
+    if (cardPreviewName) cardPreviewName.textContent = (this.guestDetails.name || 'YOUR NAME').toUpperCase();
+
+    // Update payment button labels with current checkout amount
+    const btnPayCardLabel = this.container.querySelector('#btn-pay-card-label');
+    if (btnPayCardLabel) btnPayCardLabel.textContent = `🔒 Pay ${totalStr} with Credit / Debit Card`;
+
+    const btnPayNBLabel = this.container.querySelector('#btn-pay-nb-label');
+    if (btnPayNBLabel) btnPayNBLabel.textContent = `Pay ${totalStr} via ${this.selectedNetBank || 'State Bank of India'} NetBanking`;
 
     // Initialize YouPI Sovereign Session
     this.initYoupiSession(totalINR);
@@ -1513,7 +2001,7 @@ export class CartDrawer {
         const finalUtr = utr || `${Math.floor(400000000000 + Math.random() * 599999999999)}`;
         const finalChannel = channel || (paymentMode.includes('COD') ? 'CASH_DELIVERY' : 'BANK_SMS');
         const finalStatus = paymentMode.includes('COD') ? 'SUCCESS_COD' : 'SUCCESS';
-        productStore.updatePaymentStatus(this.currentYoupiSession.id, finalStatus, finalUtr, finalChannel);
+        productStore.updatePaymentStatus(this.currentYoupiSession.id, finalStatus, finalUtr, finalChannel, paymentMode);
         this.currentYoupiSession = null;
       }
     } catch (e) {
