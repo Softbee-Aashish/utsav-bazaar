@@ -103,8 +103,8 @@ export class ProductPage {
         <button class="m-back-btn" id="btn-mobile-header-back" aria-label="Go Back">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
-        <div class="m-logo-brand" id="mobile-brand-home-trigger" title="Utsav Bazaar Home">
-          <span class="m-diya-crest">🪔</span>
+        <div class="m-logo-brand" id="mobile-brand-home-trigger" title="e-com mart Home">
+          <span class="brand-leaf-dot"></span>
         </div>
         <div class="m-search-box">
           <span class="m-search-glass-icon">
@@ -240,7 +240,7 @@ export class ProductPage {
             <h4 class="filter-title">Special Benefits</h4>
             <div class="prime-festive-badge">
               <span class="gold-icon">👑</span>
-              <span>Utsav Express Delivery</span>
+              <span>Express Delivery</span>
             </div>
             <div class="filter-feature-note">Free Premium Gift Packaging & Insured Delivery with every order.</div>
           </div>
@@ -565,7 +565,7 @@ export class ProductPage {
       <!-- Category Hero Top Banner -->
       <div class="ecom-category-hero-banner">
         <div class="hero-banner-content">
-          <div class="hero-banner-tag">✦ UTSAV BAZAAR CURATED COLLECTION ✦</div>
+          <div class="hero-banner-tag">✦ e-com mart CURATED COLLECTION ✦</div>
           <h2 class="hero-banner-title">${currentTitle}</h2>
           <p class="hero-banner-desc">${currentHeroDesc}</p>
         </div>
@@ -597,7 +597,7 @@ export class ProductPage {
       : (p.rating ? Number(p.rating).toFixed(1) : '4.2');
 
     const isFav = this.isWishlisted(p.id);
-    const brandName = p.origin ? p.origin.split(',')[0].toUpperCase().slice(0, 16) : 'UTSAV CRAFT';
+    const brandName = p.origin ? p.origin.split(',')[0].toUpperCase().slice(0, 16) : 'VERIFIED';
 
     return `
       <div class="ecom-product-card" data-card-id="${p.id}">
@@ -868,7 +868,7 @@ export class ProductPage {
             <div class="offers-cards-row">
               <div class="offer-card">
                 <strong>Bank Offer</strong>
-                <p>Upto 15% discount on HDFC & SBI Credit Cards with code <strong>DIWALI2026</strong></p>
+                <p>Upto 15% discount on HDFC & SBI Credit Cards with code <strong>SAVE15</strong></p>
                 <a href="#">1 offer ›</a>
               </div>
               <div class="offer-card">
@@ -954,7 +954,7 @@ export class ProductPage {
             </div>
 
             <div class="buybox-seller-meta">
-              <div class="meta-row"><span>Ships from:</span> <strong>Utsav Bazaar Express</strong></div>
+              <div class="meta-row"><span>Ships from:</span> <strong>e-com mart Express</strong></div>
               <div class="meta-row"><span>Sold by:</span> <strong>${product.origin ? product.origin.split(',')[0] + ' Artisans' : 'Royal Heritage Craft'}</strong></div>
               <div class="meta-row"><span>Payment:</span> <strong>Secure transaction</strong></div>
             </div>

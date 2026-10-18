@@ -40,8 +40,8 @@ export class CartDrawer {
         <!-- Header -->
         <div class="drawer-header">
           <div class="drawer-title-group">
-            <span class="drawer-diya">🪔</span>
-            <h3>Your Festive Thali</h3>
+            <span class="drawer-diya">🛒</span>
+            <h3>Your Shopping Cart</h3>
             <span class="drawer-count-badge" id="drawer-item-count">0 items</span>
           </div>
           <button class="drawer-close-btn" id="drawer-close-btn" aria-label="Close cart">
@@ -49,18 +49,18 @@ export class CartDrawer {
           </button>
         </div>
 
-        <!-- Festive Welcome Message -->
+        <!-- Modern Trust Message -->
         <div class="festive-blessing-bar">
-          <span>✨ Handcrafted artisan quality & complimentary gift packaging.</span>
+          <span>✓ 100% Verified Quality • Free Express Delivery Across India</span>
         </div>
 
         <!-- Cart Items List Container -->
         <div class="cart-items-scroll">
           <div class="empty-cart-state" id="empty-cart-view">
-            <span class="empty-icon">🪔</span>
-            <h4>Your Thali is empty</h4>
-            <p>Explore our royal collection of brass diyas, handcrafted mithai hampers, and festive lanterns.</p>
-            <button class="continue-shopping-btn" id="empty-shop-now-btn">Explore Offerings</button>
+            <span class="empty-icon">🛒</span>
+            <h4>Your Cart is empty</h4>
+            <p>Explore our curated collection of wireless electronics, apparel, and modern home essentials.</p>
+            <button class="continue-shopping-btn" id="empty-shop-now-btn">Explore Products</button>
           </div>
           <div class="cart-items-list-wrap" id="cart-items-container"></div>
         </div>
@@ -69,7 +69,7 @@ export class CartDrawer {
         <div class="drawer-footer" id="drawer-footer" style="display: none;">
           <!-- Promo Code Input -->
           <div class="promo-box">
-            <input type="text" id="promo-input" placeholder="Enter coupon code (try DIWALI2026)" class="promo-input" />
+            <input type="text" id="promo-input" placeholder="Enter coupon code (try SAVE15)" class="promo-input" />
             <button class="promo-apply-btn" id="promo-apply-btn">Apply</button>
           </div>
           <div class="promo-feedback" id="promo-feedback"></div>
@@ -813,17 +813,16 @@ export class CartDrawer {
               <div class="invoice-top-row">
                 <div class="invoice-brand-col">
                   <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
-                    <span style="font-size:26px; line-height:1;">🪔</span>
-                    <div>
-                      <div class="invoice-company-name" style="margin:0;">UTSAV BAZAAR</div>
-                      <div style="font-size:11px; font-weight:700; color:#B45309; letter-spacing:0.06em; text-transform:uppercase;">Artisanal Home Decor & Festive Lifestyle</div>
+                    <div class="brand-logo-mark" style="font-size:20px; font-weight:800;">
+                      <span class="brand-leaf-dot"></span>
+                      <span>e-com <strong style="color: #10B981;">mart</strong></span>
                     </div>
                   </div>
                   <div class="invoice-reg-address" style="margin-top:6px; font-size:11px; color:#475569; line-height:1.55;">
-                    <div><strong>Registered Store:</strong> Utsav Bazaar Crafts</div>
-                    <div>Heritage Craft District, Johari Bazaar, Jaipur, Rajasthan — 302003, India</div>
-                    <div><strong>GSTIN:</strong> 08AAACU1234F1Z5 • <strong>CIN:</strong> U52100RJ2026PTC084210</div>
-                    <div><strong>Email:</strong> support@utsavbazaar.in | <strong>Tel:</strong> +91 800 266 7822</div>
+                    <div><strong>Registered Store:</strong> e-com mart India Private Limited</div>
+                    <div>Cyber City, Phase 2, Gurugram, Haryana — 122002, India</div>
+                    <div><strong>GSTIN:</strong> 06AAACE1234F1Z9 • <strong>CIN:</strong> U72900HR2026PTC099881</div>
+                    <div><strong>Email:</strong> billing@ecommart.in | <strong>Tel:</strong> 1800-266-7822</div>
                   </div>
                 </div>
                 <div class="invoice-meta-col">
@@ -973,13 +972,14 @@ export class CartDrawer {
     if (promoBtn && promoInput) {
       promoBtn.addEventListener('click', () => {
         const code = promoInput.value.trim().toUpperCase();
-        if (code === 'DIWALI2026' || code === 'UTSAV2026') {
-          this.discountPercent = 0.15;
+        const activeCode = (productStore.discountSettings.couponCode || 'SAVE15').toUpperCase();
+        if (code === 'SAVE15' || code === activeCode || code === 'WELCOME15') {
+          this.discountPercent = (productStore.discountSettings.discountPercent || 15) / 100;
           this.promoCodeApplied = code;
-          promoFeedback.innerHTML = `<span style="color:#0E8A5E;">✓ Auspicious 15% Festive Blessing Applied!</span>`;
+          promoFeedback.innerHTML = `<span style="color:#10B981;">✓ 15% Promotional Discount Applied!</span>`;
           this.updateTotals();
         } else {
-          promoFeedback.innerHTML = `<span style="color:#C9184A;">Invalid coupon. Try 'DIWALI2026'</span>`;
+          promoFeedback.innerHTML = `<span style="color:#EF4444;">Invalid coupon. Try '${activeCode}'</span>`;
         }
       });
     }

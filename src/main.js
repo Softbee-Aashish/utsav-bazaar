@@ -25,19 +25,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const qvContainer = document.querySelector('#quickview-container');
   const adminContainer = document.querySelector('#admin-container');
 
-  // 1. Initialize Frame Loader for 3D Cinematic Animation
-  const frameLoader = new FrameLoader({
-    totalFrames: 60,
-    onProgress: (pct) => {
-      console.log(`Loading frames: ${Math.round(pct * 100)}%`);
-    },
-    onLoaded: (frames) => {
-      console.log(`Loaded ${frames.length} AI frames successfully!`);
-    }
-  });
-
-  // 2. Initialize Scene Renderer
-  const sceneRenderer = new SceneRenderer(canvas, frameLoader);
+  // 1. Optional 3D Cinematic Animation (Guarded)
+  let frameLoader = null;
+  let sceneRenderer = null;
+  if (canvas && scrollTrack) {
+    frameLoader = new FrameLoader({
+      totalFrames: 60,
+      onProgress: (pct) => {},
+      onLoaded: (frames) => {}
+    });
+    sceneRenderer = new SceneRenderer(canvas, frameLoader);
+  }
 
   // 1. Initialize Cart & Admin components
   let cartDrawer = null;
@@ -293,51 +291,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     cartDrawer.openGuestCheckout();
   });
 
-  // 7. Initialize Scroll Scrubber for 3D Cinematic Animation
-  const scrubber = new ScrollScrubber({
-    container: scrollTrack,
-    lerpFactor: 0.085,
-    onUpdate: (progressData) => {
-      sceneRenderer.update(progressData);
-      sceneRenderer.render();
-      storyOverlay.update(progressData);
-    },
-    onSceneChange: (sceneIndex, sceneInfo) => {
-      console.log(`Transitioned to Scene ${sceneIndex + 1}: ${sceneInfo.name}`);
-      soundManager.handleSceneTransition(sceneIndex);
-    }
-  });
-
-  // 8. Initialize Story HUD Overlay (Clean animation without story card text)
-  const storyOverlay = new StoryOverlay(hudContainer, scrubber, frameLoader);
-
-  // First render pass
-  sceneRenderer.render();
-
-  // 9. Auto-unlock Web Audio on first user interaction & start sweet melody
-  const unlockAudio = () => {
-    soundManager.init();
-    if (soundManager.isMuted) {
-      soundManager.toggleMute();
-      const soundBtn = document.querySelector('#sound-toggle-btn');
-      const soundLabel = document.querySelector('#sound-label');
-      if (soundBtn) {
-        soundBtn.classList.remove('muted');
-        soundBtn.classList.add('active');
+  // 7. Optional Scroll Scrubber for 3D Cinematic Animation
+  if (scrollTrack && sceneRenderer && hudContainer && frameLoader) {
+    const scrubber = new ScrollScrubber({
+      container: scrollTrack,
+      lerpFactor: 0.085,
+      onUpdate: (progressData) => {
+        sceneRenderer.update(progressData);
+        sceneRenderer.render();
       }
-      if (soundLabel) {
-        soundLabel.textContent = 'Sound On';
-      }
-    }
-    window.removeEventListener('click', unlockAudio);
-    window.removeEventListener('keydown', unlockAudio);
-    window.removeEventListener('touchstart', unlockAudio);
-    window.removeEventListener('scroll', unlockAudio);
-  };
-  window.addEventListener('click', unlockAudio);
-  window.addEventListener('keydown', unlockAudio);
-  window.addEventListener('touchstart', unlockAudio);
-  window.addEventListener('scroll', unlockAudio);
+    });
+    sceneRenderer.render();
+  }
 
-  console.log('🎇 Utsav Bazaar is ready to celebrate!');
+  console.log('✨ e-com mart is ready!');
 });
