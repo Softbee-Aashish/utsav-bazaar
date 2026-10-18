@@ -3287,24 +3287,127 @@ body {
 
 /* PRINT FORMATTING FOR ROYAL TAX INVOICE */
 @media print {
-  body * {
-    visibility: hidden;
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
   }
-  #printable-tax-invoice, #printable-tax-invoice * {
-    visibility: visible;
+
+  html, body {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  #printable-tax-invoice {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 20px;
-    box-shadow: none;
-    border: none;
-  }
-  .checkout-modal-close, .invoice-actions-footer, .invoice-success-banner {
+
+  /* Hide all external elements and UI chrome */
+  #nav-container,
+  #scroll-track,
+  #product-page-container,
+  #shop-container,
+  #quickview-container,
+  #admin-container,
+  footer,
+  .cart-drawer-panel,
+  .cart-backdrop,
+  .checkout-modal-close,
+  .invoice-actions-footer,
+  .invoice-success-banner,
+  #stage-guest-details,
+  #stage-payment-gateway,
+  #pay-processing-overlay,
+  #card-otp-modal,
+  #netbanking-modal,
+  #youpi-modal {
     display: none !important;
+  }
+
+  /* Unconstrain checkout modal overlay for clean 100% white print flow */
+  .checkout-modal-overlay {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .checkout-modal-window {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: auto !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+
+  #stage-invoice-confirmation {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+
+  /* High-DPI Royal Invoice Card */
+  #printable-tax-invoice {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    margin: 0 auto !important;
+    padding: 24px 28px !important;
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-top: 6px solid #D4AF37 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #printable-tax-invoice * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .invoice-table th {
+    background: #F1F5F9 !important;
+    color: #334155 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .tax-invoice-badge {
+    background: #D4AF37 !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .gov-seal {
+    background: #ECFDF5 !important;
+    border: 1px solid #A7F3D0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 

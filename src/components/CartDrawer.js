@@ -812,7 +812,10 @@ export class CartDrawer {
               <!-- Invoice Header -->
               <div class="invoice-top-row">
                 <div class="invoice-brand-col">
-                  <div class="invoice-company-name">UTSAV BAZAAR (उत्सव बाज़ार)</div>
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <span style="font-size:22px; line-height:1;">🪔</span>
+                    <div class="invoice-company-name" style="margin:0;">UTSAV BAZAAR (उत्सव बाज़ार)</div>
+                  </div>
                   <div class="invoice-reg-address">
                     Authentic Indian Artisanal Crafts & Festive Guilds<br/>
                     Heritage Craft District, Johari Bazaar, Jaipur, Rajasthan 302003<br/>
@@ -1559,91 +1562,19 @@ export class CartDrawer {
     const btnPayCOD = this.container.querySelector('#btn-pay-cod');
     if (btnPayCOD) btnPayCOD.addEventListener('click', () => this.processPayment('Cash on Delivery', 'COD-CASH-COLL', 'CASH_DELIVERY'));
 
-    // 10. Direct PDF File Generation & Download
+    // 10. High-Resolution PDF File Generation & Download
     const downloadPdfBtn = this.container.querySelector('#btn-download-pdf');
     if (downloadPdfBtn) {
       downloadPdfBtn.addEventListener('click', () => {
-        const invoiceEl = this.container.querySelector('#printable-tax-invoice');
-        if (!invoiceEl) return;
-
-        const invNum = this.container.querySelector('#inv-number-val')?.textContent || 'UB-INV';
-        downloadPdfBtn.disabled = true;
-        downloadPdfBtn.innerHTML = '<span>⏳ Generating PDF...</span>';
-
-        // Generate printable standalone HTML document for high quality PDF export
-        const invoiceHTML = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="utf-8">
-            <title>Tax Invoice - ${invNum}</title>
-            <style>
-              body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #1e293b; background: #fff; }
-              .invoice-top-row { display: flex; justify-content: space-between; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; margin-bottom: 20px; }
-              .invoice-company-name { font-size: 20px; font-weight: 800; color: #111; letter-spacing: 0.05em; }
-              .invoice-reg-address { font-size: 11px; color: #64748b; line-height: 1.4; margin-top: 4px; }
-              .tax-invoice-badge { font-size: 13px; font-weight: 800; color: #D4AF37; text-align: right; margin-bottom: 6px; letter-spacing: 0.05em; }
-              .inv-meta-row { font-size: 12px; color: #334155; margin-bottom: 2px; text-align: right; }
-              .invoice-customer-row { display: flex; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 24px; }
-              .cust-label { font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 0.05em; display: block; margin-bottom: 4px; }
-              .cust-val-name { font-size: 15px; font-weight: 700; color: #0f172a; }
-              .cust-val-addr, .cust-val-city, .cust-val-contact { font-size: 12px; color: #334155; margin-top: 2px; }
-              .gov-seal { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #047857; font-weight: 700; }
-              .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-              .invoice-table th { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px; font-size: 11px; text-transform: uppercase; color: #475569; text-align: left; }
-              .invoice-table td { border: 1px solid #e2e8f0; padding: 10px; font-size: 12px; }
-              .invoice-bottom-grid { display: flex; justify-content: space-between; gap: 20px; }
-              .invoice-blessing-note { flex: 1; font-size: 12px; color: #64748b; line-height: 1.5; }
-              .invoice-summary-calc { width: 340px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
-              .calc-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: #334155; }
-              .total-highlight { border-top: 2px solid #D4AF37; padding-top: 8px; font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 8px; }
-              .free-shipping-tag { color: #059669; font-weight: 700; }
-            </style>
-          </head>
-          <body>
-            ${invoiceEl.innerHTML}
-          </body>
-          </html>
-        `;
-
-        // Direct Download as HTML/PDF or Print Dialog
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-          printWindow.document.open();
-          printWindow.document.write(invoiceHTML);
-          printWindow.document.close();
-          setTimeout(() => {
-            printWindow.focus();
-            printWindow.print();
-          }, 350);
-        } else {
-          // If popup blocked, create downloadable file
-          const blob = new Blob([invoiceHTML], { type: 'text/html' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `Tax-Invoice-${invNum}.html`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }
-
-        setTimeout(() => {
-          downloadPdfBtn.disabled = false;
-          downloadPdfBtn.innerHTML = `
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <span>📥 Download PDF Invoice</span>
-          `;
-        }, 1200);
+        this.downloadInvoicePDF();
       });
     }
 
-    // 10b. Print / Save as PDF Button
+    // 10b. Clean Isolated Print / Save as PDF Button
     const printBtn = this.container.querySelector('#btn-print-invoice');
     if (printBtn) {
       printBtn.addEventListener('click', () => {
-        window.print();
+        this.printInvoiceIsolated();
       });
     }
 
@@ -1688,6 +1619,350 @@ export class CartDrawer {
       const el = this.container.querySelector(`#${s}`);
       if (el) el.style.display = (s === stageId) ? 'block' : 'none';
     });
+    // Ensure modal dialog resets scroll position so invoice/stage opens at the very top
+    const modalWin = this.container.querySelector('.checkout-modal-window');
+    if (modalWin) modalWin.scrollTop = 0;
+    const modalOverlay = this.container.querySelector('#checkout-modal-overlay');
+    if (modalOverlay) modalOverlay.scrollTop = 0;
+  }
+
+  downloadInvoicePDF() {
+    const invoiceEl = this.container.querySelector('#printable-tax-invoice');
+    if (!invoiceEl) return;
+
+    const invNum = this.container.querySelector('#inv-number-val')?.textContent?.trim() || `UB-INV-${Date.now().toString().slice(-6)}`;
+    const downloadPdfBtn = this.container.querySelector('#btn-download-pdf');
+
+    if (downloadPdfBtn) {
+      downloadPdfBtn.disabled = true;
+      downloadPdfBtn.innerHTML = `
+        <svg style="animation:spin 1s linear infinite;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-linecap="round"></path>
+        </svg>
+        <span>⏳ Generating Crisp PDF...</span>
+      `;
+    }
+
+    const restoreBtn = (success = true) => {
+      if (!downloadPdfBtn) return;
+      downloadPdfBtn.disabled = false;
+      downloadPdfBtn.innerHTML = success ? `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>✓ PDF Downloaded!</span>
+      ` : `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>📥 Download PDF Invoice</span>
+      `;
+      setTimeout(() => {
+        downloadPdfBtn.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>📥 Download PDF Invoice</span>
+        `;
+      }, 3000);
+    };
+
+    if (typeof window.html2pdf === 'function') {
+      // Build dedicated off-screen container rendered at standard A4 desktop width (794px)
+      const exportContainer = document.createElement('div');
+      exportContainer.id = 'pdf-export-container';
+      exportContainer.style.position = 'fixed';
+      exportContainer.style.left = '-9999px';
+      exportContainer.style.top = '0';
+      exportContainer.style.width = '794px';
+      exportContainer.style.background = '#FFFFFF';
+      exportContainer.style.color = '#0F172A';
+      exportContainer.style.fontFamily = "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      exportContainer.style.padding = '36px 40px';
+      exportContainer.style.borderTop = '8px solid #D4AF37';
+      exportContainer.style.boxSizing = 'border-box';
+      exportContainer.style.zIndex = '-9999';
+      exportContainer.innerHTML = invoiceEl.innerHTML;
+
+      document.body.appendChild(exportContainer);
+
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `Utsav-Bazaar-Tax-Invoice-${invNum}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2.5,
+          useCORS: true,
+          letterRendering: true,
+          scrollY: 0,
+          scrollX: 0
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        }
+      };
+
+      window.html2pdf().set(opt).from(exportContainer).save().then(() => {
+        if (exportContainer.parentNode) exportContainer.parentNode.removeChild(exportContainer);
+        restoreBtn(true);
+      }).catch(err => {
+        console.error("html2pdf generation error:", err);
+        if (exportContainer.parentNode) exportContainer.parentNode.removeChild(exportContainer);
+        this.printInvoiceIsolated();
+        restoreBtn(false);
+      });
+    } else {
+      this.printInvoiceIsolated();
+      restoreBtn(true);
+    }
+  }
+
+  printInvoiceIsolated() {
+    const invoiceEl = this.container.querySelector('#printable-tax-invoice');
+    if (!invoiceEl) return;
+
+    const invNum = this.container.querySelector('#inv-number-val')?.textContent?.trim() || `UB-INV-${Date.now().toString().slice(-6)}`;
+
+    const oldFrame = document.getElementById('utsav-invoice-print-frame');
+    if (oldFrame) oldFrame.remove();
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'utsav-invoice-print-frame';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>Utsav Bazaar - Tax Invoice ${invNum}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 10mm 12mm;
+          }
+          * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            background: #FFFFFF !important;
+            color: #0F172A !important;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
+          }
+          .royal-invoice-wrapper {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            padding: 32px 36px;
+            border: 1.5px solid #E2E8F0;
+            border-top: 6px solid #D4AF37;
+            border-radius: 8px;
+            box-shadow: none;
+          }
+          .invoice-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+          }
+          .invoice-brand-col {
+            flex: 1;
+          }
+          .invoice-company-name {
+            font-family: 'Cinzel', Georgia, serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: 0.08em;
+            margin-bottom: 4px;
+          }
+          .invoice-reg-address {
+            font-size: 11px;
+            line-height: 1.5;
+            color: #64748B;
+          }
+          .invoice-meta-col {
+            text-align: right;
+          }
+          .tax-invoice-badge {
+            display: inline-block;
+            background: #D4AF37;
+            color: #000000;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+          }
+          .inv-meta-row {
+            font-size: 12px;
+            color: #334155;
+            margin-bottom: 2px;
+          }
+          .invoice-customer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            background: #F8FAFC;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border: 1px solid #E2E8F0;
+          }
+          .cust-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #64748B;
+            display: block;
+            margin-bottom: 4px;
+          }
+          .cust-val-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0F172A;
+          }
+          .cust-val-addr, .cust-val-city {
+            font-size: 12px;
+            color: #475569;
+          }
+          .cust-val-contact {
+            font-size: 11px;
+            color: #64748B;
+            margin-top: 4px;
+          }
+          .gov-seal {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 10px;
+            color: #065F46;
+            max-width: 260px;
+          }
+          .seal-icon {
+            font-size: 18px;
+          }
+          .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          .invoice-table th {
+            background: #F1F5F9;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 10px 12px;
+            border-bottom: 2px solid #CBD5E1;
+            text-align: left;
+          }
+          .invoice-table td {
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #1E293B;
+            border-bottom: 1px solid #E2E8F0;
+          }
+          .invoice-bottom-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 24px;
+            border-top: 2px solid #E2E8F0;
+            padding-top: 16px;
+          }
+          .invoice-blessing-note h4 {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0F172A;
+            margin: 0 0 4px 0;
+          }
+          .invoice-blessing-note p {
+            font-size: 11px;
+            line-height: 1.5;
+            color: #64748B;
+            margin: 0 0 16px 0;
+          }
+          .signatory-box {
+            display: inline-block;
+            border-top: 1px solid #CBD5E1;
+            padding-top: 4px;
+          }
+          .sign-line {
+            font-family: 'Cinzel', Georgia, serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #D4AF37;
+          }
+          .sign-sub {
+            font-size: 9px;
+            color: #94A3B8;
+            letter-spacing: 0.08em;
+          }
+          .invoice-summary-calc {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+          .calc-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #475569;
+          }
+          .calc-row.total-highlight {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0F172A;
+            border-top: 2px solid #0F172A;
+            padding-top: 8px;
+            margin-top: 4px;
+          }
+          .grand-val {
+            color: #B45309;
+          }
+          .free-shipping-tag {
+            color: #10B981;
+            font-weight: 700;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="royal-invoice-wrapper">
+          ${invoiceEl.innerHTML}
+        </div>
+      </body>
+      </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, 400);
   }
 
   renderCheckoutSummary() {
