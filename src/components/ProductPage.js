@@ -54,6 +54,7 @@ export class ProductPage {
       if (this.activeProductId) {
         this.renderProductDetail(this.activeProductId);
       } else {
+        this.updateCategoriesUI();
         this.renderCatalogList();
       }
     });
@@ -329,6 +330,108 @@ export class ProductPage {
     this.renderCatalogList();
     this.bindListingEvents();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updateCategoriesUI() {
+    const mainContent = this.container.querySelector('#ecom-main-content');
+    if (!mainContent || this.activeProductId) return;
+
+    const activeCategories = productStore.getActiveCategories();
+
+    // 1. Update Mobile Chips Rail
+    const chipsTrack = mainContent.querySelector('#mobile-chips-track');
+    if (chipsTrack) {
+      chipsTrack.innerHTML = `
+        <button class="m-chip ${this.selectedCategory === 'all' && this.priceFilter === 'all' && !this.discountFilter50 && !this.stockOnly ? 'active' : ''}" data-chip="all">
+          <span class="m-chip-icon">🏷️</span>
+          <span>All</span>
+        </button>
+        <button class="m-chip ${this.discountFilter50 ? 'active' : ''}" data-chip="discount50">
+          <span class="m-chip-icon">🈹</span>
+          <span>50% or more</span>
+        </button>
+        ${activeCategories.map(cat => `
+          <button class="m-chip ${this.selectedCategory === cat.key ? 'active' : ''}" data-chip="${cat.key}">
+            <span class="m-chip-icon">✨</span>
+            <span>${cat.name}</span>
+          </button>
+        `).join('')}
+        <button class="m-chip ${this.priceFilter === 'under2000' ? 'active' : ''}" data-chip="under2000">
+          <span class="m-chip-icon">⚡</span>
+          <span>Under ₹2000</span>
+        </button>
+        <button class="m-chip ${this.ratingFilter >= 4.5 ? 'active' : ''}" data-chip="rating45">
+          <span class="m-chip-icon">★</span>
+          <span>4.5 & up</span>
+        </button>
+        <button class="m-chip ${this.stockOnly ? 'active' : ''}" data-chip="stock">
+          <span class="m-chip-icon">📦</span>
+          <span>In Stock</span>
+        </button>
+      `;
+
+      chipsTrack.querySelectorAll('.m-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const type = chip.getAttribute('data-chip');
+          if (type === 'all') {
+            this.selectedCategory = 'all';
+            this.priceFilter = 'all';
+            this.ratingFilter = 0;
+            this.discountFilter50 = false;
+            this.stockOnly = false;
+          } else if (type === 'discount50') {
+            this.discountFilter50 = !this.discountFilter50;
+          } else if (type === 'under2000') {
+            this.priceFilter = this.priceFilter === 'under2000' ? 'all' : 'under2000';
+          } else if (type === 'rating45') {
+            this.ratingFilter = this.ratingFilter >= 4.5 ? 0 : 4.5;
+          } else if (type === 'stock') {
+            this.stockOnly = !this.stockOnly;
+          } else {
+            this.selectedCategory = this.selectedCategory === type ? 'all' : type;
+          }
+          this.updateCategoriesUI();
+          this.renderCatalogList();
+        });
+      });
+    }
+
+    // 2. Update Desktop Sidebar Category Radios
+    const sidebarCatList = mainContent.querySelector('.ecom-filter-sidebar .filter-list');
+    if (sidebarCatList) {
+      sidebarCatList.innerHTML = `
+        <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="all" ${this.selectedCategory === 'all' ? 'checked' : ''} /> <span>All Categories</span></label></li>
+        ${activeCategories.length === 0 ? `
+          <li style="padding: 6px 0; font-size: 12px; color: #888;">No active categories yet</li>
+        ` : activeCategories.map(cat => `
+          <li><label class="filter-radio"><input type="radio" name="ecom-cat" value="${cat.key}" ${this.selectedCategory === cat.key ? 'checked' : ''} /> <span>${cat.name} (${cat.count})</span></label></li>
+        `).join('')}
+      `;
+      sidebarCatList.querySelectorAll('input[name="ecom-cat"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          this.selectedCategory = e.target.value;
+          this.updateCategoriesUI();
+          this.renderCatalogList();
+        });
+      });
+    }
+
+    // 3. Update Mobile Bottom Sheet Category Pills
+    const sheetCatGrid = mainContent.querySelector('#m-filter-category-pills');
+    if (sheetCatGrid) {
+      sheetCatGrid.innerHTML = `
+        <label class="sheet-pill-label">
+          <input type="radio" name="m-filter-cat" value="all" ${this.selectedCategory === 'all' ? 'checked' : ''} />
+          <span>All</span>
+        </label>
+        ${activeCategories.map(cat => `
+          <label class="sheet-pill-label">
+            <input type="radio" name="m-filter-cat" value="${cat.key}" ${this.selectedCategory === cat.key ? 'checked' : ''} />
+            <span>${cat.name}</span>
+          </label>
+        `).join('')}
+      `;
+    }
   }
 
   renderCatalogList() {

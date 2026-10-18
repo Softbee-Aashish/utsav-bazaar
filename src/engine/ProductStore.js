@@ -76,10 +76,18 @@ export class ProductStore {
       }
     } catch (e) {}
 
-    // 3. Load Google Sheet URL
+    // 3. Load Google Sheet URL & auto background sync
     try {
       const savedUrl = localStorage.getItem(STORAGE_KEYS.GOOGLE_SHEET_URL);
-      if (savedUrl) this.googleSheetUrl = savedUrl;
+      if (savedUrl) {
+        this.googleSheetUrl = savedUrl;
+        // Background sync on boot so edits in Google Sheet reflect immediately
+        setTimeout(() => {
+          this.syncFromGoogleSheet(savedUrl).catch(err => {
+            console.warn("Auto Google Sheet background sync note:", err.message);
+          });
+        }, 500);
+      }
     } catch (e) {}
 
     // 4. Load Customer Reviews & Ratings
@@ -472,20 +480,20 @@ export class ProductStore {
 
   saveDiscountBarToStorage() {
     try {
-      localStorage.setItem(STORAGE_KEYS.DISCOUNT_BAR, JSON.stringify(this.discountSettings));
+      if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEYS.DISCOUNT_BAR, JSON.stringify(this.discountSettings));
     } catch (e) {}
-    window.dispatchEvent(new CustomEvent('discount-bar-updated', { detail: this.discountSettings }));
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('discount-bar-updated', { detail: this.discountSettings }));
   }
 
   saveReviewsToStorage() {
     try {
-      localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(this.reviews));
+      if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(this.reviews));
     } catch (e) {}
-    window.dispatchEvent(new CustomEvent('reviews-updated'));
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('reviews-updated'));
   }
 
   notifyUpdate() {
-    window.dispatchEvent(new CustomEvent('products-updated', { detail: { products: this.products } }));
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('products-updated', { detail: { products: this.products } }));
   }
 
   getProducts() {
@@ -677,19 +685,24 @@ export class ProductStore {
       const lines = this.parseCSVLines(csvText);
       if (lines.length < 2) throw new Error("CSV file must contain at least a header and 1 row.");
 
-      const headers = lines[0].map(h => h.trim().toLowerCase());
-      const idIdx = headers.indexOf("id");
-      const nameIdx = headers.indexOf("name");
+      const rawHeaders = lines[0].map(h => (h || '').trim());
+      const headers = rawHeaders.map(h => h.toLowerCase().replace(/[\s_-]+/g, ''));
+      
+      const idIdx = headers.indexOf("id") !== -1 ? headers.indexOf("id") : headers.indexOf("productid");
+      const nameIdx = headers.indexOf("name") !== -1 ? headers.indexOf("name") : headers.indexOf("productname");
       const catIdx = headers.indexOf("category");
-      const priceIdx = headers.indexOf("priceinr");
-      const origPriceIdx = headers.indexOf("originalpriceinr");
-      const discIdx = headers.indexOf("discountpercent");
-      const imgIdx = headers.indexOf("imageurl");
+      const priceIdx = headers.indexOf("priceinr") !== -1 ? headers.indexOf("priceinr") : (headers.indexOf("price") !== -1 ? headers.indexOf("price") : headers.indexOf("saleprice"));
+      const origPriceIdx = headers.indexOf("originalpriceinr") !== -1 ? headers.indexOf("originalpriceinr") : (headers.indexOf("originalprice") !== -1 ? headers.indexOf("originalprice") : headers.indexOf("mrp"));
+      const discIdx = headers.indexOf("discountpercent") !== -1 ? headers.indexOf("discountpercent") : headers.indexOf("discount");
+      const imgIdx = headers.indexOf("imageurl") !== -1 ? headers.indexOf("imageurl") : (headers.indexOf("image") !== -1 ? headers.indexOf("image") : headers.indexOf("img"));
       const originIdx = headers.indexOf("origin");
       const badgeIdx = headers.indexOf("badge");
       const tagIdx = headers.indexOf("tagline");
-      const descIdx = headers.indexOf("description");
-      const stockIdx = headers.indexOf("instock");
+      const descIdx = headers.indexOf("description") !== -1 ? headers.indexOf("description") : headers.indexOf("desc");
+      const stockIdx = headers.indexOf("instock") !== -1 ? headers.indexOf("instock") : headers.indexOf("stock");
+      const stockQtyIdx = headers.indexOf("stockqty") !== -1 ? headers.indexOf("stockqty") : headers.indexOf("quantity");
+      const festIdx = headers.indexOf("festival");
+      const festTagIdx = headers.indexOf("festivaltag");
 
       if (nameIdx === -1 || priceIdx === -1) {
         throw new Error("CSV must include at least 'Name' and 'PriceINR' columns.");
@@ -705,20 +718,23 @@ export class ProductStore {
         if (!name) continue;
 
         const id = (idIdx !== -1 && row[idIdx]) ? row[idIdx].trim() : `ub-${100 + i}`;
-        const category = (catIdx !== -1 && row[catIdx]) ? row[catIdx].trim().toLowerCase() : 'fireworks';
+        const category = (catIdx !== -1 && row[catIdx]) ? row[catIdx].trim().toLowerCase() : 'decor';
         const priceINR = parseFloat(row[priceIdx]) || 999;
         const originalPriceINR = (origPriceIdx !== -1 && parseFloat(row[origPriceIdx])) || Math.round(priceINR * 1.25);
         const discountPercent = (discIdx !== -1 && parseFloat(row[discIdx])) || Math.round(((originalPriceINR - priceINR) / originalPriceINR) * 100);
         const imageUrl = (imgIdx !== -1 && row[imgIdx]) ? row[imgIdx].trim() : '';
         const origin = (originIdx !== -1 && row[originIdx]) ? row[originIdx].trim() : 'India';
-        const badge = (badgeIdx !== -1 && row[badgeIdx]) ? row[badgeIdx].trim() : 'Diwali Special';
-        const tagline = (tagIdx !== -1 && row[tagIdx]) ? row[tagIdx].trim() : 'Handcrafted Festive Essential';
-        const description = (descIdx !== -1 && row[descIdx]) ? row[descIdx].trim() : 'Blessed festive offering.';
+        const badge = (badgeIdx !== -1 && row[badgeIdx]) ? row[badgeIdx].trim() : 'Bestseller';
+        const tagline = (tagIdx !== -1 && row[tagIdx]) ? row[tagIdx].trim() : 'Handcrafted Artisan Essential';
+        const description = (descIdx !== -1 && row[descIdx]) ? row[descIdx].trim() : 'Premium quality handcrafted offering.';
         const inStock = stockIdx !== -1 ? (row[stockIdx].trim().toUpperCase() !== 'FALSE') : true;
+        const stockQty = (stockQtyIdx !== -1 && parseInt(row[stockQtyIdx])) || (inStock ? 50 : 0);
+        const festival = (festIdx !== -1 && row[festIdx]) ? row[festIdx].trim().toLowerCase() : 'festive';
+        const festivalTag = (festTagIdx !== -1 && row[festTagIdx]) ? row[festTagIdx].trim() : '✨ Handcrafted Offering';
 
         // Preserve existing icon or fallback
         const existing = this.getProductById(id);
-        const svgIcon = existing ? existing.svgIcon : (category === 'diyas' ? 'diya' : 'decor');
+        const svgIcon = existing ? existing.svgIcon : (category === 'diyas' ? 'diya' : (['statnery', 'stationery'].includes(category) ? 'box' : 'decor'));
         const accentColor = existing ? existing.accentColor : '#D4AF37';
 
         importedProducts.push({
@@ -735,9 +751,12 @@ export class ProductStore {
           origin,
           badge,
           inStock,
+          stockQty,
           imageUrl,
           tagline,
           description,
+          festival,
+          festivalTag,
           features: existing ? existing.features : ["Handcrafted by master Indian artisans", "Blessed festive packaging"],
           accentColor,
           svgIcon
@@ -758,15 +777,35 @@ export class ProductStore {
   }
 
   async syncFromGoogleSheet(url) {
-    const targetUrl = url || this.googleSheetUrl;
+    let targetUrl = (url || this.googleSheetUrl || '').trim();
     if (!targetUrl) throw new Error("No Google Sheet Published CSV URL provided.");
+
+    // Support automatic conversion from standard Google Sheet edit link:
+    // e.g. https://docs.google.com/spreadsheets/d/1XwY.../edit#gid=0 -> https://docs.google.com/spreadsheets/d/1XwY.../export?format=csv
+    const match = targetUrl.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) {
+      const sheetId = match[1];
+      if (!targetUrl.includes('export?format=csv') && !targetUrl.includes('pub?output=csv')) {
+        targetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+      }
+    }
 
     this.googleSheetUrl = targetUrl;
     localStorage.setItem(STORAGE_KEYS.GOOGLE_SHEET_URL, targetUrl);
 
-    // Fetch the published CSV directly
-    const res = await fetch(targetUrl);
-    if (!res.ok) throw new Error(`Failed to fetch from Google Sheet (HTTP ${res.status}). Verify sheet is Published to Web as CSV.`);
+    // Cache-busting timestamp parameter to prevent stale 5-minute CDN caches
+    const sep = targetUrl.includes('?') ? '&' : '?';
+    const fetchUrl = `${targetUrl}${sep}_t=${Date.now()}`;
+
+    const res = await fetch(fetchUrl, {
+      cache: 'no-store',
+      headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch from Google Sheet (HTTP ${res.status}). Verify sheet is Published to Web as CSV or link sharing is set to 'Anyone with the link can view'.`);
+    }
+
     const csvData = await res.text();
     return this.importFromCSV(csvData);
   }
@@ -826,7 +865,9 @@ export class ProductStore {
   }
 
   getCategoryDisplayName(cat) {
-    switch (cat) {
+    if (!cat) return 'All Offerings';
+    const clean = cat.trim().toLowerCase();
+    switch (clean) {
       case 'diyas': return 'Royal Diyas & Brass';
       case 'apparel': return 'Royal Silk & Attire';
       case 'torans': return 'Torans & Wall Hangings';
@@ -834,7 +875,10 @@ export class ProductStore {
       case 'hampers': return 'Festive Hampers';
       case 'lanterns': return 'Lanterns & Decor';
       case 'heirlooms': return 'Artisanal Heirlooms';
-      default: return 'Festive Home Decor';
+      case 'statnery':
+      case 'stationery': return 'Stationery & Writing';
+      default:
+        return clean.split(/[-_ ]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     }
   }
 

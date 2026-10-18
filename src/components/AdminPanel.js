@@ -705,8 +705,9 @@ export class AdminPanel {
                   <h3>Read-Only Google Sheet Published CSV</h3>
                 </div>
                 <div class="form-group">
-                  <label>Published CSV Link</label>
-                  <input type="url" id="gsheet-url-input" class="admin-input" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv" />
+                  <label>Google Sheet URL (Supports standard sheet link or published CSV link)</label>
+                  <input type="url" id="gsheet-url-input" class="admin-input" placeholder="https://docs.google.com/spreadsheets/d/.../edit or /pub?output=csv" />
+                  <small style="color: #94A3B8; font-size: 11px; margin-top: 4px; display: block;">💡 Note: Ensure your Google Sheet is shared with "Anyone with the link" or published to web.</small>
                 </div>
 
                 <div class="gsheet-actions-row">

@@ -15,6 +15,12 @@ export class ShopSection {
   }
 
   render() {
+    const products = productStore.getProducts();
+    const featured = products[0] || null;
+    const featuredId = featured ? featured.id : 'ub-001';
+    const featuredTitle = featured ? featured.name : 'Royal Handcrafted Auspicious Collection';
+    const featuredDesc = featured ? (featured.tagline || featured.description || 'Handcrafted festive masterwork.') : 'The quintessential centerpiece for festive decor, pooja sanctuaries, and family celebrations.';
+
     this.container.innerHTML = `
       <section class="bazaar-storefront" id="bazaar-storefront">
         <!-- Festive Marketplace Header & Home Decor Pavilion Intro -->
@@ -36,13 +42,13 @@ export class ShopSection {
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h16M4 14h16M6 6h12l-1 12H7L6 6zM9 2h6v4H9V2z"/></svg>
               </div>
               <div style="text-align: left;">
-                <div style="font-size: 11px; letter-spacing: 0.15em; color: #FFDF73; font-weight: 700; text-transform: uppercase;">Featured Masterpiece • राजसी सजावट</div>
-                <div style="font-family: var(--font-serif-royal); font-size: 18px; color: #FFF; font-weight: 600;">Royal Hand-Hammered Brass Lotus Urli & Floating Diya Set</div>
-                <div style="font-size: 13px; color: #CBD5E1; margin-top: 2px;">The quintessential centerpiece for courtyard and living room rangolis, with floating brass petal diyas.</div>
+                <div style="font-size: 11px; letter-spacing: 0.15em; color: #FFDF73; font-weight: 700; text-transform: uppercase;">Featured Masterpiece • राजसी कला</div>
+                <div style="font-family: var(--font-serif-royal); font-size: 18px; color: #FFF; font-weight: 600;">${featuredTitle}</div>
+                <div style="font-size: 13px; color: #CBD5E1; margin-top: 2px;">${featuredDesc}</div>
               </div>
             </div>
-            <button class="cta-gold-btn" data-action="quickview" data-id="ub-006" style="padding: 10px 20px; font-size: 12px; cursor: pointer;">
-              <span>View Decor Masterpiece</span>
+            <button class="cta-gold-btn" data-action="quickview" data-id="${featuredId}" style="padding: 10px 20px; font-size: 12px; cursor: pointer;">
+              <span>Explore Masterpiece</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </button>
           </div>
